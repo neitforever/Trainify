@@ -72,6 +72,8 @@ dependencies {
     implementation(libs.androidx.datastore.core.android)
     implementation(libs.screenshot.validation.junit.engine)
     implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.foundation.android)
     ksp(libs.androidx.room.compiler)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

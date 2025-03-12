@@ -273,20 +273,69 @@ class WorkoutViewModel(
         viewModelScope.launch {
             workoutRepository.delete(workout)
             loadWorkouts()
-            _currentWorkout.value = null // Сбрасываем текущую тренировку
+            _currentWorkout.value = null
         }
 
     }
 
 
-    // Добавление упражнения
     fun addExercise(exercise: ExtendedExercise) {
+        val currentSize = _selectedExercises.value.size
         _selectedExercises.value = _selectedExercises.value + exercise
+
+        val updatedMap = _exerciseSetsMap.value.toMutableMap()
+        updatedMap[currentSize] = listOf(ExerciseSet(rep = 0, weigth = 0f))
+        _exerciseSetsMap.value = updatedMap
     }
 
-    // Удаление упражнения
-    fun removeExercise(index: Int) {
-        _selectedExercises.value = _selectedExercises.value.toMutableList().also { it.removeAt(index) }
+    fun updateRep(exerciseIndex: Int, setIndex: Int, newRep: Int) {
+        val updatedMap = _exerciseSetsMap.value.toMutableMap()
+        val sets = updatedMap[exerciseIndex]?.toMutableList() ?: return
+        if (setIndex < sets.size) {
+            sets[setIndex] = sets[setIndex].copy(rep = newRep)
+            updatedMap[exerciseIndex] = sets
+            _exerciseSetsMap.value = updatedMap
+        }
+    }
+
+
+    fun updateWeight(exerciseIndex: Int, setIndex: Int, newWeight: Float) {
+        val updatedMap = _exerciseSetsMap.value.toMutableMap()
+        val sets = updatedMap[exerciseIndex]?.toMutableList() ?: return
+        if (setIndex < sets.size) {
+            sets[setIndex] = sets[setIndex].copy(weigth = newWeight)
+            updatedMap[exerciseIndex] = sets
+            _exerciseSetsMap.value = updatedMap
+        }
+    }
+
+
+    fun removeExercise(exerciseIndex: Int) {
+        val updatedExercises = _selectedExercises.value.toMutableList().apply {
+            removeAt(exerciseIndex)
+        }
+
+        val updatedMap = _exerciseSetsMap.value
+            .toMutableMap()
+            .filterKeys { it != exerciseIndex }
+            .mapKeys { (key, _) ->
+                if (key > exerciseIndex) key - 1 else key
+            }
+
+
+        _selectedExercises.value = updatedExercises
+        _exerciseSetsMap.value = updatedMap
+    }
+
+    fun removeExerciseSet(exerciseIndex: Int, setIndex: Int) {
+        val updatedMap = _exerciseSetsMap.value.toMutableMap()
+        updatedMap[exerciseIndex]?.let { sets ->
+            val newSets = sets.toMutableList().apply {
+                if (setIndex in indices) removeAt(setIndex)
+            }
+            updatedMap[exerciseIndex] = newSets
+        }
+        _exerciseSetsMap.value = updatedMap
     }
 
     // Добавление подхода к упражнению
@@ -298,17 +347,6 @@ class WorkoutViewModel(
         _exerciseSetsMap.value = updatedMap
     }
 
-    // Удаление подхода
-    fun removeExerciseSet(exerciseId: Int, index: Int) {
-        val updatedMap = _exerciseSetsMap.value.toMutableMap()
-        updatedMap[exerciseId]?.toMutableList()?.let { sets ->
-            if (index in sets.indices) {
-                sets.removeAt(index)
-                updatedMap[exerciseId] = sets
-            }
-        }
-        _exerciseSetsMap.value = updatedMap
-    }
 }
 
 class WorkoutViewModelFactory(

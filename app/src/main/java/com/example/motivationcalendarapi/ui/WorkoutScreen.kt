@@ -2,6 +2,8 @@ package com.motivationcalendar.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CutCornerShape
@@ -35,6 +37,7 @@ import com.example.motivationcalendarapi.ui.utils.dialogs.EndWorkoutDialog
 import com.example.motivationcalendarapi.ui.utils.ExerciseSelectionBottomSheet
 import com.example.motivationcalendarapi.ui.utils.WorkoutNameTextField
 import com.example.motivationcalendarapi.ui.utils.dialogs.ExistWorkoutDialog
+import com.example.motivationcalendarapi.ui.utils.dialogs.WeightDialog
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +55,11 @@ fun AddWorkoutScreen(
     val workoutName by workoutViewModel.workoutName.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    var showRepDialog by remember { mutableStateOf(false) }
+    var showWeightDialog by remember { mutableStateOf(false) }
+    var currentExerciseIndex by remember { mutableStateOf(0) }
+    var currentSetIndex by remember { mutableStateOf(0) }
+
     val currentWeek = getWeekOfMonth(System.currentTimeMillis())
     val workoutsThisWeek = workouts.count { workout ->
         getWeekOfMonth(workout.timestamp) == currentWeek
@@ -66,7 +74,6 @@ fun AddWorkoutScreen(
     val exerciseSetsMap by workoutViewModel.exerciseSetsMap.collectAsState()
 
     val showSetDialog = remember { mutableStateOf(false) }
-    val currentExerciseIndex = remember { mutableStateOf(-1) }
     val newSet = remember { mutableStateOf(ExerciseSet(rep = 0, weigth = 0f)) }
 
     val showOverwriteDialog by workoutViewModel.showOverwriteDialog.collectAsState()
@@ -115,38 +122,39 @@ fun AddWorkoutScreen(
         )
     },
         floatingActionButton = {
-        if (isWorkoutStarted) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier.navigationBarsPadding()
-            ) {
-                FloatingActionButton(
-                    onClick = {
-                        showPauseDialog.value = true
-                        if (timerRunning) workoutViewModel.pauseTimer()
-                        else workoutViewModel.resumeTimer()
-                    },
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(64.dp)
+            if (isWorkoutStarted) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier.navigationBarsPadding()
                 ) {
-                    Icon(
-                        painter = if (timerRunning) painterResource(id = R.drawable.ic_pause)
-                        else painterResource(id = R.drawable.ic_play_arrow),
-                        contentDescription = if (timerRunning) "Pause" else "Repeat",
-                        modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                    FloatingActionButton(
+                        onClick = {
+                            showPauseDialog.value = true
+                            if (timerRunning) workoutViewModel.pauseTimer()
+                            else workoutViewModel.resumeTimer()
+                        },
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(64.dp)
+                    ) {
+                        Icon(
+                            painter = if (timerRunning) painterResource(id = R.drawable.ic_pause)
+                            else painterResource(id = R.drawable.ic_play_arrow),
+                            contentDescription = if (timerRunning) "Pause" else "Repeat",
+                            modifier = Modifier.size(36.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
 
-                FloatingActionButton(
-                    onClick = {
-                        showEndWorkoutDialog.value = true
-                    },
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onError,
-                    modifier = Modifier.size(64.dp))
+                    FloatingActionButton(
+                        onClick = {
+                            showEndWorkoutDialog.value = true
+                        },
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                        modifier = Modifier.size(64.dp)
+                    )
                     {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_stop),
@@ -155,109 +163,165 @@ fun AddWorkoutScreen(
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-            }
-        }
-    }) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier
-                    .padding(
-                        top = paddingValues.calculateTopPadding() + 12.dp, start = 8.dp, end = 8.dp
-                    )
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                if (isWorkoutStarted) {
-                    WorkoutNameTextField(
-                        workoutName = workoutName, onValueChange = { newName ->
-                            if (newName.length <= 20) {
-                                workoutViewModel.setWorkoutName(newName)
-                            }
-                        }, keyboardController = keyboardController
-                    )
-
-                    AddExerciseAndTimeRow(
-                        onAddExerciseClick = { isSheetOpen.value = true }, timerValue = timerValue
-                    )
-
-                    ExerciseSelectionBottomSheet(
-                        isSheetOpen = isSheetOpen,
-                        sheetState = sheetState,
-                        exerciseViewModel = exersiceViewModel,
-                        workoutViewModel = workoutViewModel
-                    )
-
-                    selectedExercises.forEachIndexed { index, exercise ->
-                        val exerciseSets = exerciseSetsMap[index] ?: emptyList()
-                        ExerciseCard(index = index,
-                            exercise = exercise,
-                            exerciseSets = exerciseSets,
-                            onAddSetClick = { exIndex ->
-                                currentExerciseIndex.value = exIndex
-                                newSet.value = ExerciseSet(rep = 0, weigth = 0f)
-                                showSetDialog.value = true
-                            })
-                    }
-
-                } else {
-
-
-                    Button(
-                        onClick = { workoutViewModel.checkForExistingWorkout() },
-                        border = BorderStroke(
-                            width = 2.dp, MaterialTheme.colorScheme.secondary
-                        ),
-                        modifier = Modifier.fillMaxWidth(),
+                }
+            } else {
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier.navigationBarsPadding()
+                ) {
+                    FloatingActionButton(
+                        onClick = {
+                            workoutViewModel.checkForExistingWorkout()
+                        },
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(64.dp)
                     ) {
-                        Text(
-                            text = "Start Workout",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.headlineMedium,
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_play_arrow),
+                            contentDescription = "Start",
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
+                }
+            }
+        }) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            top = paddingValues.calculateTopPadding() + 12.dp,
+                            start = 8.dp,
+                            end = 8.dp
+                        )
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    if (isWorkoutStarted) {
+                        WorkoutNameTextField(
+                            workoutName = workoutName, onValueChange = { newName ->
+                                if (newName.length <= 20) {
+                                    workoutViewModel.setWorkoutName(newName)
+                                }
+                            }, keyboardController = keyboardController
+                        )
+
+                        AddExerciseAndTimeRow(
+                            onAddExerciseClick = { isSheetOpen.value = true },
+                            timerValue = timerValue
+                        )
+
+                        ExerciseSelectionBottomSheet(
+                            isSheetOpen = isSheetOpen,
+                            sheetState = sheetState,
+                            exerciseViewModel = exersiceViewModel,
+                            workoutViewModel = workoutViewModel
+                        )
+
+                        selectedExercises.forEachIndexed { index, exercise ->
+                            ExerciseCard(
+                                index = index,
+                                exercise = exercise,
+                                exerciseSets = exerciseSetsMap[index] ?: emptyList(),
+                                onAddSetClick = { exIndex ->
+                                    workoutViewModel.addExerciseSet(exIndex, ExerciseSet(0, 0f))
+                                },
+                                onRepClick = { exIndex, setIndex ->
+                                    currentExerciseIndex = exIndex
+                                    currentSetIndex = setIndex
+                                    showRepDialog = true
+                                },
+                                onWeightClick = { exIndex, setIndex ->
+                                    currentExerciseIndex = exIndex
+                                    currentSetIndex = setIndex
+                                    showWeightDialog = true
+                                },
+                                workoutViewModel = workoutViewModel,
+                                navController = navController
+                            )
+                        }
+
+                    } else {
+
+
+//                        Button(
+//                            onClick = { workoutViewModel.checkForExistingWorkout() },
+//                            border = BorderStroke(
+//                                width = 2.dp, MaterialTheme.colorScheme.secondary
+//                            ),
+//                            modifier = Modifier.fillMaxWidth(),
+//                        ) {
+//                            Text(
+//                                text = "Start Workout",
+//                                color = MaterialTheme.colorScheme.onPrimary,
+//                                style = MaterialTheme.typography.headlineMedium,
+//                            )
+//                        }
+
+                    }
 
                 }
 
             }
+
+
+
+            ExistWorkoutDialog(
+                showDialog = showOverwriteDialog,
+                onDismiss = { workoutViewModel.dismissOverwriteDialog() },
+                onConfirm = { workoutViewModel.confirmOverwrite() }
+            )
+
+            PauseWorkoutDialog(
+                showDialog = showPauseDialog.value,
+                onDismiss = { showPauseDialog.value = false },
+                isPaused = isWorkoutPaused.value
+            )
+
+            EndWorkoutDialog(
+                showDialog = showEndWorkoutDialog.value,
+                onDismiss = { showEndWorkoutDialog.value = false },
+                onConfirm = {
+                    val updatedExercises = selectedExercises.mapIndexed { index, ex ->
+                        ex.copy(sets = exerciseSetsMap[index] ?: emptyList())
+                    }
+                    workoutViewModel.saveWorkout(updatedExercises)
+                    workoutViewModel.resetWorkout()
+                    showEndWorkoutDialog.value = false
+                }
+            )
+
+            RepsDialog(
+                showDialog = showRepDialog,
+                initialRep = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.rep ?: 0,
+                onDismiss = { showRepDialog = false },
+                onSave = { newRep ->
+                    workoutViewModel.updateRep(currentExerciseIndex, currentSetIndex, newRep)
+                    showRepDialog = false
+                }
+            )
+
+            WeightDialog(
+                showDialog = showWeightDialog,
+                initialWeight = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.weigth
+                    ?: 0f,
+                onDismiss = { showWeightDialog = false },
+                onSave = { newWeight ->
+                    workoutViewModel.updateWeight(currentExerciseIndex, currentSetIndex, newWeight)
+                    showWeightDialog = false
+                }
+            )
+
+
         }
-
-
-
-        ExistWorkoutDialog(
-            showDialog = showOverwriteDialog,
-            onDismiss = { workoutViewModel.dismissOverwriteDialog() },
-            onConfirm = { workoutViewModel.confirmOverwrite() }
-        )
-
-        PauseWorkoutDialog(
-            showDialog = showPauseDialog.value,
-            onDismiss = { showPauseDialog.value = false },
-            isPaused = isWorkoutPaused.value
-        )
-
-        EndWorkoutDialog(
-            showDialog = showEndWorkoutDialog.value,
-            onDismiss = { showEndWorkoutDialog.value = false },
-            onConfirm = {
-                val updatedExercises = selectedExercises.mapIndexed { index, ex ->
-                    ex.copy(sets = exerciseSetsMap[index] ?: emptyList())
-                }
-                workoutViewModel.saveWorkout(updatedExercises)
-                workoutViewModel.resetWorkout()
-                showEndWorkoutDialog.value = false
-            }
-        )
-
-        AddSetDialog(
-            showDialog = showSetDialog.value,
-            onDismiss = { showSetDialog.value = false },
-            newSet = newSet,
-            onAddSet = {
-                val exerciseIndex = currentExerciseIndex.value
-                workoutViewModel.addExerciseSet(exerciseIndex, newSet.value)
-                showSetDialog.value = false
-            }
-        )
-
     }
 }

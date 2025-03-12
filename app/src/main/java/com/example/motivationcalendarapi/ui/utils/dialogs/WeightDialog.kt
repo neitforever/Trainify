@@ -1,10 +1,14 @@
-package com.motivationcalendar.ui
+package com.example.motivationcalendarapi.ui.utils.dialogs
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -13,22 +17,24 @@ import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.model.ExerciseSet
 
 @Composable
-fun AddSetDialog(
+fun WeightDialog(
     showDialog: Boolean,
+    initialWeight: Float,
     onDismiss: () -> Unit,
-    newSet: MutableState<ExerciseSet>,
-    onAddSet: () -> Unit
+    onSave: (Float) -> Unit
 ) {
     if (showDialog) {
+        var weight by remember { mutableStateOf(initialWeight) }
+
         AlertDialog(
             onDismissRequest = onDismiss,
             title = {
                 Text(
-                    text = "Add Set",
+                    text = "Edit Weight",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.titleLarge,
                 )
             },
             text = {
@@ -36,16 +42,15 @@ fun AddSetDialog(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    RepsRow(newSet)
-                    WeightRow(newSet)
+                    WeightRow(value = weight, onValueChange = { weight = it })
                 }
             },
             confirmButton = {
-                TextButton(onClick = onAddSet) {
+                TextButton(onClick = { onSave(weight) }) {
                     Text(
-                        text = "Add",
+                        text = "Save",
                         color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.titleMedium,
                     )
                 }
             },
@@ -54,7 +59,7 @@ fun AddSetDialog(
                     Text(
                         text = "Cancel",
                         color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.titleMedium,
                     )
                 }
             },
@@ -64,58 +69,26 @@ fun AddSetDialog(
 }
 
 @Composable
-private fun RepsRow(newSet: MutableState<ExerciseSet>) {
+private fun WeightRow(
+    value: Float,
+    onValueChange: (Float) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth()
     ) {
         TextButton(onClick = {
-            newSet.value = newSet.value.copy(
-                rep = (newSet.value.rep - 4).coerceAtLeast(0))
-        }) {
-            Text("-4", style = MaterialTheme.typography.bodyMedium)
-        }
-
-        OutlinedTextField(
-            value = newSet.value.rep.toString(),
-            onValueChange = { input ->
-                val reps = input.toIntOrNull() ?: 0
-                newSet.value = newSet.value.copy(rep = reps.coerceIn(0, 32))
-            },
-            label = { Text("Reps", style = MaterialTheme.typography.titleMedium) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.width(120.dp)
-        )
-
-        TextButton(onClick = {
-            newSet.value = newSet.value.copy(
-                rep = (newSet.value.rep + 4).coerceAtMost(32))
-        }) {
-            Text("+4", style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}
-
-@Composable
-private fun WeightRow(newSet: MutableState<ExerciseSet>) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        TextButton(onClick = {
-            newSet.value = newSet.value.copy(
-                weigth = (newSet.value.weigth - 5f).coerceAtLeast(0f))
+            onValueChange((value - 5f).coerceAtLeast(0f))
         }) {
             Text("-5", style = MaterialTheme.typography.bodyMedium)
         }
 
         OutlinedTextField(
-            value = newSet.value.weigth.toString(),
+            value = value.toString(),
             onValueChange = { input ->
                 val weight = input.toFloatOrNull() ?: 0f
-                newSet.value = newSet.value.copy(weigth = weight.coerceIn(0f, 200f))
+                onValueChange(weight.coerceIn(0f, 200f))
             },
             label = { Text("Weight", style = MaterialTheme.typography.titleMedium) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -123,8 +96,7 @@ private fun WeightRow(newSet: MutableState<ExerciseSet>) {
         )
 
         TextButton(onClick = {
-            newSet.value = newSet.value.copy(
-                weigth = (newSet.value.weigth + 5f).coerceAtMost(200f))
+            onValueChange((value + 5f).coerceAtMost(200f))
         }) {
             Text("+5", style = MaterialTheme.typography.bodyMedium)
         }

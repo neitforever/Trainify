@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "311399588202",
+    "project_id": "trainify-bcd31",
+    "storage_bucket": "trainify-bcd31.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:311399588202:android:1ead6fec824e2f8ccc8513",
+        "android_client_info": {
+          "package_name": "com.example.motivationcalendarapi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5fUtx6kP-JYzGiWiUByIGb8qRb_WOXTE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

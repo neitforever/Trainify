@@ -1,26 +1,18 @@
 package com.example.motivationcalendarapi.ui.utils
 
-import LoadingView
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import java.util.Locale
+import com.example.motivationcalendarapi.model.Exercise
+import com.example.motivationcalendarapi.model.ExtendedExercise
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,75 +23,77 @@ fun ExerciseSelectionBottomSheet(
     workoutViewModel: WorkoutViewModel
 ) {
     if (isSheetOpen.value) {
+        val selectedExercises = remember { mutableStateListOf<Exercise>() }
+        val addedExercises by workoutViewModel.selectedExercises.collectAsState()
+
         ModalBottomSheet(
             sheetState = sheetState,
-            onDismissRequest = { isSheetOpen.value = false }
+            onDismissRequest = {
+                isSheetOpen.value = false
+                selectedExercises.clear()
+            }
         ) {
-            LaunchedEffect(Unit) {
-                exerciseViewModel.fetchAndSaveExercises()
-            }
-
-
-
-            val bodyParts by exerciseViewModel.allBodyParts.collectAsState(initial = emptyList())
-            val sortedBodyParts = remember(bodyParts) {
-                bodyParts.sortedBy { it.lowercase(Locale.getDefault()) }
-            }
-
-            val favoriteExercises by exerciseViewModel.getFavoriteExercises()
+            var searchQuery by remember { mutableStateOf("") }
+            val allSearchResults by exerciseViewModel.searchExercises(searchQuery)
                 .collectAsState(initial = emptyList())
-            val expandedBodyParts = remember { mutableStateMapOf<String, Boolean>() }
 
-            if (bodyParts.isEmpty()) {
-                LoadingView()
-            } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(sortedBodyParts) { bodyPart ->
-                        val isExpanded = expandedBodyParts[bodyPart] ?: false
-                        CollapsibleBodyPartItem(
-                            bodyPart = bodyPart,
-                            isExpanded = isExpanded,
-                            onClick = { expandedBodyParts[bodyPart] = !isExpanded }
-                        )
+            // Фильтруем результаты поиска
+            val filteredSearchResults = allSearchResults.filterNot { exercise ->
+                addedExercises.any { it.exercise.id == exercise.id }
+            }
 
-                        if (isExpanded) {
-                            val exercises by exerciseViewModel.getExercisesByBodyPart(bodyPart)
-                                .collectAsState(initial = emptyList())
+            Column {
+                SearchBar(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    modifier = Modifier.padding(16.dp)
+                )
 
-                            val (favorites, nonFavorites) = exercises.partition { exercise ->
-                                favoriteExercises.any { it.id == exercise.id }
+                when {
+                    searchQuery.isNotEmpty() -> SearchResultsList(
+                        searchQuery = searchQuery,
+                        searchResults = allSearchResults,
+                        selectedExercises = selectedExercises,
+                        addedExercises = addedExercises.map { it.exercise },
+                        onExerciseSelected = { exercise ->
+                            if (selectedExercises.any { it.id == exercise.id }) {
+                                selectedExercises.removeAll { it.id == exercise.id }
+                            } else {
+                                selectedExercises.add(exercise)
                             }
-
-                            val sortedFavorites = favorites.sortedBy { it.name }
-                            val sortedNonFavorites = nonFavorites.sortedBy { it.name }
-
-                            sortedFavorites.forEach { exercise ->
-                                ExerciseSelectionItem(
-                                    exercise = exercise,
-                                    isFavorite = true,
-                                    onItemClick = {
-                                        workoutViewModel.addExercise(
-                                            ExtendedExercise(exercise, emptyList())
-                                        )
-                                        isSheetOpen.value = false
-                                    }
+                        },
+                        onAddAll = {
+                            selectedExercises.forEach { exercise ->
+                                workoutViewModel.addExercise(
+                                    ExtendedExercise(exercise, emptyList())
                                 )
                             }
-
-                            sortedNonFavorites.forEach { exercise ->
-                                ExerciseSelectionItem(
-                                    exercise = exercise,
-                                    isFavorite = false,
-                                    onItemClick = {
-                                        workoutViewModel.addExercise(
-                                            ExtendedExercise(exercise, emptyList())
-                                        )
-                                        isSheetOpen.value = false
-                                    }
-                                )
-                            }
+                            selectedExercises.clear()
+                            isSheetOpen.value = false
                         }
-                    }
+                    )
+
+                    else -> BodyPartsList(
+                        exerciseViewModel = exerciseViewModel,
+                        selectedExercises = selectedExercises,
+                        addedExercises = addedExercises.map { it.exercise },
+                        onExerciseSelected = { exercise ->
+                            if (selectedExercises.any { it.id == exercise.id }) {
+                                selectedExercises.removeAll { it.id == exercise.id }
+                            } else {
+                                selectedExercises.add(exercise)
+                            }
+                        },
+                        onAddAll = {
+                            selectedExercises.forEach { exercise ->
+                                workoutViewModel.addExercise(
+                                    ExtendedExercise(exercise, emptyList())
+                                )
+                            }
+                            selectedExercises.clear()
+                            isSheetOpen.value = false
+                        }
+                    )
                 }
             }
         }

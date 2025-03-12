@@ -1,6 +1,7 @@
 package com.example.motivationcalendarapi.ui.utils
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,12 +31,9 @@ import com.example.motivationcalendarapi.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier
 ) {
-    BasicTextField(
-        value = query,
+    BasicTextField(value = query,
         onValueChange = onQueryChange,
         modifier = modifier
             .fillMaxWidth()
@@ -51,32 +49,39 @@ fun SearchBar(
             fontStyle = MaterialTheme.typography.titleMedium.fontStyle
         ),
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        singleLine = true,
         decorationBox = { innerTextField ->
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = null,
+                    contentDescription = "Search",
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.CenterStart
+                    modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart
                 ) {
                     if (query.isEmpty()) {
                         Text(
                             text = "Search exercises...",
                             style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        )
                     }
                     innerTextField()
                 }
+                if (query.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(painter = painterResource(id = R.drawable.ic_clear),
+                        contentDescription = "Clear search",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onQueryChange("") })
+                }
             }
-        }
-    )
+        })
 }

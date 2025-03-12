@@ -18,6 +18,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -32,30 +35,34 @@ import java.util.Locale
 fun ExerciseSelectionItem(
     exercise: Exercise,
     isFavorite: Boolean,
+    selectedOrder: Int?,
     onItemClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onItemClick)
-            .padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .size(28.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    color = if (selectedOrder != null) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.surfaceVariant,
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = exercise.name.first().uppercase(),
+                text = selectedOrder?.toString() ?: exercise.name.first().uppercase(),
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (selectedOrder != null) MaterialTheme.colorScheme.background
+                else MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.size(24.dp))
+                modifier = Modifier.size(24.dp)
+            )
         }
 
         Spacer(modifier = Modifier.width(8.dp))

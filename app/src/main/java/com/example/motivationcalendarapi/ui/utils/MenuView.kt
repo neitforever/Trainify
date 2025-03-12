@@ -50,7 +50,6 @@ fun NavigationMenuView(navController: NavController, onItemClick: () -> Unit) {
                                 inclusive = false
                             }
                         }
-                        sdfbjdsfbsdf
                         launchSingleTop = true
                         restoreState = true
                     }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -45,6 +46,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -113,6 +115,10 @@ fun AddWorkoutScreen(
     var isTimerRunning by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    var isMenuExpanded by remember { mutableStateOf(false) }
+
+
+
     var showTimerCompleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(isTimerRunning, currentTime) {
@@ -171,7 +177,6 @@ fun AddWorkoutScreen(
         )
     }, floatingActionButton = {
         if (isWorkoutStarted) {
-            var isMenuExpanded by remember { mutableStateOf(false) }
 
             Column(
                 horizontalAlignment = Alignment.End,
@@ -179,6 +184,11 @@ fun AddWorkoutScreen(
                 modifier = Modifier
                     .navigationBarsPadding()
                     .wrapContentSize(Alignment.BottomEnd)
+                    .pointerInput(Unit) {
+                        detectTapGestures {
+                            isMenuExpanded = false
+                        }
+                    }
             ) {
                 Row{
                     AnimatedVisibility(
@@ -297,6 +307,9 @@ fun AddWorkoutScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .pointerInput(Unit) {
+                    detectTapGestures { isMenuExpanded = false }
+                }
         ) {
             Box(
                 modifier = Modifier

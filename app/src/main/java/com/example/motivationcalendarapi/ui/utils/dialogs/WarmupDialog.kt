@@ -49,7 +49,7 @@ fun WarmupDialog(
                 Slider(
                     value = localWarmupTime.toFloat(), onValueChange = { newValue ->
                         localWarmupTime = newValue.toInt()
-                    }, valueRange = 0f..600f, steps = 59, colors = SliderDefaults.colors(
+                    }, valueRange = 10f..600f, steps = 58, colors = SliderDefaults.colors(
                         activeTickColor = Color.Transparent,
                         inactiveTickColor = Color.Transparent
                     ), modifier = Modifier

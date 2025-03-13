@@ -309,6 +309,15 @@ class WorkoutViewModel(
         }
     }
 
+    val totalKg: StateFlow<Float> = combine(selectedExercises, exerciseSetsMap) { exercises, setsMap ->
+        exercises.indices.sumOf { index ->
+            setsMap[index]?.sumOf { it.weigth.toDouble() } ?: 0.0
+        }.toFloat()
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0f
+    )
 
     fun removeExercise(exerciseIndex: Int) {
         val updatedExercises = _selectedExercises.value.toMutableList().apply {

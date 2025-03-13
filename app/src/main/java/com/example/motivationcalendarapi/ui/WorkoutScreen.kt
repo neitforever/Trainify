@@ -2,6 +2,7 @@ package com.motivationcalendar.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
@@ -32,9 +33,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.ui.utils.AddExerciseAndTimeRow
 import com.example.motivationcalendarapi.ui.utils.dialogs.EndWorkoutDialog
 import com.example.motivationcalendarapi.ui.utils.ExerciseSelectionBottomSheet
+import com.example.motivationcalendarapi.ui.utils.TimeRow
 import com.example.motivationcalendarapi.ui.utils.WorkoutNameTextField
 import com.example.motivationcalendarapi.ui.utils.dialogs.ExistWorkoutDialog
 import com.example.motivationcalendarapi.ui.utils.dialogs.WeightDialog
@@ -55,6 +56,7 @@ fun AddWorkoutScreen(
     val workoutName by workoutViewModel.workoutName.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    val totalKg by workoutViewModel.totalKg.collectAsState()
     var showRepDialog by remember { mutableStateOf(false) }
     var showWeightDialog by remember { mutableStateOf(false) }
     var currentExerciseIndex by remember { mutableStateOf(0) }
@@ -120,73 +122,71 @@ fun AddWorkoutScreen(
             shape = CutCornerShape(4.dp)
         )
         )
-    },
-        floatingActionButton = {
-            if (isWorkoutStarted) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier.navigationBarsPadding()
+    }, floatingActionButton = {
+        if (isWorkoutStarted) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier.navigationBarsPadding()
+            ) {
+                FloatingActionButton(
+                    onClick = {
+                        showPauseDialog.value = true
+                        if (timerRunning) workoutViewModel.pauseTimer()
+                        else workoutViewModel.resumeTimer()
+                    },
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(64.dp)
                 ) {
-                    FloatingActionButton(
-                        onClick = {
-                            showPauseDialog.value = true
-                            if (timerRunning) workoutViewModel.pauseTimer()
-                            else workoutViewModel.resumeTimer()
-                        },
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(64.dp)
-                    ) {
-                        Icon(
-                            painter = if (timerRunning) painterResource(id = R.drawable.ic_pause)
-                            else painterResource(id = R.drawable.ic_play_arrow),
-                            contentDescription = if (timerRunning) "Pause" else "Repeat",
-                            modifier = Modifier.size(36.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
-                    FloatingActionButton(
-                        onClick = {
-                            showEndWorkoutDialog.value = true
-                        },
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = MaterialTheme.colorScheme.onError,
-                        modifier = Modifier.size(64.dp)
+                    Icon(
+                        painter = if (timerRunning) painterResource(id = R.drawable.ic_pause)
+                        else painterResource(id = R.drawable.ic_play_arrow),
+                        contentDescription = if (timerRunning) "Pause" else "Repeat",
+                        modifier = Modifier.size(36.dp),
+                        tint = MaterialTheme.colorScheme.primary
                     )
-                    {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_stop),
-                            contentDescription = "End",
-                            modifier = Modifier.size(36.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
                 }
-            } else {
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier.navigationBarsPadding()
+
+                FloatingActionButton(
+                    onClick = {
+                        showEndWorkoutDialog.value = true
+                    },
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                    modifier = Modifier.size(64.dp)
                 ) {
-                    FloatingActionButton(
-                        onClick = {
-                            workoutViewModel.checkForExistingWorkout()
-                        },
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(64.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_play_arrow),
-                            contentDescription = "Start",
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_stop),
+                        contentDescription = "End",
+                        modifier = Modifier.size(36.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
-        }) { paddingValues ->
+        } else {
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier.navigationBarsPadding()
+            ) {
+                FloatingActionButton(
+                    onClick = {
+                        workoutViewModel.checkForExistingWorkout()
+                    },
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(64.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_play_arrow),
+                        contentDescription = "Start",
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -215,9 +215,9 @@ fun AddWorkoutScreen(
                             }, keyboardController = keyboardController
                         )
 
-                        AddExerciseAndTimeRow(
-                            onAddExerciseClick = { isSheetOpen.value = true },
-                            timerValue = timerValue
+                        TimeRow(
+                            timerValue = timerValue,
+                            totalKg = totalKg
                         )
 
                         ExerciseSelectionBottomSheet(
@@ -249,7 +249,26 @@ fun AddWorkoutScreen(
                                 navController = navController
                             )
                         }
+                        Row(
+                            modifier = Modifier
+                                .clickable(onClick = {
+                                    isSheetOpen.value = true
+                                })
+                                .padding(top = 12.dp)
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
 
+
+                        ) {
+
+                            Text(
+                                text = "Add Exercises",
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        }
+                        Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp))
                     } else {
 
 
@@ -275,11 +294,9 @@ fun AddWorkoutScreen(
 
 
 
-            ExistWorkoutDialog(
-                showDialog = showOverwriteDialog,
+            ExistWorkoutDialog(showDialog = showOverwriteDialog,
                 onDismiss = { workoutViewModel.dismissOverwriteDialog() },
-                onConfirm = { workoutViewModel.confirmOverwrite() }
-            )
+                onConfirm = { workoutViewModel.confirmOverwrite() })
 
             PauseWorkoutDialog(
                 showDialog = showPauseDialog.value,
@@ -287,8 +304,7 @@ fun AddWorkoutScreen(
                 isPaused = isWorkoutPaused.value
             )
 
-            EndWorkoutDialog(
-                showDialog = showEndWorkoutDialog.value,
+            EndWorkoutDialog(showDialog = showEndWorkoutDialog.value,
                 onDismiss = { showEndWorkoutDialog.value = false },
                 onConfirm = {
                     val updatedExercises = selectedExercises.mapIndexed { index, ex ->
@@ -297,29 +313,24 @@ fun AddWorkoutScreen(
                     workoutViewModel.saveWorkout(updatedExercises)
                     workoutViewModel.resetWorkout()
                     showEndWorkoutDialog.value = false
-                }
-            )
+                })
 
-            RepsDialog(
-                showDialog = showRepDialog,
+            RepsDialog(showDialog = showRepDialog,
                 initialRep = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.rep ?: 0,
                 onDismiss = { showRepDialog = false },
                 onSave = { newRep ->
                     workoutViewModel.updateRep(currentExerciseIndex, currentSetIndex, newRep)
                     showRepDialog = false
-                }
-            )
+                })
 
-            WeightDialog(
-                showDialog = showWeightDialog,
+            WeightDialog(showDialog = showWeightDialog,
                 initialWeight = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.weigth
                     ?: 0f,
                 onDismiss = { showWeightDialog = false },
                 onSave = { newWeight ->
                     workoutViewModel.updateWeight(currentExerciseIndex, currentSetIndex, newWeight)
                     showWeightDialog = false
-                }
-            )
+                })
 
 
         }

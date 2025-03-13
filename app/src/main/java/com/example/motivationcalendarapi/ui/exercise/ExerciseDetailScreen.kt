@@ -408,6 +408,12 @@ fun ExerciseDetailScreen(
                         )
                     }
                 }
+
+                    Spacer(
+                        modifier = Modifier
+                            .absolutePadding(bottom = 200.dp)
+                    )
+
             }
         } ?: LoadingView()
     }

@@ -177,6 +177,12 @@ fun EquipmentSelectionScreen(
                     }
                 }
             }
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .absolutePadding(bottom = 200.dp)
+                )
+            }
         }
     }
 }

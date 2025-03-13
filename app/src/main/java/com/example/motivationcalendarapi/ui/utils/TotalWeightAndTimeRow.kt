@@ -1,6 +1,5 @@
 package com.example.motivationcalendarapi.ui.utils
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,47 +15,44 @@ import androidx.compose.ui.res.painterResource
 import com.example.motivationcalendarapi.R
 
 @Composable
-fun AddExerciseAndTimeRow(
-    onAddExerciseClick: () -> Unit,
-    timerValue: Int
+fun TimeRow(
+    timerValue: Int,
+    totalKg: Float
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .clickable(onClick = onAddExerciseClick)
-                .padding(top = 12.dp)
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically){
             Icon(
-                painter = painterResource(R.drawable.ic_add),
-                contentDescription = "add",
+                painter = painterResource(R.drawable.ic_equipment_body_weight),
+                contentDescription = "weight",
                 tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .size(28.dp)
-                    .padding(end = 4.dp))
+                modifier = Modifier.size(24.dp))
             Text(
-                text = "Exercise",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.headlineLarge,
+                text = "%.1f".format(totalKg),
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(start = 4.dp, end = 4.dp)
+            )
+            Text(
+                text = "kg",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        Row(
-            modifier = Modifier.padding(top = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically){
             Text(
                 text = formatTime(timerValue),
                 color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(end = 4.dp))
             Icon(
                 painter = painterResource(R.drawable.ic_time),
                 contentDescription = "time",
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(24.dp))
+
         }
     }
 }

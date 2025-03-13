@@ -103,6 +103,12 @@ fun BodyPartsList(
                 }
 
             }
+                item {
+                    Spacer(
+                        modifier = Modifier
+                            .absolutePadding(bottom = 200.dp)
+                    )
+                }
 
         }
             if (selectedExercises.isNotEmpty()) {

@@ -44,6 +44,7 @@ fun ExerciseScreen(
     if (bodyParts.isEmpty()) {
         LoadingView()
     } else {
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -80,7 +81,15 @@ fun ExerciseScreen(
                         }
                     }
                 }
+
             }
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .absolutePadding(bottom = 200.dp)
+                )
+            }
+
         }
     }
 }

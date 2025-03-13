@@ -108,6 +108,12 @@ fun SearchExerciseScreen(
                         onFavoriteClick = { viewModel.toggleFavorite(exercise) },
                         isFavorite = favoriteExercises.any { it.id == exercise.id })
                 }
+                item {
+                    Spacer(
+                        modifier = Modifier
+                            .absolutePadding(bottom = 200.dp)
+                    )
+                }
             }
         }
     }

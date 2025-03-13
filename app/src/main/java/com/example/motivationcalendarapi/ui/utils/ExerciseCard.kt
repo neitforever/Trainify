@@ -20,6 +20,7 @@ import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
+import com.example.motivationcalendarapi.ui.utils.StatusIcon
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 
 @Composable
@@ -373,39 +374,3 @@ fun ExerciseCard(
     }
 }
 
-@Composable
-private fun StatusIcon(
-    status: SetStatus,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier.size(32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        when (status) {
-            SetStatus.NONE -> Icon(
-                painter = painterResource(R.drawable.ic_empty),
-                contentDescription = "Empty",
-                modifier = Modifier.size(24.dp)
-            )
-
-            SetStatus.WARMUP -> Icon(
-                painter = painterResource(R.drawable.ic_warm_up),
-                contentDescription = "Warm-up",
-                modifier = Modifier.size(24.dp)
-            )
-
-            SetStatus.FAILED -> Icon(
-                painter = painterResource(R.drawable.ic_close),
-                contentDescription = "Failed",
-                modifier = Modifier.size(24.dp)
-            )
-
-            SetStatus.COMPLETED -> Icon(
-                painter = painterResource(R.drawable.ic_complete),
-                contentDescription = "Completed",
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
-}

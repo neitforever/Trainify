@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
+import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
@@ -26,6 +27,35 @@ class WorkoutViewModel(
     private val timerDataStore: TimerDataStore
 ) : ViewModel() {
 
+
+
+    fun updateSetStatus(exerciseIndex: Int, setIndex: Int, newStatus: SetStatus) {
+        val updatedMap = _exerciseSetsMap.value.toMutableMap()
+        val sets = updatedMap[exerciseIndex]?.toMutableList() ?: return
+        if (setIndex < sets.size) {
+            val currentSet = sets[setIndex]
+            sets[setIndex] = currentSet.copy(status = newStatus)
+            updatedMap[exerciseIndex] = sets
+            _exerciseSetsMap.value = updatedMap
+        }
+    }
+
+    fun removeExerciseSet(exerciseIndex: Int, setIndex: Int) {
+        val updatedMap = _exerciseSetsMap.value.toMutableMap()
+        updatedMap[exerciseIndex]?.let { sets ->
+            if (setIndex in sets.indices) {
+                val newSets = sets.toMutableList().apply {
+                    removeAt(setIndex)
+                }
+                if (newSets.isEmpty()) {
+                    updatedMap.remove(exerciseIndex)
+                } else {
+                    updatedMap[exerciseIndex] = newSets
+                }
+            }
+        }
+        _exerciseSetsMap.value = updatedMap
+    }
 
     private val _warmupTime = MutableStateFlow(60)
     val warmupTime: StateFlow<Int> = _warmupTime.asStateFlow()
@@ -310,7 +340,7 @@ class WorkoutViewModel(
         _selectedExercises.value = _selectedExercises.value + exercise
 
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
-        updatedMap[currentSize] = listOf(ExerciseSet(rep = 0, weigth = 0f))
+        updatedMap[currentSize] = listOf(ExerciseSet(rep = 0, weight = 0f))
         _exerciseSetsMap.value = updatedMap
     }
 
@@ -329,7 +359,7 @@ class WorkoutViewModel(
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         val sets = updatedMap[exerciseIndex]?.toMutableList() ?: return
         if (setIndex < sets.size) {
-            sets[setIndex] = sets[setIndex].copy(weigth = newWeight)
+            sets[setIndex] = sets[setIndex].copy(weight = newWeight)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
         }
@@ -337,7 +367,7 @@ class WorkoutViewModel(
 
     val totalKg: StateFlow<Float> = combine(selectedExercises, exerciseSetsMap) { exercises, setsMap ->
         exercises.indices.sumOf { index ->
-            setsMap[index]?.sumOf { it.weigth.toDouble() } ?: 0.0
+            setsMap[index]?.sumOf { it.weight.toDouble() } ?: 0.0
         }.toFloat()
     }.stateIn(
         scope = viewModelScope,
@@ -362,16 +392,7 @@ class WorkoutViewModel(
         _exerciseSetsMap.value = updatedMap
     }
 
-    fun removeExerciseSet(exerciseIndex: Int, setIndex: Int) {
-        val updatedMap = _exerciseSetsMap.value.toMutableMap()
-        updatedMap[exerciseIndex]?.let { sets ->
-            val newSets = sets.toMutableList().apply {
-                if (setIndex in indices) removeAt(setIndex)
-            }
-            updatedMap[exerciseIndex] = newSets
-        }
-        _exerciseSetsMap.value = updatedMap
-    }
+
 
     // Добавление подхода к упражнению
     fun addExerciseSet(exerciseId: Int, set: ExerciseSet) {

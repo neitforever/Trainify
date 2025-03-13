@@ -97,7 +97,7 @@ fun AddWorkoutScreen(
     val exerciseSetsMap by workoutViewModel.exerciseSetsMap.collectAsState()
 
     val showSetDialog = remember { mutableStateOf(false) }
-    val newSet = remember { mutableStateOf(ExerciseSet(rep = 0, weigth = 0f)) }
+    val newSet = remember { mutableStateOf(ExerciseSet(rep = 0, weight = 0f)) }
 
     val showOverwriteDialog by workoutViewModel.showOverwriteDialog.collectAsState()
 
@@ -175,7 +175,8 @@ fun AddWorkoutScreen(
             shape = CutCornerShape(4.dp)
         )
         )
-    }, floatingActionButton = {
+    },
+        floatingActionButton = {
         if (isWorkoutStarted) {
 
             Column(
@@ -358,6 +359,7 @@ fun AddWorkoutScreen(
                             onEditTimeClick = { showTimerDialog = true })
 
                         selectedExercises.forEachIndexed { index, exercise ->
+
                             ExerciseCard(
                                 index = index,
                                 exercise = exercise,
@@ -374,6 +376,10 @@ fun AddWorkoutScreen(
                                     currentExerciseIndex = exIndex
                                     currentSetIndex = setIndex
                                     showWeightDialog = true
+                                },
+                                onStatusClick = { exIndex, setIndex ->
+                                    currentExerciseIndex = exIndex
+                                    currentSetIndex = setIndex
                                 },
                                 workoutViewModel = workoutViewModel,
                                 navController = navController
@@ -463,7 +469,7 @@ fun AddWorkoutScreen(
                 })
 
             WeightDialog(showDialog = showWeightDialog,
-                initialWeight = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.weigth
+                initialWeight = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.weight
                     ?: 0f,
                 onDismiss = { showWeightDialog = false },
                 onSave = { newWeight ->

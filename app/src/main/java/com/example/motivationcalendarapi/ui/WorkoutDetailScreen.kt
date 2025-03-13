@@ -300,7 +300,7 @@ fun WorkoutDetailScreen(
                                     textAlign = TextAlign.Center
                                 )
                                 Text(
-                                    text = "${set.weigth}",
+                                    text = "${set.weight}",
                                     modifier = Modifier.weight(1f),
                                     textAlign = TextAlign.Center
                                 )

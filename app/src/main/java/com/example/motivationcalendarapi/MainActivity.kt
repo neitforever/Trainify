@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
 import com.example.motivationcalendarapi.repositories.MainRepository
+import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
 import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
 import com.example.motivationcalendarapi.ui.utils.NavigationMenuView
@@ -50,8 +51,13 @@ class MainActivity : ComponentActivity() {
             val exerciseRepository = ExerciseRepository(db)
             val mainRepository = MainRepository(context)
 
+            val timerDataStore by lazy { TimerDataStore(applicationContext) }
+
             val workoutViewModel: WorkoutViewModel = viewModel(
-                factory = WorkoutViewModelFactory(workoutRepository)
+                factory = WorkoutViewModelFactory(
+                    workoutRepository,
+                    timerDataStore
+                )
             )
 
             val exerciseViewModel = ExerciseViewModel(

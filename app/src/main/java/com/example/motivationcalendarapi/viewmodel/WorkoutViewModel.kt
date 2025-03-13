@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -21,9 +22,28 @@ import java.util.Calendar
 
 class WorkoutViewModel(
     val workoutRepository: WorkoutRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val timerDataStore: TimerDataStore
 ) : ViewModel() {
 
+
+    private val _warmupTime = MutableStateFlow(60)
+    val warmupTime: StateFlow<Int> = _warmupTime.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            timerDataStore.warmupTimeFlow.collect { time ->
+                _warmupTime.value = time
+            }
+        }
+    }
+
+    fun updateWarmupTime(newTime: Int) {
+        _warmupTime.value = newTime
+        viewModelScope.launch {
+            timerDataStore.saveWarmupTime(newTime)
+        }
+    }
 
     private companion object {
         const val START_TIME_KEY = "start_time"
@@ -127,6 +147,12 @@ class WorkoutViewModel(
         // Восстановление таймера при создании ViewModel
         if (_timerRunning.value) {
             startTime = System.currentTimeMillis() - totalPausedDuration
+        }
+
+        viewModelScope.launch {
+            timerDataStore.warmupTimeFlow.collect { time ->
+                _warmupTime.value = time
+            }
         }
 
         // Запуск отдельной корутины для сбора данных о тренировках
@@ -356,14 +382,17 @@ class WorkoutViewModel(
         _exerciseSetsMap.value = updatedMap
     }
 
+
+
 }
 
 class WorkoutViewModelFactory(
-    private val workoutRepository: WorkoutRepository
+    private val workoutRepository: WorkoutRepository,
+    private val timerDataStore: TimerDataStore
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         val savedStateHandle = extras.createSavedStateHandle()
-        return WorkoutViewModel(workoutRepository, savedStateHandle) as T
+        return WorkoutViewModel(workoutRepository, savedStateHandle, timerDataStore) as T
     }
 }

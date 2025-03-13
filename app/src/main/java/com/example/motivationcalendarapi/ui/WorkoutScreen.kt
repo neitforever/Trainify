@@ -1,10 +1,22 @@
 package com.motivationcalendar.ui
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CutCornerShape
@@ -29,16 +41,24 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.utils.dialogs.EndWorkoutDialog
 import com.example.motivationcalendarapi.ui.utils.ExerciseSelectionBottomSheet
 import com.example.motivationcalendarapi.ui.utils.TimeRow
+import com.example.motivationcalendarapi.ui.utils.TimerBottomSheet
 import com.example.motivationcalendarapi.ui.utils.WorkoutNameTextField
 import com.example.motivationcalendarapi.ui.utils.dialogs.ExistWorkoutDialog
+import com.example.motivationcalendarapi.ui.utils.dialogs.TimerCompleteDialog
+import com.example.motivationcalendarapi.ui.utils.dialogs.WarmupDialog
 import com.example.motivationcalendarapi.ui.utils.dialogs.WeightDialog
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,7 +91,6 @@ fun AddWorkoutScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isSheetOpen = remember { mutableStateOf(false) }
 
-
     val selectedExercises by workoutViewModel.selectedExercises.collectAsState()
     val exerciseSetsMap by workoutViewModel.exerciseSetsMap.collectAsState()
 
@@ -84,6 +103,34 @@ fun AddWorkoutScreen(
     val showEndWorkoutDialog = remember { mutableStateOf(false) }
     val showPauseDialog = remember { mutableStateOf(false) }
     val isWorkoutPaused = remember { derivedStateOf { timerRunning.not() } }
+
+    val warmupTimeState by workoutViewModel.warmupTime.collectAsState()
+
+    var showWarmupBottomSheet by remember { mutableStateOf(false) }
+    var showTimerDialog by remember { mutableStateOf(false) }
+    val warmupTime by workoutViewModel.warmupTime.collectAsState()
+    var currentTime by remember(warmupTime) { mutableIntStateOf(warmupTime) }
+    var isTimerRunning by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    var showTimerCompleteDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isTimerRunning, currentTime) {
+        if (isTimerRunning && currentTime > 0) {
+            delay(1000L)
+            currentTime--
+        } else if (currentTime == 0) {
+            isTimerRunning = false
+            showTimerCompleteDialog = true
+
+            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            if (vibrator.hasVibrator()) {
+                vibrator.vibrate(
+                    VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+                )
+            }
+        }
+    }
 
     Scaffold(topBar = {
         TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
@@ -124,44 +171,103 @@ fun AddWorkoutScreen(
         )
     }, floatingActionButton = {
         if (isWorkoutStarted) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier.navigationBarsPadding()
-            ) {
-                FloatingActionButton(
-                    onClick = {
-                        showPauseDialog.value = true
-                        if (timerRunning) workoutViewModel.pauseTimer()
-                        else workoutViewModel.resumeTimer()
-                    },
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(64.dp)
-                ) {
-                    Icon(
-                        painter = if (timerRunning) painterResource(id = R.drawable.ic_pause)
-                        else painterResource(id = R.drawable.ic_play_arrow),
-                        contentDescription = if (timerRunning) "Pause" else "Repeat",
-                        modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+            var isMenuExpanded by remember { mutableStateOf(false) }
 
-                FloatingActionButton(
-                    onClick = {
-                        showEndWorkoutDialog.value = true
-                    },
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onError,
-                    modifier = Modifier.size(64.dp)
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .wrapContentSize(Alignment.BottomEnd)
+            ) {
+                Row{
+                    AnimatedVisibility(
+                        visible = isMenuExpanded,
+                        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
+                        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom)
+                    ) {
+                        FloatingActionButton(
+                            onClick = {
+                                showWarmupBottomSheet = true
+                                isMenuExpanded = false
+                            },
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(64.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_time),
+                                contentDescription = "Warmup",
+                                modifier = Modifier.size(36.dp)
+                            )
+                        }
+                    }
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_stop),
-                        contentDescription = "End",
-                        modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    AnimatedVisibility(
+                        visible = isMenuExpanded,
+                        enter = fadeIn() + expandHorizontally(expandFrom = Alignment.End),
+                        exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.End)
+                    ) {
+
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            FloatingActionButton(
+                                onClick = {
+                                    showPauseDialog.value = true
+                                    if (timerRunning) workoutViewModel.pauseTimer()
+                                    else workoutViewModel.resumeTimer()
+                                    isMenuExpanded = false
+                                },
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(64.dp)
+                            ) {
+                                Icon(
+                                    painter = if (timerRunning) painterResource(id = R.drawable.ic_pause)
+                                    else painterResource(id = R.drawable.ic_play_arrow),
+                                    contentDescription = if (timerRunning) "Pause" else "Repeat",
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+
+                            FloatingActionButton(
+                                onClick = {
+                                    showEndWorkoutDialog.value = true
+                                    isMenuExpanded = false
+                                },
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(64.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_stop),
+                                    contentDescription = "End",
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+                        }
+
+                    }
+
+                    FloatingActionButton(
+                        onClick = { isMenuExpanded = !isMenuExpanded },
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(64.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(
+                                id = if (isMenuExpanded) R.drawable.ic_close
+                                else R.drawable.ic_menu
+                            ), contentDescription = "Menu", modifier = Modifier.size(36.dp)
+                        )
+                    }
                 }
             }
         } else {
@@ -216,8 +322,7 @@ fun AddWorkoutScreen(
                         )
 
                         TimeRow(
-                            timerValue = timerValue,
-                            totalKg = totalKg
+                            timerValue = timerValue, totalKg = totalKg
                         )
 
                         ExerciseSelectionBottomSheet(
@@ -226,6 +331,18 @@ fun AddWorkoutScreen(
                             exerciseViewModel = exersiceViewModel,
                             workoutViewModel = workoutViewModel
                         )
+
+                        TimerBottomSheet(showSheet = showWarmupBottomSheet,
+                            currentTime = currentTime,
+                            warmupTime = warmupTime,
+                            isTimerRunning = isTimerRunning,
+                            onDismiss = { showWarmupBottomSheet = false },
+                            onRestartClick = {
+                                currentTime = warmupTime
+                                isTimerRunning = false
+                            },
+                            onToggleTimer = { isTimerRunning = !isTimerRunning },
+                            onEditTimeClick = { showTimerDialog = true })
 
                         selectedExercises.forEachIndexed { index, exercise ->
                             ExerciseCard(
@@ -293,6 +410,15 @@ fun AddWorkoutScreen(
             }
 
 
+            TimerCompleteDialog(showDialog = showTimerCompleteDialog,
+                onDismiss = { showTimerCompleteDialog = false })
+
+            WarmupDialog(showDialog = showTimerDialog,
+                warmupTime = warmupTimeState,
+                onDismiss = { showTimerDialog = false },
+                onConfirm = { newTime ->
+                    workoutViewModel.updateWarmupTime(newTime)
+                })
 
             ExistWorkoutDialog(showDialog = showOverwriteDialog,
                 onDismiss = { workoutViewModel.dismissOverwriteDialog() },

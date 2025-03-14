@@ -128,6 +128,8 @@ class WorkoutViewModel(
         _isWorkoutStarted.value = false
         startTime = 0L
         totalPausedDuration = 0L
+        _selectedExercises.value = emptyList()
+        _exerciseSetsMap.value = emptyMap()
     }
 
     fun getWorkoutById(id: Long): Workout {

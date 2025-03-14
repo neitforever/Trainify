@@ -18,6 +18,20 @@ data class Exercise(
     @TypeConverters(Converters::class)
     val instructions: List<String>,
     val gifUrl: String,
+    val isFavorite: Boolean = false,
+    val note: String
+)
+
+
+data class ExerciseResponse(
+    val id: String,
+    val bodyPart: String,
+    val name: String,
+    val equipment: String,
+    val target: String,
+    val secondaryMuscles: List<String>,
+    val instructions: List<String>,
+    val gifUrl: String,
     val isFavorite: Boolean = false
 )
 

@@ -22,6 +22,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import kotlin.math.roundToInt
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.painterResource
+
+import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.model.ExerciseSet
 
 @Composable
 fun WarmupDialog(
@@ -46,21 +59,59 @@ fun WarmupDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Slider(
-                    value = localWarmupTime.toFloat(), onValueChange = { newValue ->
-                        localWarmupTime = newValue.toInt()
-                    }, valueRange = 10f..600f, steps = 58, colors = SliderDefaults.colors(
-                        activeTickColor = Color.Transparent,
-                        inactiveTickColor = Color.Transparent
-                    ), modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                )
-                Text(
-                    text = "${localWarmupTime}s",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    IconButton(
+                        onClick = {
+                            localWarmupTime = (localWarmupTime - 10).coerceAtLeast(10)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_minus),
+                            contentDescription = "Restart",
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    Slider(
+                        value = localWarmupTime.toFloat(),
+                        onValueChange = { newValue ->
+                            localWarmupTime = newValue.toInt()
+                        },
+                        valueRange = 10f..600f,
+                        steps = 58,
+                        colors = SliderDefaults.colors(
+                            activeTickColor = Color.Transparent,
+                            inactiveTickColor = Color.Transparent,
+                        ),
+                        modifier = Modifier.fillMaxWidth(0.76f)
+                    )
+
+
+                    IconButton(
+                        onClick = {
+                            localWarmupTime = (localWarmupTime + 10).coerceAtMost(600)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_plus),
+                            contentDescription = "Restart",
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+
+                    }
+                }
+                    Text(
+                        text = "${localWarmupTime}s",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+
             }
         }, confirmButton = {
             TextButton(onClick = {

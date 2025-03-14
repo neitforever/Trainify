@@ -128,6 +128,7 @@ fun AddWorkoutScreen(
         } else if (currentTime == 0) {
             isTimerRunning = false
             showTimerCompleteDialog = true
+            currentTime = warmupTime
 
             val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             if (vibrator.hasVibrator()) {

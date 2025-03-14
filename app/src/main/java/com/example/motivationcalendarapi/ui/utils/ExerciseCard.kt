@@ -20,9 +20,11 @@ import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
+import com.example.motivationcalendarapi.ui.utils.NoteBottomSheet
 import com.example.motivationcalendarapi.ui.utils.StatusIcon
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseCard(
     index: Int,
@@ -37,6 +39,21 @@ fun ExerciseCard(
 ) {
     val isExpanded = remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
+    var showNoteDialog by remember { mutableStateOf(false) }
+
+
+    val notesMap by workoutViewModel.notesUpdates.collectAsState()
+    val currentNote = notesMap[exercise.exercise.id] ?: exercise.exercise.note
+    var localNote by remember { mutableStateOf(currentNote) }
+
+    LaunchedEffect(currentNote) {
+        localNote = currentNote
+    }
+
+    val updatedExercise = remember(exercise, localNote) {
+        exercise.copy(exercise = exercise.exercise.copy(note = localNote))
+    }
+
     Card(
         modifier = Modifier.padding(vertical = 8.dp)
     ) {
@@ -370,7 +387,29 @@ fun ExerciseCard(
                     .clickable { onAddSetClick(index) }
                     .padding(8.dp),
                 textAlign = TextAlign.Center)
+            Text(text = "Note",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showNoteDialog = true }
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Center)
         }
     }
+
+        NoteBottomSheet(
+            showBottomSheet = showNoteDialog,
+            exercise = updatedExercise,
+            onDismiss = {
+                showNoteDialog = false
+                workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, localNote)
+            },
+            onSaveNote = { newNote ->
+                localNote = newNote
+                workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, newNote)
+            }
+        )
+
 }
 

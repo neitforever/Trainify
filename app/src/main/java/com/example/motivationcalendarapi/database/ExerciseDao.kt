@@ -21,6 +21,15 @@ interface ExerciseDao {
     @Query("SELECT COUNT(*) FROM exercises")
     suspend fun getExerciseCount(): Int
 
+    @Query("SELECT * FROM exercises")
+    fun getAllExercisesWithNotes(): Flow<List<Exercise>>
+
+
+    @Query("UPDATE exercises SET note = :newNote WHERE id = :id")
+    suspend fun updateExerciseNote(id: String, newNote: String)
+
+    @Query("SELECT note FROM exercises WHERE id = :id")
+    suspend fun getExerciseNote(id: String): String?
 
     @Query("SELECT * FROM exercises WHERE id = :id LIMIT 1")
     fun getExerciseById(id: String): Exercise?

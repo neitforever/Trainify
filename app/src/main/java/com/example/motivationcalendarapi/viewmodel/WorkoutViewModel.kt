@@ -29,6 +29,10 @@ class WorkoutViewModel(
 
 
 
+    private val _notesUpdates = MutableStateFlow<Map<String, String>>(emptyMap())
+    val notesUpdates: StateFlow<Map<String, String>> = _notesUpdates.asStateFlow()
+
+
     fun updateSetStatus(exerciseIndex: Int, setIndex: Int, newStatus: SetStatus) {
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         val sets = updatedMap[exerciseIndex]?.toMutableList() ?: return
@@ -65,6 +69,14 @@ class WorkoutViewModel(
             timerDataStore.warmupTimeFlow.collect { time ->
                 _warmupTime.value = time
             }
+        }
+
+        viewModelScope.launch {
+            workoutRepository.getExerciseNotesUpdates()
+                .collect { exercises ->
+                    val notesMap = exercises.associate { it.id to it.note }
+                    _notesUpdates.value = notesMap
+                }
         }
     }
 
@@ -142,6 +154,16 @@ class WorkoutViewModel(
     val allWorkouts: StateFlow<List<Workout>> = _allWorkouts.asStateFlow()
 
 
+    fun updateExerciseNote(exerciseId: String, newNote: String) {
+        viewModelScope.launch {
+            workoutRepository.updateExerciseNote(exerciseId, newNote)
+            _selectedExercises.value = _selectedExercises.value.map { ex ->
+                if (ex.exercise.id == exerciseId) ex.copy(
+                    exercise = ex.exercise.copy(note = newNote)
+                ) else ex
+            }
+        }
+    }
 
     // Название тренировки
     private val _workoutName = MutableStateFlow("")

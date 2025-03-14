@@ -10,7 +10,7 @@ object ApiClient {
     private val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val request = chain.request().newBuilder()
-                .addHeader("x-rapidapi-key", "565670aa5dmsh779fe7329189e32p135852jsn6f94a02c14ed")
+                .addHeader("x-rapidapi-key", "e791ed4ccamsh664ad58ae7b39bfp124a93jsnc4d16a15d88c")//565670aa5dmsh779fe7329189e32p135852jsn6f94a02c14ed
                 .addHeader("x-rapidapi-host", "exercisedb.p.rapidapi.com")
                 .build()
             chain.proceed(request)

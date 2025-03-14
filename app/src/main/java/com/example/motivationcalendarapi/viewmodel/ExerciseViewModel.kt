@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.android.tools.screenshot.isValid
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.database.toDatabaseModels
+import com.example.motivationcalendarapi.mapper.toEntity
 import com.example.motivationcalendarapi.network.ApiClient
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
 import kotlinx.coroutines.Dispatchers
@@ -86,17 +87,15 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()
     fun fetchAndSaveExercises() {
         viewModelScope.launch (Dispatchers.IO){
             try {
-                // Получаем количество записей в базе данных
                 val currentCount = exerciseRepository.getExerciseCount()
 
-                // Получаем данные с API
                 val response = ApiClient.apiService.getExercises()
 
-                // Если количество данных с API отличается от того, что в базе
+                val responseEntity= response.map { it.toEntity() }
                 if (response.size != currentCount) {
                     if (response.isNotEmpty()) {
 
-                        val exercises = response.toDatabaseModels()
+                        val exercises = responseEntity.toDatabaseModels()
                         exercises.forEach(){
                             ex->
                             exerciseRepository.insertExercise(ex)
@@ -123,7 +122,8 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()
             secondaryMuscles = listOf(),
             instructions = listOf(),
             gifUrl = "",
-            isFavorite = false
+            isFavorite = false,
+            note = ""
         )
     }
 

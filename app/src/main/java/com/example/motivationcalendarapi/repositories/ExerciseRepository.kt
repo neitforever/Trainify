@@ -1,6 +1,7 @@
 package com.example.motivationcalendarapi.repositories
 
 import com.example.motivationcalendarapi.model.Exercise
+import com.example.motivationcalendarapi.model.ExerciseResponse
 import com.example.motivationcalendarapi.network.ApiClient
 import com.google.gson.Gson
 import com.motivationcalendar.data.WorkoutDatabase
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class ExerciseRepository(val appDatabase: WorkoutDatabase){
 
-    suspend fun getExerciseFromApi(): List<Exercise> = ApiClient.apiService.getExercises()
+    suspend fun getExerciseFromApi(): List<ExerciseResponse> = ApiClient.apiService.getExercises()
 
     suspend fun insertExercise(exercise: Exercise) {
         appDatabase.exerciseDao().insertExercise(exercise)

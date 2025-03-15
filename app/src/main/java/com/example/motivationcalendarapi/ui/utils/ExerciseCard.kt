@@ -217,36 +217,32 @@ fun ExerciseCard(
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
-                            Box(
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .padding(horizontal = 8.dp)
-                                    .fillMaxHeight()
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                        shape = MaterialTheme.shapes.small
-                                    )
-                                    .clickable { onRepClick(index, setIndex) }
-                            ) {
+                            Box(modifier = Modifier
+                                .weight(0.5f)
+                                .padding(horizontal = 8.dp)
+                                .fillMaxHeight()
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                    shape = MaterialTheme.shapes.small
+                                )
+                                .clickable { onRepClick(index, setIndex) }) {
                                 Text(
                                     text = "${set.rep}",
                                     modifier = Modifier.align(Alignment.Center),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
-                            Box(
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .padding(horizontal = 8.dp)
-                                    .fillMaxHeight()
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                        shape = MaterialTheme.shapes.small
-                                    )
-                                    .clickable { onWeightClick(index, setIndex) }
-                            ) {
+                            Box(modifier = Modifier
+                                .weight(0.5f)
+                                .padding(horizontal = 8.dp)
+                                .fillMaxHeight()
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                    shape = MaterialTheme.shapes.small
+                                )
+                                .clickable { onWeightClick(index, setIndex) }) {
                                 Text(
                                     text = "%.1f".format(set.weight),
                                     modifier = Modifier.align(Alignment.Center),
@@ -259,12 +255,10 @@ fun ExerciseCard(
                                     .weight(0.5f)
                                     .fillMaxHeight()
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clickable { showStatusMenu = true }
-                                        .align(Alignment.Center)
-                                ) {
+                                Box(modifier = Modifier
+                                    .size(40.dp)
+                                    .clickable { showStatusMenu = true }
+                                    .align(Alignment.Center)) {
                                     StatusIcon(
                                         status = set.status,
                                         modifier = Modifier.align(Alignment.Center)
@@ -357,13 +351,13 @@ fun ExerciseCard(
                                         ) {
                                             Icon(
                                                 painter = painterResource(R.drawable.ic_delete),
-                                                contentDescription = "Deleted",
+                                                contentDescription = "Delete Set",
                                                 modifier = Modifier.size(24.dp),
                                                 tint = MaterialTheme.colorScheme.primary
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Text(
-                                                text = "Delete Set",
+                                                text = "Deleted",
                                                 style = MaterialTheme.typography.titleLarge,
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )
@@ -378,7 +372,6 @@ fun ExerciseCard(
                     }
                 }
             }
-
             Text(text = "Add Set",
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.bodyLarge,
@@ -398,18 +391,13 @@ fun ExerciseCard(
         }
     }
 
-    NoteBottomSheet(
-        showBottomSheet = showNoteDialog,
-        exercise = updatedExercise,
-        onDismiss = {
-            showNoteDialog = false
-            workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, localNote)
-        },
-        onSaveNote = { newNote ->
-            localNote = newNote
-            workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, newNote)
-        }
-    )
+    NoteBottomSheet(showBottomSheet = showNoteDialog, exercise = updatedExercise, onDismiss = {
+        showNoteDialog = false
+        workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, localNote)
+    }, onSaveNote = { newNote ->
+        localNote = newNote
+        workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, newNote)
+    })
 
 }
 

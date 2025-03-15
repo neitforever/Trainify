@@ -20,6 +20,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Collections
 
 class WorkoutViewModel(
     val workoutRepository: WorkoutRepository,
@@ -416,9 +417,6 @@ class WorkoutViewModel(
         _exerciseSetsMap.value = updatedMap
     }
 
-
-
-    // Добавление подхода к упражнению
     fun addExerciseSet(exerciseId: Int, set: ExerciseSet) {
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         val sets = updatedMap[exerciseId]?.toMutableList() ?: mutableListOf()
@@ -428,6 +426,37 @@ class WorkoutViewModel(
     }
 
 
+    fun moveExerciseUp(index: Int) {
+        if (index <= 0) return
+        val exercises = _selectedExercises.value.toMutableList().apply {
+            Collections.swap(this, index, index - 1)
+        }
+        _selectedExercises.value = exercises
+
+        val updatedMap = _exerciseSetsMap.value.toMutableMap().apply {
+            val current = get(index)
+            val prev = get(index - 1)
+            put(index - 1, current ?: emptyList())
+            put(index, prev ?: emptyList())
+        }
+        _exerciseSetsMap.value = updatedMap
+    }
+
+    fun moveExerciseDown(index: Int) {
+        if (index >= _selectedExercises.value.size - 1) return
+        val exercises = _selectedExercises.value.toMutableList().apply {
+            Collections.swap(this, index, index + 1)
+        }
+        _selectedExercises.value = exercises
+
+        val updatedMap = _exerciseSetsMap.value.toMutableMap().apply {
+            val current = get(index)
+            val next = get(index + 1)
+            put(index + 1, current ?: emptyList())
+            put(index, next ?: emptyList())
+        }
+        _exerciseSetsMap.value = updatedMap
+    }
 
 }
 

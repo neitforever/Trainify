@@ -385,6 +385,10 @@ fun AddWorkoutScreen(
                                     currentExerciseIndex = exIndex
                                     currentSetIndex = setIndex
                                 },
+                                onMoveUp = { workoutViewModel.moveExerciseUp(index) },
+                                onMoveDown = { workoutViewModel.moveExerciseDown(index) },
+                                canMoveUp = index > 0,
+                                canMoveDown = index < selectedExercises.size - 1,
                                 workoutViewModel = workoutViewModel,
                                 navController = navController
                             )

@@ -1,6 +1,7 @@
 package com.example.motivationcalendarapi.ui.utils
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -17,7 +18,7 @@ fun StatusIcon(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.size(32.dp),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         when (status) {

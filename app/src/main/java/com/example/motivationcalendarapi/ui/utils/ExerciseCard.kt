@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,6 +35,10 @@ fun ExerciseCard(
     onRepClick: (Int, Int) -> Unit,
     onWeightClick: (Int, Int) -> Unit,
     onStatusClick: (Int, Int) -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
     workoutViewModel: WorkoutViewModel,
     navController: NavController
 ) {
@@ -60,14 +65,24 @@ fun ExerciseCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(top = 8.dp, bottom = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row {
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+                    .padding(horizontal = 16.dp),
+
+                ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
                         text = "${index + 1}.",
                         maxLines = 1,
@@ -88,9 +103,17 @@ fun ExerciseCard(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
-                Box {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .align(Alignment.CenterVertically)
+
+                ) {
                     IconButton(
-                        onClick = { showMenu = true }, modifier = Modifier.size(32.dp)
+                        onClick = { showMenu = true },
+                        modifier = Modifier
+                            .size(24.dp)
+                            .align(Alignment.Center)
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_dots),
@@ -156,240 +179,283 @@ fun ExerciseCard(
                 }
             }
 
-            if (exerciseSets.isNotEmpty()) {
-                Column(
-                    modifier = Modifier.padding(top = 8.dp)
-                ) {
+            Column(verticalArrangement = Arrangement.Center) {
+                if (exerciseSets.isNotEmpty()) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp),
+                            .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            text = "Set",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = "Rep",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = "Weight",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = "Status",
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.Center
-                        )
-                    }
 
-                    exerciseSets.forEachIndexed { setIndex, set ->
-                        var showStatusMenu by remember { mutableStateOf(false) }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = if (setIndex == exerciseSets.lastIndex) 12.dp else 8.dp)
-                                .height(32.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .fillMaxHeight()
-                                    .wrapContentWidth()
-                            ) {
-                                Text(
-                                    text = "${setIndex + 1}",
-                                    modifier = Modifier.align(Alignment.Center),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                            Box(modifier = Modifier
-                                .weight(0.5f)
-                                .padding(horizontal = 8.dp)
-                                .fillMaxHeight()
-                                .border(
-                                    width = 1.dp,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                    shape = MaterialTheme.shapes.small
-                                )
-                                .clickable { onRepClick(index, setIndex) }) {
-                                Text(
-                                    text = "${set.rep}",
-                                    modifier = Modifier.align(Alignment.Center),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                            Box(modifier = Modifier
-                                .weight(0.5f)
-                                .padding(horizontal = 8.dp)
-                                .fillMaxHeight()
-                                .border(
-                                    width = 1.dp,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                    shape = MaterialTheme.shapes.small
-                                )
-                                .clickable { onWeightClick(index, setIndex) }) {
-                                Text(
-                                    text = "%.1f".format(set.weight),
-                                    modifier = Modifier.align(Alignment.Center),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .padding(start = 8.dp, end = 8.dp)
-                                    .weight(0.5f)
-                                    .fillMaxHeight()
-                            ) {
-                                Box(modifier = Modifier
-                                    .size(40.dp)
-                                    .clickable { showStatusMenu = true }
-                                    .align(Alignment.Center)) {
-                                    StatusIcon(
-                                        status = set.status,
-                                        modifier = Modifier.align(Alignment.Center)
+                            Text(
+                                text = "Set",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+                            exerciseSets.forEachIndexed { setIndex, set ->
+                                Box(
+                                    modifier = Modifier
+                                        .padding(bottom = 8.dp)
+                                        .size(60.dp, 40.dp)
+                                        .fillMaxHeight()
+                                ) {
+                                    Text(
+                                        text = "${setIndex + 1}",
+                                        modifier = Modifier.align(Alignment.Center),
+                                        style = MaterialTheme.typography.bodyLarge
                                     )
+                                }
+                            }
+                        }
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                text = "Rep",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+                            exerciseSets.forEachIndexed { setIndex, set ->
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp).padding( bottom = 8.dp)
+                                        .size(60.dp, 40.dp)
+                                        .fillMaxHeight()
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                            shape = MaterialTheme.shapes.small
+                                        )
+                                        .clickable { onRepClick(index, setIndex) }
+                                ) {
+                                    Text(
+                                        text = "${set.rep}",
+                                        modifier = Modifier.align(Alignment.Center),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally ) {
+                            Text(
+                                text = "Weight",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+                            exerciseSets.forEachIndexed { setIndex, set ->
+                                Box(modifier = Modifier
+                                    .padding(horizontal = 8.dp).padding(bottom = 8.dp)
+                                    .size(60.dp, 40.dp)
+                                    .fillMaxHeight()
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                        shape = MaterialTheme.shapes.small
+                                    )
+                                    .clickable { onWeightClick(index, setIndex) }) {
+                                    Text(
+                                        text = "%.1f".format(set.weight),
+                                        modifier = Modifier.align(Alignment.Center),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+                            }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "Status",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+
+                            exerciseSets.forEachIndexed { setIndex, set ->
+                                var showStatusMenu by remember { mutableStateOf(false) }
+
+
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp).padding(bottom = 8.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(60.dp, 40.dp)
+                                            .fillMaxHeight()
+                                            .clickable { showStatusMenu = true },contentAlignment = Alignment.Center
+                                    ) {
+                                        StatusIcon(status = set.status)
+                                    }
+                                    DropdownMenu(
+                                        expanded = showStatusMenu,
+                                        onDismissRequest = { showStatusMenu = false },
+                                        modifier = Modifier.background(
+                                            color = MaterialTheme.colorScheme.surfaceVariant,
+                                        )
+                                    ) {
+                                        DropdownMenuItem(text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.ic_warm_up),
+                                                    contentDescription = "Warm-up",
+                                                    modifier = Modifier.size(24.dp),
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    text = "Warm-up",
+                                                    style = MaterialTheme.typography.titleLarge,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                )
+                                            }
+                                        }, onClick = {
+                                            workoutViewModel.updateSetStatus(
+                                                index, setIndex, SetStatus.WARMUP
+                                            )
+                                            showStatusMenu = false
+                                        })
+                                        DropdownMenuItem(text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.ic_close),
+                                                    contentDescription = "Failed",
+                                                    modifier = Modifier.size(24.dp),
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    text = "Failed",
+                                                    style = MaterialTheme.typography.titleLarge,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                )
+                                            }
+                                        }, onClick = {
+                                            workoutViewModel.updateSetStatus(
+                                                index, setIndex, SetStatus.FAILED
+                                            )
+                                            showStatusMenu = false
+                                        })
+                                        DropdownMenuItem(text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.ic_complete),
+                                                    contentDescription = "Completed",
+                                                    modifier = Modifier.size(24.dp),
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    text = "Completed",
+                                                    style = MaterialTheme.typography.titleLarge,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                )
+                                            }
+                                        }, onClick = {
+                                            workoutViewModel.updateSetStatus(
+                                                index, setIndex, SetStatus.COMPLETED
+                                            )
+                                            showStatusMenu = false
+                                        })
+                                        DropdownMenuItem(text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.ic_delete),
+                                                    contentDescription = "Delete Set",
+                                                    modifier = Modifier.size(24.dp),
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    text = "Deleted",
+                                                    style = MaterialTheme.typography.titleLarge,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                        }, onClick = {
+                                            workoutViewModel.removeExerciseSet(index, setIndex)
+                                            showStatusMenu = false
+                                        })
+                                    }
                                 }
 
-                                DropdownMenu(
-                                    expanded = showStatusMenu,
-                                    onDismissRequest = { showStatusMenu = false },
-                                    modifier = Modifier.background(
-                                        color = MaterialTheme.colorScheme.surfaceVariant,
-                                    )
-                                ) {
-                                    DropdownMenuItem(text = {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(R.drawable.ic_warm_up),
-                                                contentDescription = "Warm-up",
-                                                modifier = Modifier.size(24.dp),
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = "Warm-up",
-                                                style = MaterialTheme.typography.titleLarge,
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                            )
-                                        }
-                                    }, onClick = {
-                                        workoutViewModel.updateSetStatus(
-                                            index, setIndex, SetStatus.WARMUP
-                                        )
-                                        showStatusMenu = false
-                                    })
-                                    DropdownMenuItem(text = {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(R.drawable.ic_close),
-                                                contentDescription = "Failed",
-                                                modifier = Modifier.size(24.dp),
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = "Failed",
-                                                style = MaterialTheme.typography.titleLarge,
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                            )
-                                        }
-                                    }, onClick = {
-                                        workoutViewModel.updateSetStatus(
-                                            index, setIndex, SetStatus.FAILED
-                                        )
-                                        showStatusMenu = false
-                                    })
-                                    DropdownMenuItem(text = {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(R.drawable.ic_complete),
-                                                contentDescription = "Completed",
-                                                modifier = Modifier.size(24.dp),
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = "Completed",
-                                                style = MaterialTheme.typography.titleLarge,
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                            )
-                                        }
-                                    }, onClick = {
-                                        workoutViewModel.updateSetStatus(
-                                            index, setIndex, SetStatus.COMPLETED
-                                        )
-                                        showStatusMenu = false
-                                    })
-                                    DropdownMenuItem(text = {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(R.drawable.ic_delete),
-                                                contentDescription = "Delete Set",
-                                                modifier = Modifier.size(24.dp),
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = "Deleted",
-                                                style = MaterialTheme.typography.titleLarge,
-                                                color = MaterialTheme.colorScheme.onSurface
-                                            )
-                                        }
-                                    }, onClick = {
-                                        workoutViewModel.removeExerciseSet(index, setIndex)
-                                        showStatusMenu = false
-                                    })
-                                }
                             }
+
                         }
                     }
                 }
             }
-            Text(text = "Add Set",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onAddSetClick(index) }
-                    .padding(8.dp),
-                textAlign = TextAlign.Center)
-            Text(text = "Note",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showNoteDialog = true }
-                    .padding(bottom = 8.dp),
-                textAlign = TextAlign.Center)
+
+
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            ) {
+                IconButton(
+                    onClick = onMoveUp,
+                    enabled = canMoveUp,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_up),
+                        contentDescription = "Move Up",
+                        tint = if (canMoveUp) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Add Set",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .clickable { onAddSetClick(index) },
+                        textAlign = TextAlign.Center)
+                    Text(text = "Note",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .clickable { showNoteDialog = true }
+                            .padding(vertical = 8.dp),
+                        textAlign = TextAlign.Center)
+                }
+                IconButton(
+                    onClick = onMoveDown,
+                    enabled = canMoveDown,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_down),
+                        contentDescription = "Move Down",
+                        tint = if (canMoveDown) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                    )
+                }
+            }
+
         }
-    }
+
 
     NoteBottomSheet(showBottomSheet = showNoteDialog, exercise = updatedExercise, onDismiss = {
         showNoteDialog = false

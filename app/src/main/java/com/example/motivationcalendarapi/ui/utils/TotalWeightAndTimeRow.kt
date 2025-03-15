@@ -15,12 +15,12 @@ import androidx.compose.ui.res.painterResource
 import com.example.motivationcalendarapi.R
 
 @Composable
-fun TimeRow(
+fun TotalWeightAndTimeRow(
     timerValue: Int,
     totalKg: Float
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically){
@@ -28,12 +28,11 @@ fun TimeRow(
                 painter = painterResource(R.drawable.ic_equipment_body_weight),
                 contentDescription = "weight",
                 tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(24.dp))
+                modifier = Modifier.size(24.dp).padding(end = 4.dp))
             Text(
                 text = "%.1f".format(totalKg),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(start = 4.dp, end = 4.dp)
             )
             Text(
                 text = "kg",

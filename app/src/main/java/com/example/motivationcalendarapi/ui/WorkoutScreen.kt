@@ -53,8 +53,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.utils.dialogs.EndWorkoutDialog
 import com.example.motivationcalendarapi.ui.utils.ExerciseSelectionBottomSheet
-import com.example.motivationcalendarapi.ui.utils.TimeRow
 import com.example.motivationcalendarapi.ui.utils.TimerBottomSheet
+import com.example.motivationcalendarapi.ui.utils.TotalWeightAndTimeRow
 import com.example.motivationcalendarapi.ui.utils.WorkoutNameTextField
 import com.example.motivationcalendarapi.ui.utils.dialogs.AutoDismissDialog
 import com.example.motivationcalendarapi.ui.utils.dialogs.ExistWorkoutDialog
@@ -339,7 +339,7 @@ fun AddWorkoutScreen(
                             }, keyboardController = keyboardController
                         )
 
-                        TimeRow(
+                        TotalWeightAndTimeRow(
                             timerValue = timerValue, totalKg = totalKg
                         )
 

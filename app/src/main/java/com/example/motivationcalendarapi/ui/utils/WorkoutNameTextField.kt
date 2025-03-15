@@ -47,7 +47,7 @@ fun WorkoutNameTextField(
         decorationBox = { innerTextField ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 2.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_write),

@@ -32,12 +32,11 @@ import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModelFactory
-import com.google.firebase.auth.FirebaseAuth
 import com.motivationcalendar.data.WorkoutDatabase
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
+   // private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)

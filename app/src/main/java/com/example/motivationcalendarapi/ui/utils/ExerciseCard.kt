@@ -398,18 +398,18 @@ fun ExerciseCard(
         }
     }
 
-        NoteBottomSheet(
-            showBottomSheet = showNoteDialog,
-            exercise = updatedExercise,
-            onDismiss = {
-                showNoteDialog = false
-                workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, localNote)
-            },
-            onSaveNote = { newNote ->
-                localNote = newNote
-                workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, newNote)
-            }
-        )
+    NoteBottomSheet(
+        showBottomSheet = showNoteDialog,
+        exercise = updatedExercise,
+        onDismiss = {
+            showNoteDialog = false
+            workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, localNote)
+        },
+        onSaveNote = { newNote ->
+            localNote = newNote
+            workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, newNote)
+        }
+    )
 
 }
 

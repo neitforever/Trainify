@@ -223,18 +223,17 @@ fun ExerciseCard(
                                 modifier = Modifier.padding(bottom = 12.dp)
                             )
                             exerciseSets.forEachIndexed { setIndex, set ->
-                                Box(
-                                    modifier = Modifier
-                                        .padding(horizontal = 8.dp).padding( bottom = 8.dp)
-                                        .size(60.dp, 40.dp)
-                                        .fillMaxHeight()
-                                        .border(
-                                            width = 1.dp,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                            shape = MaterialTheme.shapes.small
-                                        )
-                                        .clickable { onRepClick(index, setIndex) }
-                                ) {
+                                Box(modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .padding(bottom = 8.dp)
+                                    .size(60.dp, 40.dp)
+                                    .fillMaxHeight()
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                        shape = MaterialTheme.shapes.small
+                                    )
+                                    .clickable { onRepClick(index, setIndex) }) {
                                     Text(
                                         text = "${set.rep}",
                                         modifier = Modifier.align(Alignment.Center),
@@ -243,7 +242,7 @@ fun ExerciseCard(
                                 }
                             }
                         }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "Weight",
                                 style = MaterialTheme.typography.titleLarge,
@@ -252,7 +251,8 @@ fun ExerciseCard(
                             )
                             exerciseSets.forEachIndexed { setIndex, set ->
                                 Box(modifier = Modifier
-                                    .padding(horizontal = 8.dp).padding(bottom = 8.dp)
+                                    .padding(horizontal = 8.dp)
+                                    .padding(bottom = 8.dp)
                                     .size(60.dp, 40.dp)
                                     .fillMaxHeight()
                                     .border(
@@ -268,7 +268,7 @@ fun ExerciseCard(
                                     )
                                 }
                             }
-                            }
+                        }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "Status",
@@ -283,13 +283,15 @@ fun ExerciseCard(
 
                                 Box(
                                     modifier = Modifier
-                                        .padding(horizontal = 8.dp).padding(bottom = 8.dp)
+                                        .padding(horizontal = 8.dp)
+                                        .padding(bottom = 8.dp)
                                 ) {
                                     Box(
                                         modifier = Modifier
                                             .size(60.dp, 40.dp)
                                             .fillMaxHeight()
-                                            .clickable { showStatusMenu = true },contentAlignment = Alignment.Center
+                                            .clickable { showStatusMenu = true },
+                                        contentAlignment = Alignment.Center
                                     ) {
                                         StatusIcon(status = set.status)
                                     }
@@ -405,56 +407,55 @@ fun ExerciseCard(
             }
 
 
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-            ) {
-                IconButton(
-                    onClick = onMoveUp,
-                    enabled = canMoveUp,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_up),
-                        contentDescription = "Move Up",
-                        tint = if (canMoveUp) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                    )
-                }
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Add Set",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .clickable { onAddSetClick(index) },
-                        textAlign = TextAlign.Center)
-                    Text(text = "Note",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .clickable { showNoteDialog = true }
-                            .padding(vertical = 8.dp),
-                        textAlign = TextAlign.Center)
-                }
-                IconButton(
-                    onClick = onMoveDown,
-                    enabled = canMoveDown,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_down),
-                        contentDescription = "Move Down",
-                        tint = if (canMoveDown) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                    )
-                }
-            }
-
         }
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            IconButton(
+                onClick = onMoveUp, enabled = canMoveUp, modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_up),
+                    contentDescription = "Move Up",
+                    tint = if (canMoveUp) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                )
+            }
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Add Set",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.clickable { onAddSetClick(index) },
+                    textAlign = TextAlign.Center
+                )
+                Text(text = "Note",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .clickable { showNoteDialog = true }
+                        .padding(vertical = 8.dp),
+                    textAlign = TextAlign.Center)
+            }
+            IconButton(
+                onClick = onMoveDown, enabled = canMoveDown, modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_down),
+                    contentDescription = "Move Down",
+                    tint = if (canMoveDown) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                )
+            }
+        }
+
+    }
 
 
     NoteBottomSheet(showBottomSheet = showNoteDialog, exercise = updatedExercise, onDismiss = {

@@ -179,31 +179,61 @@ fun AddWorkoutScreen(
             shape = CutCornerShape(4.dp)
         )
         )
-    },
-        floatingActionButton = {
-            if (isWorkoutStarted) {
+    }, floatingActionButton = {
+        if (isWorkoutStarted) {
 
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .wrapContentSize(Alignment.BottomEnd)
-                        .pointerInput(Unit) {
-                            detectTapGestures {
-                                isMenuExpanded = false
-                            }
+            Column(horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .wrapContentSize(Alignment.BottomEnd)
+                    .pointerInput(Unit) {
+                        detectTapGestures {
+                            isMenuExpanded = false
                         }
+                    }) {
+                Row {
+                    AnimatedVisibility(
+                        visible = isMenuExpanded,
+                        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
+                        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom)
+                    ) {
+                        FloatingActionButton(
+                            onClick = {
+                                showWarmupBottomSheet = true
+                                isMenuExpanded = false
+                            },
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(64.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_time),
+                                contentDescription = "Warmup",
+                                modifier = Modifier.size(36.dp)
+                            )
+                        }
+                    }
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Row{
-                        AnimatedVisibility(
-                            visible = isMenuExpanded,
-                            enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
-                            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom)
+                    AnimatedVisibility(
+                        visible = isMenuExpanded,
+                        enter = fadeIn() + expandHorizontally(expandFrom = Alignment.End),
+                        exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.End)
+                    ) {
+
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             FloatingActionButton(
                                 onClick = {
-                                    showWarmupBottomSheet = true
+                                    showPauseDialog.value = true
+                                    if (timerRunning) workoutViewModel.pauseTimer()
+                                    else workoutViewModel.resumeTimer()
                                     isMenuExpanded = false
                                 },
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -211,111 +241,76 @@ fun AddWorkoutScreen(
                                 modifier = Modifier.size(64.dp)
                             ) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.ic_time),
-                                    contentDescription = "Warmup",
+                                    painter = if (timerRunning) painterResource(id = R.drawable.ic_pause)
+                                    else painterResource(id = R.drawable.ic_play_arrow),
+                                    contentDescription = if (timerRunning) "Pause" else "Repeat",
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+
+                            FloatingActionButton(
+                                onClick = {
+                                    showEndWorkoutDialog.value = true
+                                    isMenuExpanded = false
+                                },
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(64.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_stop),
+                                    contentDescription = "End",
                                     modifier = Modifier.size(36.dp)
                                 )
                             }
                         }
+
                     }
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        AnimatedVisibility(
-                            visible = isMenuExpanded,
-                            enter = fadeIn() + expandHorizontally(expandFrom = Alignment.End),
-                            exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.End)
-                        ) {
 
-
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                FloatingActionButton(
-                                    onClick = {
-                                        showPauseDialog.value = true
-                                        if (timerRunning) workoutViewModel.pauseTimer()
-                                        else workoutViewModel.resumeTimer()
-                                        isMenuExpanded = false
-                                    },
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                    contentColor = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(64.dp)
-                                ) {
-                                    Icon(
-                                        painter = if (timerRunning) painterResource(id = R.drawable.ic_pause)
-                                        else painterResource(id = R.drawable.ic_play_arrow),
-                                        contentDescription = if (timerRunning) "Pause" else "Repeat",
-                                        modifier = Modifier.size(36.dp)
-                                    )
-                                }
-
-                                FloatingActionButton(
-                                    onClick = {
-                                        showEndWorkoutDialog.value = true
-                                        isMenuExpanded = false
-                                    },
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                    contentColor = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(64.dp)
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_stop),
-                                        contentDescription = "End",
-                                        modifier = Modifier.size(36.dp)
-                                    )
-                                }
-                            }
-
-                        }
-
-                        FloatingActionButton(
-                            onClick = { isMenuExpanded = !isMenuExpanded },
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(64.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(
-                                    id = if (isMenuExpanded) R.drawable.ic_close
-                                    else R.drawable.ic_menu
-                                ), contentDescription = "Menu", modifier = Modifier.size(36.dp)
-                            )
-                        }
-                    }
-                }
-            } else {
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier.navigationBarsPadding()
-                ) {
                     FloatingActionButton(
-                        onClick = {
-                            workoutViewModel.checkForExistingWorkout()
-                        },
+                        onClick = { isMenuExpanded = !isMenuExpanded },
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        contentColor = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(64.dp)
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_play_arrow),
-                            contentDescription = "Start",
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            painter = painterResource(
+                                id = if (isMenuExpanded) R.drawable.ic_close
+                                else R.drawable.ic_menu
+                            ), contentDescription = "Menu", modifier = Modifier.size(36.dp)
                         )
                     }
                 }
             }
-        }) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .pointerInput(Unit) {
-                    detectTapGestures { isMenuExpanded = false }
+        } else {
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier.navigationBarsPadding()
+            ) {
+                FloatingActionButton(
+                    onClick = {
+                        workoutViewModel.checkForExistingWorkout()
+                    },
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(64.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_play_arrow),
+                        contentDescription = "Start",
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
-        ) {
+            }
+        }
+    }) { paddingValues ->
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .pointerInput(Unit) {
+                detectTapGestures { isMenuExpanded = false }
+            }) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -369,7 +364,7 @@ fun AddWorkoutScreen(
                                 exercise = exercise,
                                 exerciseSets = exerciseSetsMap[index] ?: emptyList(),
                                 onAddSetClick = { exIndex ->
-                                    workoutViewModel.addExerciseSet(exIndex, ExerciseSet(0, 0f))
+                                    workoutViewModel.addExerciseSet(exIndex)
                                 },
                                 onRepClick = { exIndex, setIndex ->
                                     currentExerciseIndex = exIndex
@@ -457,8 +452,7 @@ fun AddWorkoutScreen(
                 isPaused = isWorkoutPaused.value
             )
 
-            EndWorkoutDialog(
-                showDialog = showEndWorkoutDialog.value,
+            EndWorkoutDialog(showDialog = showEndWorkoutDialog.value,
                 onDismiss = { showEndWorkoutDialog.value = false },
                 onConfirm = {
                     val isNameEmpty = workoutName.isBlank()
@@ -481,8 +475,7 @@ fun AddWorkoutScreen(
                         workoutViewModel.resetWorkout()
                         showEndWorkoutDialog.value = false
                     }
-                }
-            )
+                })
 
             AutoDismissDialog(
                 showDialog = showValidationDialog,

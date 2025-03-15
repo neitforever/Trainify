@@ -18,60 +18,50 @@ import com.example.motivationcalendarapi.model.ExerciseSet
 
 @Composable
 fun WeightDialog(
-    showDialog: Boolean,
-    initialWeight: Float,
-    onDismiss: () -> Unit,
-    onSave: (Float) -> Unit
+    showDialog: Boolean, initialWeight: Float, onDismiss: () -> Unit, onSave: (Float) -> Unit
 ) {
     if (showDialog) {
         var weight by remember { mutableStateOf(initialWeight) }
 
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = {
+        AlertDialog(onDismissRequest = onDismiss, title = {
+            Text(
+                text = "Edit Weight",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.titleLarge,
+            )
+        }, text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                WeightRow(value = weight, onValueChange = { weight = it })
+            }
+        }, confirmButton = {
+            TextButton(onClick = { onSave(weight) }) {
                 Text(
-                    text = "Edit Weight",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.titleLarge,
+                    text = "Save",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleMedium,
                 )
-            },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    WeightRow(value = weight, onValueChange = { weight = it })
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { onSave(weight) }) {
-                    Text(
-                        text = "Save",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismiss) {
-                    Text(
-                        text = "Cancel",
-                        color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                }
-            },
-            modifier = Modifier.padding(16.dp)
+            }
+        }, dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "Cancel",
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+        }, modifier = Modifier.padding(16.dp)
         )
     }
 }
 
 @Composable
 private fun WeightRow(
-    value: Float,
-    onValueChange: (Float) -> Unit
+    value: Float, onValueChange: (Float) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -84,8 +74,7 @@ private fun WeightRow(
             Text("-5", style = MaterialTheme.typography.bodyMedium)
         }
 
-        OutlinedTextField(
-            value = value.toString(),
+        OutlinedTextField(value = value.toString(),
             onValueChange = { input ->
                 val weight = input.toFloatOrNull() ?: 0f
                 onValueChange(weight.coerceIn(0f, 200f))

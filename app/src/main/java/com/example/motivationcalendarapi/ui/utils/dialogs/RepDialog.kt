@@ -18,60 +18,50 @@ import com.example.motivationcalendarapi.model.ExerciseSet
 
 @Composable
 fun RepsDialog(
-    showDialog: Boolean,
-    initialRep: Int,
-    onDismiss: () -> Unit,
-    onSave: (Int) -> Unit
+    showDialog: Boolean, initialRep: Int, onDismiss: () -> Unit, onSave: (Int) -> Unit
 ) {
     if (showDialog) {
         var rep by remember { mutableStateOf(initialRep) }
 
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = {
+        AlertDialog(onDismissRequest = onDismiss, title = {
+            Text(
+                text = "Edit Reps",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.titleLarge,
+            )
+        }, text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                RepsRow(value = rep, onValueChange = { rep = it })
+            }
+        }, confirmButton = {
+            TextButton(onClick = { onSave(rep) }) {
                 Text(
-                    text = "Edit Reps",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.titleLarge,
+                    text = "Save",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleMedium,
                 )
-            },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    RepsRow(value = rep, onValueChange = { rep = it })
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { onSave(rep) }) {
-                    Text(
-                        text = "Save",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismiss) {
-                    Text(
-                        text = "Cancel",
-                        color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                }
-            },
-            modifier = Modifier.padding(16.dp)
+            }
+        }, dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "Cancel",
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+        }, modifier = Modifier.padding(16.dp)
         )
     }
 }
 
 @Composable
 private fun RepsRow(
-    value: Int,
-    onValueChange: (Int) -> Unit
+    value: Int, onValueChange: (Int) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -84,8 +74,7 @@ private fun RepsRow(
             Text("-4", style = MaterialTheme.typography.bodyMedium)
         }
 
-        OutlinedTextField(
-            value = value.toString(),
+        OutlinedTextField(value = value.toString(),
             onValueChange = { input ->
                 val reps = input.toIntOrNull() ?: 0
                 onValueChange(reps.coerceIn(0, 32))

@@ -29,7 +29,6 @@ class WorkoutViewModel(
 ) : ViewModel() {
 
 
-
     private val _notesUpdates = MutableStateFlow<Map<String, String>>(emptyMap())
     val notesUpdates: StateFlow<Map<String, String>> = _notesUpdates.asStateFlow()
 
@@ -73,8 +72,7 @@ class WorkoutViewModel(
         }
 
         viewModelScope.launch {
-            workoutRepository.getExerciseNotesUpdates()
-                .collect { exercises ->
+            workoutRepository.getExerciseNotesUpdates().collect { exercises ->
                     val notesMap = exercises.associate { it.id to it.note }
                     _notesUpdates.value = notesMap
                 }
@@ -102,12 +100,12 @@ class WorkoutViewModel(
         get() = savedStateHandle.get<Long>(PAUSED_DURATION_KEY) ?: 0L
         set(value) = savedStateHandle.set(PAUSED_DURATION_KEY, value)
 
-    private val _timerRunning = MutableStateFlow(savedStateHandle.get<Boolean>(TIMER_RUNNING_KEY) ?: false)
+    private val _timerRunning =
+        MutableStateFlow(savedStateHandle.get<Boolean>(TIMER_RUNNING_KEY) ?: false)
     val timerRunning: StateFlow<Boolean> = _timerRunning.asStateFlow()
 
     private val _timerValue = MutableStateFlow(0)
     val timerValue: StateFlow<Int> = _timerValue.asStateFlow()
-
 
 
     fun startTimer() {
@@ -133,6 +131,7 @@ class WorkoutViewModel(
             startTime = System.currentTimeMillis() - totalPausedDuration
         }
     }
+
     fun resetWorkout() {
         _timerRunning.value = false
         savedStateHandle.set(TIMER_RUNNING_KEY, false)
@@ -150,7 +149,6 @@ class WorkoutViewModel(
     }
 
 
-    // Список всех тренировок
     private val _allWorkouts = MutableStateFlow<List<Workout>>(emptyList())
     val allWorkouts: StateFlow<List<Workout>> = _allWorkouts.asStateFlow()
 
@@ -166,27 +164,21 @@ class WorkoutViewModel(
         }
     }
 
-    // Название тренировки
     private val _workoutName = MutableStateFlow("")
     val workoutName: StateFlow<String> = _workoutName.asStateFlow()
 
-    // Состояние тренировки (идёт или нет)
     private val _isWorkoutStarted = MutableStateFlow(false)
     val isWorkoutStarted: StateFlow<Boolean> = _isWorkoutStarted.asStateFlow()
 
-    // Состояние для хранения тренировки по ID
     private val _currentWorkout = MutableStateFlow<Workout?>(null)
     val currentWorkout: StateFlow<Workout?> get() = _currentWorkout
 
-    // Состояние загрузки тренировки
     private val _isLoadingWorkout = MutableStateFlow(false)
     val isLoadingWorkout: StateFlow<Boolean> = _isLoadingWorkout.asStateFlow()
 
-    // Список выбранных упражнений
     private val _selectedExercises = MutableStateFlow<List<ExtendedExercise>>(emptyList())
     val selectedExercises: StateFlow<List<ExtendedExercise>> = _selectedExercises.asStateFlow()
 
-    // Карта подходов для упражнений
     private val _exerciseSetsMap = MutableStateFlow<Map<Int, List<ExerciseSet>>>(emptyMap())
     val exerciseSetsMap: StateFlow<Map<Int, List<ExerciseSet>>> = _exerciseSetsMap.asStateFlow()
 
@@ -197,9 +189,7 @@ class WorkoutViewModel(
     val workoutsToday: StateFlow<List<Workout>> = _workoutsToday.asStateFlow()
 
 
-
     init {
-        // Восстановление таймера при создании ViewModel
         if (_timerRunning.value) {
             startTime = System.currentTimeMillis() - totalPausedDuration
         }
@@ -210,14 +200,12 @@ class WorkoutViewModel(
             }
         }
 
-        // Запуск отдельной корутины для сбора данных о тренировках
         viewModelScope.launch {
             workoutRepository.getWorkoutsToday().collect {
                 _workoutsToday.value = it
             }
         }
 
-        // Запуск отдельной корутины для таймера
         viewModelScope.launch {
             while (true) {
                 delay(1000L)
@@ -263,13 +251,11 @@ class WorkoutViewModel(
     fun workoutsByMonthAndWeek(): Flow<Map<String, Map<Int, List<Workout>>>> {
         return allWorkouts.map { workouts ->
             workouts.groupBy { workout ->
-                // Группировка по месяцам
                 val instant = Instant.ofEpochMilli(workout.timestamp)
                 val monthFormatter =
                     DateTimeFormatter.ofPattern("MMMM yyyy").withZone(ZoneId.systemDefault())
                 monthFormatter.format(instant)
             }.mapValues { (_, monthWorkouts) ->
-                // Внутри месяца группировка по неделям, где неделя - каждые 7 дней
                 monthWorkouts.groupBy { workout ->
                     calculateWeekOfMonth(workout.timestamp)
                 }
@@ -302,10 +288,8 @@ class WorkoutViewModel(
         }
     }
 
-    // Загрузка всех тренировок из базы данных
     fun loadWorkouts() {
         viewModelScope.launch {
-            // Используем collect для получения данных из Flow
             workoutRepository.getAllWorkouts().collect { workouts ->
                 _allWorkouts.value = workouts
             }
@@ -313,24 +297,17 @@ class WorkoutViewModel(
     }
 
 
-
-
-
-    // Завершить тренировку (таймер останавливается, но данные сохраняются)
     fun finishWorkout() {
         _timerRunning.value = false
         _isWorkoutStarted.value = false
     }
 
 
-    // Установить название тренировки
     fun setWorkoutName(name: String) {
         _workoutName.value = name
     }
 
 
-    // Сохранить текущую тренировку в базу данных
-    // WorkoutViewModel.kt
     fun saveWorkout(exercises: List<ExtendedExercise>) {
         viewModelScope.launch {
             val workout = Workout(
@@ -349,7 +326,6 @@ class WorkoutViewModel(
         return if (name.isBlank()) "Blank" else name
     }
 
-    // Удалить тренировку из базы данных
     fun deleteWorkout(workout: Workout) {
         viewModelScope.launch {
             workoutRepository.delete(workout)
@@ -390,24 +366,23 @@ class WorkoutViewModel(
         }
     }
 
-    val totalKg: StateFlow<Float> = combine(selectedExercises, exerciseSetsMap) { exercises, setsMap ->
-        exercises.indices.sumOf { index ->
-            setsMap[index]?.sumOf { it.weight.toDouble() } ?: 0.0
-        }.toFloat()
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = 0f
-    )
+    val totalKg: StateFlow<Float> =
+        combine(selectedExercises, exerciseSetsMap) { exercises, setsMap ->
+            exercises.indices.sumOf { index ->
+                setsMap[index]?.sumOf { it.weight.toDouble() } ?: 0.0
+            }.toFloat()
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 0f
+        )
 
     fun removeExercise(exerciseIndex: Int) {
         val updatedExercises = _selectedExercises.value.toMutableList().apply {
             removeAt(exerciseIndex)
         }
 
-        val updatedMap = _exerciseSetsMap.value
-            .toMutableMap()
-            .filterKeys { it != exerciseIndex }
+        val updatedMap = _exerciseSetsMap.value.toMutableMap().filterKeys { it != exerciseIndex }
             .mapKeys { (key, _) ->
                 if (key > exerciseIndex) key - 1 else key
             }
@@ -417,10 +392,13 @@ class WorkoutViewModel(
         _exerciseSetsMap.value = updatedMap
     }
 
-    fun addExerciseSet(exerciseId: Int, set: ExerciseSet) {
+    fun addExerciseSet(exerciseId: Int) {
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         val sets = updatedMap[exerciseId]?.toMutableList() ?: mutableListOf()
-        sets.add(set)
+
+        val newSet = sets.lastOrNull()?.copy() ?: ExerciseSet(rep = 0, weight = 0f)
+        sets.add(newSet)
+
         updatedMap[exerciseId] = sets
         _exerciseSetsMap.value = updatedMap
     }
@@ -461,8 +439,7 @@ class WorkoutViewModel(
 }
 
 class WorkoutViewModelFactory(
-    private val workoutRepository: WorkoutRepository,
-    private val timerDataStore: TimerDataStore
+    private val workoutRepository: WorkoutRepository, private val timerDataStore: TimerDataStore
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {

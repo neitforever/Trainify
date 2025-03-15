@@ -458,13 +458,13 @@ fun AddWorkoutScreen(
                     val isNameEmpty = workoutName.isBlank()
                     val hasInvalidSets = selectedExercises.any { ex ->
                         val sets = exerciseSetsMap[selectedExercises.indexOf(ex)] ?: emptyList()
-                        sets.any { it.rep <= 0 || it.weight <= 0f }
+                        sets.any { it.rep <= 0 }
                     }
 
                     if (isNameEmpty || hasInvalidSets) {
                         validationMessage = buildString {
                             if (isNameEmpty) append("Workout name cannot be empty.\n")
-                            if (hasInvalidSets) append("All sets must have reps and weight filled.")
+                            if (hasInvalidSets) append("All sets must have reps")
                         }
                         showValidationDialog = true
                     } else {

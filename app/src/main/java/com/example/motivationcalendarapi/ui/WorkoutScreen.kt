@@ -56,6 +56,7 @@ import com.example.motivationcalendarapi.ui.utils.ExerciseSelectionBottomSheet
 import com.example.motivationcalendarapi.ui.utils.TimeRow
 import com.example.motivationcalendarapi.ui.utils.TimerBottomSheet
 import com.example.motivationcalendarapi.ui.utils.WorkoutNameTextField
+import com.example.motivationcalendarapi.ui.utils.dialogs.AutoDismissDialog
 import com.example.motivationcalendarapi.ui.utils.dialogs.ExistWorkoutDialog
 import com.example.motivationcalendarapi.ui.utils.dialogs.TimerCompleteDialog
 import com.example.motivationcalendarapi.ui.utils.dialogs.WarmupDialog
@@ -117,6 +118,8 @@ fun AddWorkoutScreen(
 
     var isMenuExpanded by remember { mutableStateOf(false) }
 
+    var showValidationDialog by remember { mutableStateOf(false) }
+    var validationMessage by remember { mutableStateOf("") }
 
 
     var showTimerCompleteDialog by remember { mutableStateOf(false) }
@@ -450,16 +453,38 @@ fun AddWorkoutScreen(
                 isPaused = isWorkoutPaused.value
             )
 
-            EndWorkoutDialog(showDialog = showEndWorkoutDialog.value,
+            EndWorkoutDialog(
+                showDialog = showEndWorkoutDialog.value,
                 onDismiss = { showEndWorkoutDialog.value = false },
                 onConfirm = {
-                    val updatedExercises = selectedExercises.mapIndexed { index, ex ->
-                        ex.copy(sets = exerciseSetsMap[index] ?: emptyList())
+                    val isNameEmpty = workoutName.isBlank()
+                    val hasInvalidSets = selectedExercises.any { ex ->
+                        val sets = exerciseSetsMap[selectedExercises.indexOf(ex)] ?: emptyList()
+                        sets.any { it.rep <= 0 || it.weight <= 0f }
                     }
-                    workoutViewModel.saveWorkout(updatedExercises)
-                    workoutViewModel.resetWorkout()
-                    showEndWorkoutDialog.value = false
-                })
+
+                    if (isNameEmpty || hasInvalidSets) {
+                        validationMessage = buildString {
+                            if (isNameEmpty) append("Workout name cannot be empty.\n")
+                            if (hasInvalidSets) append("All sets must have reps and weight filled.")
+                        }
+                        showValidationDialog = true
+                    } else {
+                        val updatedExercises = selectedExercises.mapIndexed { index, ex ->
+                            ex.copy(sets = exerciseSetsMap[index] ?: emptyList())
+                        }
+                        workoutViewModel.saveWorkout(updatedExercises)
+                        workoutViewModel.resetWorkout()
+                        showEndWorkoutDialog.value = false
+                    }
+                }
+            )
+
+            AutoDismissDialog(
+                showDialog = showValidationDialog,
+                onDismiss = { showValidationDialog = false },
+                message = validationMessage
+            )
 
             RepsDialog(showDialog = showRepDialog,
                 initialRep = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.rep ?: 0,

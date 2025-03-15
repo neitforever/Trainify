@@ -357,7 +357,7 @@ fun ExerciseCard(
                                         ) {
                                             Icon(
                                                 painter = painterResource(R.drawable.ic_delete),
-                                                contentDescription = "Delete set",
+                                                contentDescription = "Deleted",
                                                 modifier = Modifier.size(24.dp),
                                                 tint = MaterialTheme.colorScheme.primary
                                             )

@@ -21,8 +21,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +41,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.ui.AuthScreen
+import com.example.motivationcalendarapi.ui.ProfileScreen
 import com.example.motivationcalendarapi.ui.exercise.BodyPartSelectionScreen
 import com.example.motivationcalendarapi.ui.exercise.CreateExerciseScreen
 import com.example.motivationcalendarapi.ui.exercise.EditExerciseInstructionsScreen
@@ -47,6 +53,7 @@ import com.example.motivationcalendarapi.ui.exercise.ExerciseScreen
 import com.example.motivationcalendarapi.ui.exercise.SearchExerciseScreen
 import com.example.motivationcalendarapi.ui.SettingsScreen
 import com.example.motivationcalendarapi.ui.ThemeSettingsScreen
+import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
@@ -65,13 +72,22 @@ fun NavGraph(
     mainViewModel: MainViewModel,
     exerciseViewModel: ExerciseViewModel,
     drawerState: DrawerState,
-) {
+    googleAuthClient: GoogleAuthClient,
+    authViewModel: AuthViewModel,
+
+
+    ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
     val currentDestination = currentBackStackEntry?.destination
     val currentRoute = currentDestination?.route?.split("/")?.get(0)
     val coroutineScope = rememberCoroutineScope()
 
+//    var isSignIn = rememberSaveable {
+//        mutableStateOf(googleAuthClient.isSingedIn())
+//    }
+
+    val userState = authViewModel.userState.collectAsState()
     // val pagerState = rememberPagerState(pageCount = { 2 })
 
     val screens = listOf(
@@ -80,13 +96,14 @@ fun NavGraph(
         Screen.Settings,
         Screen.ThemeSettings,
         Screen.EquipmentSelection,
-        Screen.BodyPartSelection
+        Screen.BodyPartSelection,
+        Screen.Auth
     )
     Scaffold(
         topBar = {
             screens.forEach { it ->
 
-                if (it.route == currentRoute) {
+                if (it.route == currentRoute && it.route != Screen.Auth.route) {
                     TopAppBar(
                         colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.background,
@@ -115,21 +132,23 @@ fun NavGraph(
                                     }
 
                                 }
+
                                 else -> {
                                     IconButton(
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            drawerState.open()
-                                        }
-                                    }, modifier = Modifier.size(48.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Menu,
-                                        contentDescription = "Open Menu",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(42.dp)
-                                    )
-                                }}
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                drawerState.open()
+                                            }
+                                        }, modifier = Modifier.size(48.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Menu,
+                                            contentDescription = "Open Menu",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(42.dp)
+                                        )
+                                    }
+                                }
                             }
 
                         },
@@ -198,7 +217,7 @@ fun NavGraph(
                                 modifier = Modifier.navigationBarsPadding()
                             ) {
                                 FloatingActionButton(
-                                    onClick = {navController.navigate(Screen.CreateExercise.route)},
+                                    onClick = { navController.navigate(Screen.CreateExercise.route) },
                                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                     contentColor = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(64.dp)
@@ -223,7 +242,13 @@ fun NavGraph(
 //        }
 
     ) { paddingValue ->
-        NavHost(navController = navHostController, startDestination = "add_workout") {
+        NavHost(
+            navController = navHostController,
+            startDestination = when (userState.value is AuthViewModel.UserState.Authenticated) {
+                true -> Screen.AddWorkout.route
+                else -> Screen.Auth.route
+            }
+        ) {
 
             composable(Screen.AddWorkout.route) {
 
@@ -249,10 +274,24 @@ fun NavGraph(
                 )
             }
 
+            composable(Screen.Auth.route) {
+                AuthScreen(
+                    authViewModel,
+                    navController = navHostController
+                )
+            }
+
             composable(Screen.SearchExercise.route) {
                 SearchExerciseScreen(
                     navController = navHostController, viewModel = exerciseViewModel
                 )
+            }
+            composable(Screen.Profile.route) {
+                ProfileScreen(
+                    authViewModel,
+                    navController,
+
+                    )
             }
 
             composable(Screen.Settings.route) {
@@ -298,7 +337,8 @@ fun NavGraph(
                 BodyPartSelectionScreen(
                     navController = navHostController,
                     exerciseId = exerciseId ?: "",
-                    viewModel = exerciseViewModel,  paddingValues = paddingValue.calculateTopPadding()
+                    viewModel = exerciseViewModel,
+                    paddingValues = paddingValue.calculateTopPadding()
                 )
             }
 
@@ -311,7 +351,8 @@ fun NavGraph(
                 EquipmentSelectionScreen(
                     navController = navHostController,
                     exerciseId = exerciseId ?: "",
-                    viewModel = exerciseViewModel, paddingValues = paddingValue.calculateTopPadding()
+                    viewModel = exerciseViewModel,
+                    paddingValues = paddingValue.calculateTopPadding()
                 )
             }
 

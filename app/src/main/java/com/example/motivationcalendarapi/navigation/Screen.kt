@@ -1,6 +1,7 @@
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.rounded.List
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
@@ -27,4 +28,6 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object SecondaryMusclesSelection : Screen("secondary_muscles_selection", "Secondary Muscles", Icons.Default.List)
     object EditExerciseInstructions : Screen("edit_instructions", "Edit Instructions", Icons.Default.Edit)
     object CreateExercise : Screen("create_exercise", "New Exercise", Icons.Default.Add)
+    object Auth : Screen("auth", "auth", Icons.Default.Add)
+    object Profile : Screen("profile", "Profile", Icons.Default.AccountBox)
 }

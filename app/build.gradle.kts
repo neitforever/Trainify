@@ -57,6 +57,14 @@ dependencies {
 //    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 //
 
+
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
+
     implementation("androidx.compose.material:material:1.8.0-beta01")
     implementation("androidx.wear.compose:compose-navigation:1.4.1")
     implementation(libs.androidx.datastore.preferences)
@@ -77,6 +85,8 @@ dependencies {
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.compose.material)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.googleid)
     ksp(libs.androidx.room.compiler)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

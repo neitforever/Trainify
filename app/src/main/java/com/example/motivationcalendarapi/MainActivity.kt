@@ -1,5 +1,6 @@
 package com.example.motivationcalendarapi
 
+import GoogleAuthClient
 import NavGraph
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -20,14 +21,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
 import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
+import com.example.motivationcalendarapi.ui.AuthScreen
 import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
 import com.example.motivationcalendarapi.ui.utils.NavigationMenuView
+import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
@@ -36,7 +41,7 @@ import com.motivationcalendar.data.WorkoutDatabase
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-   // private lateinit var auth: FirebaseAuth
+    // private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)
@@ -68,6 +73,9 @@ class MainActivity : ComponentActivity() {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             val coroutineScope = rememberCoroutineScope()
 
+            val googleAuthClient = GoogleAuthClient(applicationContext)
+            val authViewModel = AuthViewModel(googleAuthClient)
+
             MotivationCalendarAPITheme(mainViewModel = mainViewModel) {
 
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
@@ -85,7 +93,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-
                         NavGraph(
                             navHostController = navController,
                             navController = navController,
@@ -93,6 +100,8 @@ class MainActivity : ComponentActivity() {
                             mainViewModel,
                             exerciseViewModel,
                             drawerState,
+                            googleAuthClient,
+                            authViewModel
                         )
                     }
 

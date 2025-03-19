@@ -9,9 +9,9 @@ fun formatTime(seconds: Int?): String {
 
 fun formatTimestamp(timestamp: Long?): String {
     return try {
-        val date = Date(timestamp!!) // Преобразуем миллисекунды в Date
+        val date = Date(timestamp!!)
         val formatter = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
-        formatter.format(date) // Форматируем в строку
+        formatter.format(date)
     } catch (e: Exception) {
         "Неверная дата"
     }

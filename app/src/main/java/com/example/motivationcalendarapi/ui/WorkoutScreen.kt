@@ -179,7 +179,8 @@ fun AddWorkoutScreen(
             shape = CutCornerShape(4.dp)
         )
         )
-    }, floatingActionButton = {
+    },
+        floatingActionButton = {
         if (isWorkoutStarted) {
 
             Column(horizontalAlignment = Alignment.End,

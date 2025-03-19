@@ -12,11 +12,13 @@ import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
+import com.example.motivationcalendarapi.utils.DifficultyLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.Month
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -248,25 +250,66 @@ class WorkoutViewModel(
     }
 
 
-    fun workoutsByMonthAndWeek(): Flow<Map<String, Map<Int, List<Workout>>>> {
+    fun workoutsByYearMonthAndWeek(): Flow<Map<Int, Map<String, Map<Int, List<Workout>>>>> {
         return allWorkouts.map { workouts ->
             workouts.groupBy { workout ->
-                val instant = Instant.ofEpochMilli(workout.timestamp)
-                val monthFormatter =
-                    DateTimeFormatter.ofPattern("MMMM yyyy").withZone(ZoneId.systemDefault())
-                monthFormatter.format(instant)
-            }.mapValues { (_, monthWorkouts) ->
-                monthWorkouts.groupBy { workout ->
-                    calculateWeekOfMonth(workout.timestamp)
+                Instant.ofEpochMilli(workout.timestamp)
+                    .atZone(ZoneId.systemDefault()).year
+            }.mapValues { yearEntry ->
+                yearEntry.value.groupBy { workout ->
+                    DateTimeFormatter.ofPattern("MMMM")
+                        .withZone(ZoneId.systemDefault())
+                        .format(Instant.ofEpochMilli(workout.timestamp))
+                }.mapValues { monthEntry ->
+                    monthEntry.value.groupBy { workout ->
+                        calculateWeekOfMonth(workout.timestamp)
+                    }
                 }
             }
+                .toSortedMap(compareBy { it })
+                .mapValues { yearEntry ->
+                    yearEntry.value.toSortedMap(Comparator { m1, m2 ->
+                        Month.valueOf(m1.uppercase()).compareTo(Month.valueOf(m2.uppercase()))
+                    })
+                        .mapValues { monthEntry ->
+                            monthEntry.value.toSortedMap(compareBy { it })
+                        }
+                }
         }
     }
 
+    fun calculateWorkoutDifficulty(workout: Workout): DifficultyLevel {
+        var totalWeight = 0f
+        var totalReps = 0
+        var totalSets = 0
+
+        workout.exercises.forEach { exercise ->
+            exercise.sets.forEach { set ->
+                totalWeight += set.weight
+                totalReps += set.rep
+                totalSets++
+            }
+        }
+
+        if (totalSets == 0) return DifficultyLevel.EASY
+
+        val avgWeight = totalWeight / totalSets
+        val avgReps = totalReps.toFloat() / totalSets
+
+        return when {
+            avgWeight > 70f && avgReps > 8 -> DifficultyLevel.HARD
+            avgWeight > 40f && avgReps > 5 -> DifficultyLevel.NORMAL
+            else -> DifficultyLevel.EASY
+        }
+    }
+
+
     private fun calculateWeekOfMonth(timestamp: Long): Int {
-        val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
-        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
-        return (dayOfMonth - 1) / 7 + 1
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = timestamp
+            firstDayOfWeek = Calendar.MONDAY
+        }
+        return calendar.get(Calendar.WEEK_OF_MONTH)
     }
 
 

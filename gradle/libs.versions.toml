@@ -26,8 +26,8 @@ foundationAndroid = "1.7.2"
 composeMaterial = "1.4.1"
 firebaseAuthKtx = "23.2.0"
 googleid = "1.1.1"
-credentialsPlayServicesAuth = "1.5.0-alpha05"
-firebaseBom = "33.3.0"
+credentialsPlayServicesAuth = "1.5.0"
+firebaseBom = "33.10.0"
 gmsGoogleServices = "4.4.2"
 
 

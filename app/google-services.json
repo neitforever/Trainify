@@ -14,8 +14,12 @@
       },
       "oauth_client": [
         {
-          "client_id": "311399588202-k718ga4og8iahofenhd9pbr4k8oo4lj2.apps.googleusercontent.com",
-          "client_type": 3
+          "client_id": "311399588202-ocscmkhuh3euqllctl8uvkereo70ieem.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.motivationcalendarapi",
+            "certificate_hash": "f0b734df9aa038f2870506abad76d962b2ca22bc"
+          }
         }
       ],
       "api_key": [

@@ -2,12 +2,12 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="app">
+      <SelectionState runConfigName="MotivationCalendarAPI.app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-03-19T08:06:39.337062500Z">
+        <DropdownSelection timestamp="2025-03-19T13:58:33.566595Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=12698e9a" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/neitik/.android/avd/android10.avd" />
             </handle>
           </Target>
         </DropdownSelection>

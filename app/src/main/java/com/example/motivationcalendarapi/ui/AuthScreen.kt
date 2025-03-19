@@ -66,6 +66,8 @@ fun AuthScreen(
     authViewModel: AuthViewModel,
     navController: NavController,
 ) {
+    Log.d("asdasd","123456")
+
     val coroutineScope = rememberCoroutineScope()
 //    LaunchedEffect(isSignIn) {
 //        navController.navigate(Screen.AddWorkout.route)
@@ -77,8 +79,11 @@ fun AuthScreen(
         contentAlignment = Alignment.Center
     ) {
             OutlinedButton(onClick = {
-                coroutineScope.launch {
+                coroutineScope.launch(Dispatchers.IO) {
+
                    authViewModel.signIn()
+                    Log.d("asdasd","12")
+
                 }
             }) {
                 Text(

@@ -1,4 +1,3 @@
-
 import android.content.Context
 import android.util.Log
 import androidx.credentials.ClearCredentialStateRequest
@@ -14,7 +13,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
 
-class   GoogleAuthClient(
+class GoogleAuthClient(
     private val context: Context,
 ) {
 
@@ -31,23 +30,35 @@ class   GoogleAuthClient(
     }
 
     suspend fun signIn(): Boolean {
+        Log.d("signIn123", "start")
+
         try {
+            Log.d("signIn123", "start try")
+
             val result = buildCredentialRequest()
+            Log.d("signIn123", "after buildCredentialRequest")
+
             return handleSingIn(result)
         } catch (e: Exception) {
+            Log.d("signIn123", "Sign-in error: ${e.message}")
+
             Log.e("GoogleAuth", "Sign-in error: ${e.message}")
             if (e is CancellationException) throw e
             return false
         }
+        Log.d("signIn123", "end")
+
     }
 
     private suspend fun handleSingIn(result: GetCredentialResponse): Boolean {
         val credential = result.credential
+        Log.d("asdasd", "1")
 
         if (
             credential is CustomCredential &&
             credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
         ) {
+            Log.d("asdasd", "2")
 
             try {
 
@@ -58,20 +69,24 @@ class   GoogleAuthClient(
                     tokenCredential.idToken, null
                 )
                 val authResult = firebaseAuth.signInWithCredential(authCredential).await()
+                Log.d("asdasd", "3")
 
                 return authResult.user != null
 
             } catch (e: GoogleIdTokenParsingException) {
                 return false
             }
+            Log.d("asdasd", "4")
 
         } else {
             return false
         }
+        Log.d("asdasd", "5")
 
     }
 
     private suspend fun buildCredentialRequest(): GetCredentialResponse {
+
         val request = GetCredentialRequest.Builder()
             .addCredentialOption(
                 GetGoogleIdOption.Builder()
@@ -84,10 +99,13 @@ class   GoogleAuthClient(
             )
             .build()
 
+
+
         return credentialManager.getCredential(
             request = request, context = context
         )
     }
+
     fun getCurrentUser() = firebaseAuth.currentUser
 
     suspend fun signOut() {

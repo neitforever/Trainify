@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             val coroutineScope = rememberCoroutineScope()
 
-            val googleAuthClient = GoogleAuthClient(applicationContext)
+            val googleAuthClient = GoogleAuthClient(context = this)
             val authViewModel = AuthViewModel(googleAuthClient)
 
             MotivationCalendarAPITheme(mainViewModel = mainViewModel) {

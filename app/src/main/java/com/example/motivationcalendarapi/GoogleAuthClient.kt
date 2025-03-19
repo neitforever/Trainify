@@ -1,5 +1,6 @@
 
 import android.content.Context
+import android.util.Log
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -13,7 +14,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
 
-class GoogleAuthClient(
+class   GoogleAuthClient(
     private val context: Context,
 ) {
 
@@ -30,17 +31,12 @@ class GoogleAuthClient(
     }
 
     suspend fun signIn(): Boolean {
-        if (isSingedIn()) {
-            return true
-        }
-
         try {
             val result = buildCredentialRequest()
             return handleSingIn(result)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("GoogleAuth", "Sign-in error: ${e.message}")
             if (e is CancellationException) throw e
-
             return false
         }
     }

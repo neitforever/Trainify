@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
@@ -249,6 +250,62 @@ class WorkoutViewModel(
         startTimer()
     }
 
+//    val testWorkouts = listOf(
+//        Workout(
+//            name = "Full Body Strength",
+//            duration = 3600,
+//            timestamp = Instant.parse("2023-01-15T10:15:30.00Z").toEpochMilli(),
+//            exercises = listOf(
+//                ExtendedExercise(
+//                    exercise = Exercise(id = "1", name = "Приседания", note = "Спина прямая",bodyPart = "", equipment = "", target = "", secondaryMuscles = listOf("",""), instructions = listOf("",""), gifUrl = ""),
+//                    sets = listOf(
+//                        ExerciseSet(rep = 8, weight = 70f, status = SetStatus.COMPLETED),
+//                        ExerciseSet(rep = 8, weight = 70f, status = SetStatus.COMPLETED),
+//                        ExerciseSet(rep = 6, weight = 70f, status = SetStatus.FAILED)
+//                    )
+//                ),
+//                ExtendedExercise(
+//                    exercise = Exercise(id = "2", name = "Жим лежа", note = "",bodyPart = "", equipment = "", target = "", secondaryMuscles = listOf("",""), instructions = listOf("",""), gifUrl = ""),
+//                    sets = List(5) { ExerciseSet(rep = 10, weight = 50f) }
+//                )
+//            )
+//        ),
+//
+//        Workout(
+//            name = "Full Body Strength",
+//            duration = 3600,
+//            timestamp = Instant.parse("2023-01-16T10:15:30.00Z").toEpochMilli(),
+//            exercises = listOf(
+//                ExtendedExercise(
+//                    exercise = Exercise(id = "1", name = "Приседания", note = "Спина прямая",bodyPart = "", equipment = "", target = "", secondaryMuscles = listOf("",""), instructions = listOf("",""), gifUrl = ""),
+//                    sets = listOf(
+//                        ExerciseSet(rep = 80, weight = 700f, status = SetStatus.COMPLETED),
+//                        ExerciseSet(rep = 80, weight = 700f, status = SetStatus.COMPLETED),
+//                        ExerciseSet(rep = 60, weight = 700f, status = SetStatus.FAILED)
+//                    )
+//                ),
+//                ExtendedExercise(
+//                    exercise = Exercise(id = "2", name = "Жим лежа", note = "",bodyPart = "", equipment = "", target = "", secondaryMuscles = listOf("",""), instructions = listOf("",""), gifUrl = ""),
+//                    sets = List(5) { ExerciseSet(rep = 10, weight = 50f) }
+//                )
+//            )
+//        ),
+//        Workout(
+//            name = "Upper Body",
+//            duration = 2700,
+//            timestamp = Instant.parse("2023-01-25T18:30:00.00Z").toEpochMilli(),
+//            exercises = listOf(
+//                ExtendedExercise(
+//                    exercise = Exercise(id = "3", name = "Тяга штанги", note = "Контроль техники", bodyPart = "", equipment = "", target = "", secondaryMuscles = listOf("",""), instructions = listOf("",""), gifUrl = ""),
+//                    sets = listOf(
+//                        ExerciseSet(rep = 12, weight = 45f),
+//                        ExerciseSet(rep = 10, weight = 50f),
+//                        ExerciseSet(rep = 8, weight = 55f)
+//                    )
+//                )
+//            )
+//        ),
+//    )
 
     fun workoutsByYearMonthAndWeek(): Flow<Map<Int, Map<String, Map<Int, List<Workout>>>>> {
         return allWorkouts.map { workouts ->

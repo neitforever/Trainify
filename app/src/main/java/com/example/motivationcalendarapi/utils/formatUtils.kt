@@ -1,4 +1,7 @@
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -16,6 +19,15 @@ fun formatTimestamp(timestamp: Long?): String {
         "Неверная дата"
     }
 }
+
+fun formatDate(timestamp: Long): String {
+    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())
+    return Instant.ofEpochMilli(timestamp)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .format(formatter)
+}
+
 fun getWeekOfMonth(timestamp: Long?): String {
     val calendar = Calendar.getInstance()
     calendar.timeInMillis = timestamp!!

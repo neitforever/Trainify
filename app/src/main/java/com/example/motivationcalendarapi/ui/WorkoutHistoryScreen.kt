@@ -1,26 +1,47 @@
 package com.motivationcalendar.ui
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColor
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
+import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
+import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
+import com.example.motivationcalendarapi.ui.utils.EmptyHistoryView
 import com.example.motivationcalendarapi.utils.DifficultyLevel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
+import formatDate
 import formatTime
+import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,78 +80,91 @@ fun WorkoutHistoryScreen(
             expandedWeeks = initialWeeks
         }
     }
+    if (groupedWorkouts.isEmpty()) {
+        EmptyHistoryView()
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .padding(top = paddingValues)
+                .padding(horizontal = 12.dp),
+        ) {
 
-    LazyColumn(
-        modifier = Modifier.padding(top = paddingValues),
-        contentPadding = PaddingValues(16.dp)
-    ) {
-        if (groupedWorkouts.isEmpty()) {
-            item {
-                Text("Empty history", style = MaterialTheme.typography.headlineMedium)
-            }
-        } else {
             groupedWorkouts.forEach { (year, months) ->
                 item {
                     YearHeader(
-                        year = year,
-                        isExpanded = expandedYears.contains(year),
-                        onToggle = {
+                        year = year, isExpanded = expandedYears.contains(year), onToggle = {
                             expandedYears = if (expandedYears.contains(year)) {
                                 expandedYears - year
                             } else {
                                 expandedYears + year
                             }
-                        }
-                    )
+                        })
                 }
 
-                if (expandedYears.contains(year)) {
-                    months.forEach { (monthName, weeks) ->
-                        item {
-                            MonthHeader(
-                                monthName = monthName,
-                                isExpanded = expandedMonths.contains(year to monthName),
-                                onToggle = {
-                                    val key = year to monthName
-                                    expandedMonths = if (expandedMonths.contains(key)) {
-                                        expandedMonths - key
-                                    } else {
-                                        expandedMonths + key
-                                    }
-                                }
-                            )
-                        }
-
-                        weeks.forEach { (weekNumber, workouts) ->
-                            item {
-                                WeekHeader(
-                                    weekNumber = weekNumber,
-                                    isExpanded = expandedWeeks.contains(
-                                        Triple(year, monthName, weekNumber)
-                                    ),
+                item {
+                    AnimatedVisibility(
+                        visible = expandedYears.contains(year),
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically()
+                    ) {
+                        Column {
+                            months.forEach { (monthName, weeks) ->
+                                MonthHeader(
+                                    monthName = monthName,
+                                    isExpanded = expandedMonths.contains(year to monthName),
                                     onToggle = {
-                                        val key = Triple(year, monthName, weekNumber)
-                                        expandedWeeks = if (expandedWeeks.contains(key)) {
-                                            expandedWeeks - key
+                                        val key = year to monthName
+                                        expandedMonths = if (expandedMonths.contains(key)) {
+                                            expandedMonths - key
                                         } else {
-                                            expandedWeeks + key
+                                            expandedMonths + key
+                                        }
+                                    })
+
+                                AnimatedVisibility(
+                                    visible = expandedMonths.contains(year to monthName),
+                                    enter = fadeIn() + expandVertically(),
+                                    exit = fadeOut() + shrinkVertically()
+                                ) {
+                                    Column {
+                                        weeks.forEach { (weekNumber, workouts) ->
+                                            WeekHeader(
+                                                weekNumber = weekNumber,
+                                                isExpanded = expandedWeeks.contains(
+                                                    Triple(year, monthName, weekNumber)
+                                                ),
+                                                onToggle = {
+                                                    val key = Triple(year, monthName, weekNumber)
+                                                    expandedWeeks =
+                                                        if (expandedWeeks.contains(key)) {
+                                                            expandedWeeks - key
+                                                        } else {
+                                                            expandedWeeks + key
+                                                        }
+                                                })
+
+                                            AnimatedVisibility(
+                                                visible = expandedWeeks.contains(
+                                                    Triple(year, monthName, weekNumber)
+                                                ),
+                                                enter = fadeIn() + expandVertically(),
+                                                exit = fadeOut() + shrinkVertically()
+                                            ) {
+                                                Column {
+                                                    workouts.forEach { workout ->
+                                                        WorkoutItem(
+                                                            workout = workout,
+                                                            onClick = {
+                                                                navController.navigate(Screen.WorkoutDetail.route + "/${workout.id}")
+                                                            },
+                                                            viewModel = viewModel
+                                                        )
+                                                        Spacer(modifier = Modifier.height(8.dp))
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
-                                )
-                            }
-
-                            if (expandedWeeks.contains(Triple(year, monthName, weekNumber))) {
-                                items(workouts) { workout ->
-                                    WorkoutItem(
-                                        workout = workout,
-                                        workoutIndex = workouts.indexOf(workout) + 1,
-                                        onClick = {
-                                            navController.navigate(Screen.WorkoutDetail.route + "/${workout.id}")
-                                        },
-                                        onDelete = { viewModel.deleteWorkout(workout) },
-                                        viewModel = viewModel
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
                                 }
                             }
                         }
@@ -138,159 +172,200 @@ fun WorkoutHistoryScreen(
                 }
             }
             item {
-                Spacer(
-                    modifier = Modifier
-                        .absolutePadding(bottom = 200.dp)
-                )
+                Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp))
             }
         }
+
     }
 }
+
 @Composable
 private fun YearHeader(
-    year: Int,
-    isExpanded: Boolean,
-    onToggle: () -> Unit
+    year: Int, isExpanded: Boolean, onToggle: () -> Unit
 ) {
+    val rotationAngle by animateFloatAsState(
+        targetValue = if (isExpanded) 90f else 0f, animationSpec = tween(durationMillis = 300)
+    )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onToggle)
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .animateContentSize()
+            .padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            painter = painterResource(
-                id = if (isExpanded) R.drawable.ic_add
-                else R.drawable.ic_minus
-            ),
-            contentDescription = null
+            painter = painterResource(R.drawable.ic_arrow_right),
+            contentDescription = null,
+            modifier = Modifier
+                .size(32.dp)
+                .rotate(rotationAngle),
+            tint = MaterialTheme.colorScheme.primary
         )
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = year.toString(),
-            style = MaterialTheme.typography.displaySmall
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
 
 @Composable
 private fun MonthHeader(
-    monthName: String,
-    isExpanded: Boolean,
-    onToggle: () -> Unit
+    monthName: String, isExpanded: Boolean, onToggle: () -> Unit
 ) {
+    val rotationAngle by animateFloatAsState(
+        targetValue = if (isExpanded) 90f else 0f, animationSpec = tween(durationMillis = 300)
+    )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onToggle)
+            .animateContentSize()
             .padding(start = 16.dp)
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            painter = painterResource(
-                id = if (isExpanded) R.drawable.ic_minus
-                else R.drawable.ic_add
-            ),
-            contentDescription = null
+            painter = painterResource(R.drawable.ic_arrow_right),
+            contentDescription = null,
+            modifier = Modifier
+                .size(28.dp)
+                .rotate(rotationAngle),
+            tint = MaterialTheme.colorScheme.secondary
         )
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = monthName,
             style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(start = 8.dp)
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
 
 @Composable
 private fun WeekHeader(
-    weekNumber: Int,
-    isExpanded: Boolean,
-    onToggle: () -> Unit
+    weekNumber: Int, isExpanded: Boolean, onToggle: () -> Unit
 ) {
+    val rotationAngle by animateFloatAsState(
+        targetValue = if (isExpanded) 90f else 0f, animationSpec = tween(durationMillis = 300)
+    )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onToggle)
+            .animateContentSize()
             .padding(start = 32.dp)
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            painter = painterResource(
-                id = if (isExpanded) R.drawable.ic_minus
-                else R.drawable.ic_add
-            ),
-            contentDescription = null
+            painter = painterResource(R.drawable.ic_arrow_right),
+            contentDescription = null,
+            modifier = Modifier
+                .size(24.dp)
+                .rotate(rotationAngle),
+            tint = MaterialTheme.colorScheme.tertiary
         )
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = "Week $weekNumber",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(start = 8.dp)
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
 @Composable
 fun WorkoutItem(
-    workout: Workout,
-    workoutIndex: Int,
-    onClick: () -> Unit,
-    onDelete: () -> Unit,
-    viewModel: WorkoutViewModel
+    workout: Workout, onClick: () -> Unit, viewModel: WorkoutViewModel
 ) {
     val difficulty by remember(workout) {
         derivedStateOf { viewModel.calculateWorkoutDifficulty(workout) }
     }
+    val iconColor = when (difficulty) {
+        DifficultyLevel.EASY -> EASY_COLOR
+        DifficultyLevel.NORMAL -> NORMAL_COLOR
+        DifficultyLevel.HARD -> HARD_COLOR
+    }
 
-    ElevatedButton(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.elevatedButtonColors(Color.Transparent)
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.medium,
+        tonalElevation = 2.dp
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 8.dp)
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(
-                    id = when (difficulty) {
-                        DifficultyLevel.EASY -> R.drawable.ic_smile_easy
-                        DifficultyLevel.NORMAL -> R.drawable.ic_smile_normal
-                        DifficultyLevel.HARD -> R.drawable.ic_smile_hard
-                    }
-                ),
-                contentDescription = "Difficulty Level",
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(32.dp)
-                    .align(Alignment.CenterVertically)
-            )
+                    .size(48.dp)
+            ) {
+                Icon(
+                    painter = painterResource(
+                        id = when (difficulty) {
+                            DifficultyLevel.EASY -> R.drawable.ic_smile_easy
+                            DifficultyLevel.NORMAL -> R.drawable.ic_smile_normal
+                            DifficultyLevel.HARD -> R.drawable.ic_smile_hard
+                        }
+                    ),
+                    contentDescription = "Difficulty Level",
+                    tint = iconColor,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+
 
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .align(Alignment.CenterVertically)
+                    .padding(vertical = 4.dp),
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = if (workout.name.isBlank()) "Blank" else workout.name,
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = workout.name.replaceFirstChar {
+                        it.titlecase(Locale.ROOT)
+                    },
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
+
                 Text(
-                    text = "Duration: ${formatTime(workout.duration)}",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = formatDate(workout.timestamp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            IconButton(onClick = onDelete) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(48.dp).padding(start = 8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arrow_right),
+                    contentDescription = "Navigate",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(32.dp)
+                )
             }
         }
     }
 }
-
 
 

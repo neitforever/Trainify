@@ -1,8 +1,11 @@
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -16,11 +19,13 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,6 +55,7 @@ import com.example.motivationcalendarapi.ui.exercise.ExerciseScreen
 import com.example.motivationcalendarapi.ui.exercise.SearchExerciseScreen
 import com.example.motivationcalendarapi.ui.SettingsScreen
 import com.example.motivationcalendarapi.ui.ThemeSettingsScreen
+import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
@@ -68,11 +74,9 @@ fun NavGraph(
     workoutViewModel: WorkoutViewModel,
     mainViewModel: MainViewModel,
     exerciseViewModel: ExerciseViewModel,
-    drawerState: DrawerState,
+    drawerState: MutableState<DrawerState>,
     googleAuthClient: GoogleAuthClient,
     authViewModel: AuthViewModel,
-
-
     ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
@@ -83,6 +87,7 @@ fun NavGraph(
 //    var isSignIn = rememberSaveable {
 //        mutableStateOf(googleAuthClient.isSingedIn())
 //    }
+
 
     val userState = authViewModel.userState.collectAsState()
     // val pagerState = rememberPagerState(pageCount = { 2 })
@@ -96,6 +101,23 @@ fun NavGraph(
         Screen.BodyPartSelection,
         Screen.Auth
     )
+    ModalNavigationDrawer(drawerState = drawerState.value, drawerContent = {
+        if (userState.value is AuthViewModel.UserState.Authenticated) {
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .fillMaxHeight()
+                    .fillMaxWidth(0.7f)
+            ) {
+                NavigationMenuView(navController = navController, onItemClick = {
+                    coroutineScope.launch {
+                        drawerState.value.close()
+                    }
+                })
+            }
+        }
+
+    }) {
     Scaffold(
         topBar = {
             screens.forEach { it ->
@@ -134,7 +156,7 @@ fun NavGraph(
                                     IconButton(
                                         onClick = {
                                             coroutineScope.launch {
-                                                drawerState.open()
+                                                drawerState.value.open()
                                             }
                                         }, modifier = Modifier.size(48.dp)
                                     ) {
@@ -239,119 +261,129 @@ fun NavGraph(
 //        }
 
     ) { paddingValue ->
-        NavHost(
-            navController = navHostController,
-            startDestination = when (userState.value is AuthViewModel.UserState.Authenticated) {
-                true -> Screen.AddWorkout.route
-                else -> Screen.Auth.route
-            }
-        ) {
 
-            composable(Screen.AddWorkout.route) {
-
-                AddWorkoutScreen(
-                    workoutViewModel, exerciseViewModel, navController, drawerState
-                )
-            }
-            composable(Screen.WorkoutHistory.route) {
-
-                WorkoutHistoryScreen(
-                    workoutViewModel,
-                    navController,
-                    paddingValues = paddingValue.calculateTopPadding()
-                )
-            }
-
-            composable(Screen.ExercisesView.route) {
-
-                ExerciseScreen(
-                    navController,
-                    exerciseViewModel,
-                    paddingTopValues = paddingValue.calculateTopPadding(),
-                )
-            }
-
-            composable(Screen.Auth.route) {
-                AuthScreen(
-                    authViewModel,
-                    navController = navHostController
-                )
-            }
-
-            composable(Screen.SearchExercise.route) {
-                SearchExerciseScreen(
-                    navController = navHostController, viewModel = exerciseViewModel
-                )
-            }
-            composable(Screen.Profile.route) {
-                ProfileScreen(
-                    authViewModel,
-                    navController,
-
-                    )
-            }
-
-            composable(Screen.Settings.route) {
-                SettingsScreen(
-                    context, navController, paddingValues = paddingValue.calculateTopPadding()
-                )
-            }
-
-            composable(Screen.ThemeSettings.route) {
-                ThemeSettingsScreen(
-                    context, navController, paddingValues = paddingValue.calculateTopPadding()
-                )
-            }
-
-
-            composable(Screen.CreateExercise.route) {
-                CreateExerciseScreen(
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                NavHost(
                     navController = navHostController,
-                    viewModel = exerciseViewModel
-                )
-            }
+                    startDestination = when (userState.value is AuthViewModel.UserState.Authenticated) {
+                        true -> Screen.AddWorkout.route
+                        else -> Screen.Auth.route
+                    }
+                ) {
 
-            composable(
-                Screen.EditExerciseName.route + "/{exerciseId}",
-                arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val exerciseId = backStackEntry.arguments?.getString("exerciseId")
-                EditExerciseNameScreen(
-                    navController = navHostController,
-                    exerciseId = exerciseId ?: "",
-                    viewModel = exerciseViewModel
-                )
-            }
+                    composable(Screen.AddWorkout.route) {
+
+                        AddWorkoutScreen(
+                            workoutViewModel, exerciseViewModel, navController, drawerState
+                        )
+                    }
+                    composable(Screen.WorkoutHistory.route) {
+
+                        WorkoutHistoryScreen(
+                            workoutViewModel,
+                            navController,
+                            paddingValues = paddingValue.calculateTopPadding()
+                        )
+                    }
+
+                    composable(Screen.ExercisesView.route) {
+
+                        ExerciseScreen(
+                            navController,
+                            exerciseViewModel,
+                            paddingTopValues = paddingValue.calculateTopPadding(),
+                        )
+                    }
+
+                    composable(Screen.Auth.route) {
+                        AuthScreen(
+                            authViewModel,
+                            navController = navHostController,
+                            drawerState
+                        )
+                    }
+
+                    composable(Screen.SearchExercise.route) {
+                        SearchExerciseScreen(
+                            navController = navHostController, viewModel = exerciseViewModel
+                        )
+                    }
+                    composable(Screen.Profile.route) {
+                        ProfileScreen(
+                            authViewModel,
+                            navController,
+
+                            )
+                    }
+
+                    composable(Screen.Settings.route) {
+                        SettingsScreen(
+                            context,
+                            navController,
+                            paddingValues = paddingValue.calculateTopPadding()
+                        )
+                    }
+
+                    composable(Screen.ThemeSettings.route) {
+                        ThemeSettingsScreen(
+                            context,
+                            navController,
+                            paddingValues = paddingValue.calculateTopPadding()
+                        )
+                    }
+
+
+                    composable(Screen.CreateExercise.route) {
+                        CreateExerciseScreen(
+                            navController = navHostController,
+                            viewModel = exerciseViewModel
+                        )
+                    }
+
+                    composable(
+                        Screen.EditExerciseName.route + "/{exerciseId}",
+                        arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val exerciseId = backStackEntry.arguments?.getString("exerciseId")
+                        EditExerciseNameScreen(
+                            navController = navHostController,
+                            exerciseId = exerciseId ?: "",
+                            viewModel = exerciseViewModel
+                        )
+                    }
 
 
 
 
-            composable(
-                Screen.BodyPartSelection.route + "/{exerciseId}",
-                arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val exerciseId = backStackEntry.arguments?.getString("exerciseId")
-                BodyPartSelectionScreen(
-                    navController = navHostController,
-                    exerciseId = exerciseId ?: "",
-                    viewModel = exerciseViewModel,
-                    paddingValues = paddingValue.calculateTopPadding()
-                )
-            }
+                    composable(
+                        Screen.BodyPartSelection.route + "/{exerciseId}",
+                        arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val exerciseId = backStackEntry.arguments?.getString("exerciseId")
+                        BodyPartSelectionScreen(
+                            navController = navHostController,
+                            exerciseId = exerciseId ?: "",
+                            viewModel = exerciseViewModel,
+                            paddingValues = paddingValue.calculateTopPadding()
+                        )
+                    }
 
 
-            composable(
-                Screen.EquipmentSelection.route + "/{exerciseId}",
-                arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val exerciseId = backStackEntry.arguments?.getString("exerciseId")
-                EquipmentSelectionScreen(
-                    navController = navHostController,
-                    exerciseId = exerciseId ?: "",
-                    viewModel = exerciseViewModel,
-                    paddingValues = paddingValue.calculateTopPadding()
-                )
-            }
+                    composable(
+                        Screen.EquipmentSelection.route + "/{exerciseId}",
+                        arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val exerciseId = backStackEntry.arguments?.getString("exerciseId")
+                        EquipmentSelectionScreen(
+                            navController = navHostController,
+                            exerciseId = exerciseId ?: "",
+                            viewModel = exerciseViewModel,
+                            paddingValues = paddingValue.calculateTopPadding()
+                        )
+                    }
 
 //            composable(
 //                Screen.SecondaryMusclesSelection.route + "/{exerciseId}",
@@ -365,37 +397,39 @@ fun NavGraph(
 //                )
 //            }
 
-            composable(
-                Screen.EditExerciseInstructions.route + "/{exerciseId}",
-                arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val exerciseId = backStackEntry.arguments?.getString("exerciseId")
-                EditExerciseInstructionsScreen(
-                    navController = navHostController,
-                    exerciseId = exerciseId ?: "",
-                    viewModel = exerciseViewModel
-                )
-            }
+                    composable(
+                        Screen.EditExerciseInstructions.route + "/{exerciseId}",
+                        arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val exerciseId = backStackEntry.arguments?.getString("exerciseId")
+                        EditExerciseInstructionsScreen(
+                            navController = navHostController,
+                            exerciseId = exerciseId ?: "",
+                            viewModel = exerciseViewModel
+                        )
+                    }
 
-            composable(
-                Screen.WorkoutDetail.route + "/{workoutId}",
-                arguments = listOf(navArgument("workoutId") { type = NavType.LongType })
-            ) { stackEntry ->
-                val workoutId = stackEntry.arguments?.getLong("workoutId")
-                WorkoutHistoryDetailScreen(
-                    workoutId, workoutViewModel, navController, drawerState
-                )
-            }
+                    composable(
+                        Screen.WorkoutDetail.route + "/{workoutId}",
+                        arguments = listOf(navArgument("workoutId") { type = NavType.LongType })
+                    ) { stackEntry ->
+                        val workoutId = stackEntry.arguments?.getLong("workoutId")
+                        WorkoutHistoryDetailScreen(
+                            workoutId, workoutViewModel, navController, drawerState
+                        )
+                    }
 
-            composable(
-                Screen.ExerciseDetailView.route + "/{exerciseId}",
-                arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
-            ) { stackEntry ->
-                val exerciseId = stackEntry.arguments?.getString("exerciseId")
-                if (exerciseId != null) {
-                    ExerciseDetailScreen(
-                        navController, exerciseId, exerciseViewModel, drawerState
-                    )
+                    composable(
+                        Screen.ExerciseDetailView.route + "/{exerciseId}",
+                        arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
+                    ) { stackEntry ->
+                        val exerciseId = stackEntry.arguments?.getString("exerciseId")
+                        if (exerciseId != null) {
+                            ExerciseDetailScreen(
+                                navController, exerciseId, exerciseViewModel
+                            )
+                        }
+                    }
                 }
             }
         }

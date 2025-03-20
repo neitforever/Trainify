@@ -2,47 +2,35 @@ package com.example.motivationcalendarapi
 
 import GoogleAuthClient
 import NavGraph
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
 import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
-import com.example.motivationcalendarapi.ui.AuthScreen
 import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
-import com.example.motivationcalendarapi.ui.utils.NavigationMenuView
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModelFactory
 import com.motivationcalendar.data.WorkoutDatabase
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     // private lateinit var auth: FirebaseAuth
+    @SuppressLint("UnrememberedMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)
@@ -59,8 +47,7 @@ class MainActivity : ComponentActivity() {
 
             val workoutViewModel: WorkoutViewModel = viewModel(
                 factory = WorkoutViewModelFactory(
-                    workoutRepository,
-                    timerDataStore
+                    workoutRepository, timerDataStore
                 )
             )
 
@@ -70,7 +57,7 @@ class MainActivity : ComponentActivity() {
             val mainViewModel = MainViewModel(mainRepository)
 
             val navController = rememberNavController()
-            val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+            var drawerState = mutableStateOf(rememberDrawerState(initialValue = DrawerValue.Closed))
             val coroutineScope = rememberCoroutineScope()
 
             val googleAuthClient = GoogleAuthClient(context = this)
@@ -78,38 +65,23 @@ class MainActivity : ComponentActivity() {
             val userState = authViewModel.userState.collectAsState()
 
             MotivationCalendarAPITheme(mainViewModel = mainViewModel) {
+//                if (userState.value is AuthViewModel.UserState.Authenticated) {
 
-                ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
-                    if (userState.value is AuthViewModel.UserState.Authenticated) {
-                        Box(
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .fillMaxHeight()
-                                .fillMaxWidth(0.7f)
-                        ) {
-                            NavigationMenuView(navController = navController, onItemClick = {
-                                coroutineScope.launch {
-                                    drawerState.close()
-                                }
-                            })
-                        }
-                    }
-                }) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        NavGraph(
-                            navHostController = navController,
-                            navController = navController,
-                            workoutViewModel,
-                            mainViewModel,
-                            exerciseViewModel,
-                            drawerState,
-                            googleAuthClient,
-                            authViewModel
-                        )
-                    }
+                    NavGraph(
+                        navHostController = navController,
+                        navController = navController,
+                        workoutViewModel,
+                        mainViewModel,
+                        exerciseViewModel,
+                        drawerState,
+                        googleAuthClient,
+                        authViewModel
+                    )
+//                }
+//            else {
+//                    AuthScreen(authViewModel, navController)
+//                }
 
-
-                }
             }
         }
     }

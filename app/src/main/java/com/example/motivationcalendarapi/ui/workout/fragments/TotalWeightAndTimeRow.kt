@@ -17,10 +17,11 @@ import com.example.motivationcalendarapi.R
 @Composable
 fun TotalWeightAndTimeRow(
     timerValue: Int,
-    totalKg: Float
+    totalKg: Float,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 8.dp),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically){

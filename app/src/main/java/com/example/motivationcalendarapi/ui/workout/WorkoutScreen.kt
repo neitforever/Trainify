@@ -332,7 +332,7 @@ fun AddWorkoutScreen(
                         )
 
                         TotalWeightAndTimeRow(
-                            timerValue = timerValue, totalKg = totalKg
+                            timerValue = timerValue, totalKg = totalKg,modifier = Modifier.padding(horizontal = 2.dp, vertical = 8.dp)
                         )
 
                         ExerciseSelectionBottomSheet(

@@ -415,7 +415,8 @@ fun NavGraph(
                     ) { stackEntry ->
                         val workoutId = stackEntry.arguments?.getLong("workoutId")
                         WorkoutHistoryDetailScreen(
-                            workoutId, workoutViewModel, navController, drawerState
+                            workoutId, workoutViewModel, navController,
+                            paddingValues = paddingValue.calculateTopPadding()
                         )
                     }
 

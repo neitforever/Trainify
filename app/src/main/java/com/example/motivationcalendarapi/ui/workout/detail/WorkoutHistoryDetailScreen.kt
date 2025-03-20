@@ -2,60 +2,46 @@ package com.motivationcalendar.ui
 
 import LoadingView
 import Screen
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CutCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.ui.dialogs.DeleteWorkoutDialog
+import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
+import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
+import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
+import com.example.motivationcalendarapi.ui.workout.detail.fragments.ExerciseCardHistory
+import com.example.motivationcalendarapi.ui.workout.fragments.TotalWeightAndTimeRow
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
-import formatTime
-import formatTimestamp
-import getWeekOfMonth
+import formatDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,246 +51,153 @@ import kotlinx.coroutines.launch
 @Composable
 fun WorkoutHistoryDetailScreen(
     workoutId: Long?,
-    viewModel: WorkoutViewModel,
+    workoutViewModel: WorkoutViewModel,
     navController: NavController,
-    drawerState: MutableState<DrawerState>
+    paddingValues: Dp
 ) {
-    val workouts = viewModel.allWorkouts.collectAsState().value
-    val workoutIndex = workouts.indexOfFirst { it.id == workoutId } + 1 // Номер тренировки
-    val isLoading = viewModel.isLoadingWorkout.collectAsState().value
 
     val selectedWorkout = remember { mutableStateOf<Workout?>(null) }
-    val newWorkoutName = remember { mutableStateOf("") }
+    val showDeleteDialog = remember { mutableStateOf(false) }
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    val workoutMonthYear =
-        selectedWorkout.value?.timestamp?.let { formatTimestamp(it) } ?: "Unknown"
-
+    if (showDeleteDialog.value) {
+        DeleteWorkoutDialog(
+            showDialog = true,
+            onDismiss = { showDeleteDialog.value = false },
+            onConfirm = {
+                selectedWorkout.value?.let {
+                    workoutViewModel.deleteWorkout(it)
+                    navController.navigate(Screen.WorkoutHistory.route) {
+                        popUpTo(Screen.WorkoutHistory.route) { inclusive = true }
+                    }
+                }
+            }
+        )
+    }
 
     LaunchedEffect(workoutId) {
         workoutId?.let { id ->
             CoroutineScope(Dispatchers.Default).launch {
-                val workout = viewModel.getWorkoutById(id)
-                selectedWorkout.value = workout
-                newWorkoutName.value = workout?.name ?: ""
+                selectedWorkout.value = workoutViewModel.getWorkoutById(id)
             }
         }
     }
-    val coroutineScope = rememberCoroutineScope()
 
 
 
-    Scaffold(topBar = {
-        TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ), navigationIcon = {
-            IconButton(
-                onClick = {
-                    coroutineScope.launch {
-                        drawerState.value.open()
-                    }
-                }, modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Menu,
-                    contentDescription = "Open Menu",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(42.dp)
-                )
-            }
-        }, title = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 4.dp)
-            ) {
-                Text(
-                    text = "$workoutIndex workout in $workoutMonthYear",
-                    style = MaterialTheme.typography.displaySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.align(Alignment.CenterStart)
-                )
-            }
-        }, modifier = Modifier.border(
-                border = BorderStroke(2.dp, MaterialTheme.colorScheme.tertiary),
-                shape = CutCornerShape(4.dp)
-            )
-        )
-    }, floatingActionButton = {
+
+    Scaffold(
+        floatingActionButton = {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.Bottom,
-                modifier = Modifier
-                    .navigationBarsPadding()
+                modifier = Modifier.navigationBarsPadding()
             ) {
-
                 FloatingActionButton(
-                    onClick = {
-                        selectedWorkout.value?.let {
-                            viewModel.deleteWorkout(it)
-                            navController.navigate(Screen.WorkoutHistory.route) {
-                                popUpTo(Screen.WorkoutHistory.route) { inclusive = true }
-                            }
-                        }
-                    },
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    onClick = { showDeleteDialog.value = true },
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier.size(64.dp)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_delete_outline),
-                        contentDescription = "Delete",
-                        modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-
-                FloatingActionButton(
-                    onClick = {
-                        selectedWorkout.value?.let {
-                            viewModel.updateWorkout(it.copy(name = newWorkoutName.value))
-                            navController.popBackStack()
-                        }
-                    },
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onError,
-                    modifier = Modifier.size(64.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_save),
-                        contentDescription = "Save",
-                        modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        painter = painterResource(id = R.drawable.ic_delete),
+                        contentDescription = "Delete workout",
+                        modifier = Modifier.size(36.dp)
                     )
                 }
             }
-
-    },
-//        bottomBar = {
-//        BottomAppBar {
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(16.dp),
-//                horizontalArrangement = Arrangement.SpaceBetween
-//            ) {
-//                Button(onClick = {
-//                    selectedWorkout.value?.let {
-//                        viewModel.deleteWorkout(it)
-//                        navController.navigate(Screen.WorkoutHistory.route) {
-//                            popUpTo(Screen.WorkoutHistory.route) { inclusive = true }
-//                        }
-//                    }
-//                }, modifier = Modifier.weight(1f)) {
-//                    Text(
-//                        text = "Delete",
-//                        style = MaterialTheme.typography.labelMedium,
-//                        color = MaterialTheme.colorScheme.onPrimary
-//                    )
-//                }
-//                Spacer(modifier = Modifier.width(16.dp))
-//                Button(onClick = {
-//                    selectedWorkout.value?.let {
-//                        viewModel.updateWorkout(it.copy(name = newWorkoutName.value))
-//                        navController.popBackStack()
-//                    }
-//                }, modifier = Modifier.weight(1f)) {
-//                    Text(
-//                        text = "Save",
-//                        style = MaterialTheme.typography.labelMedium,
-//                        color = MaterialTheme.colorScheme.onPrimary
-//                    )
-//                }
-//            }
-//        }
-//    }
-    ) { paddingValues ->
+        }) { paddingValue ->
         if (selectedWorkout.value != null) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp, top = 0.dp)
-                    .padding(paddingValues)
                     .fillMaxSize()
+                    .padding(top = paddingValues)
+                    .padding(bottom = paddingValue.calculateBottomPadding())
+                    .padding(horizontal = 10.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                OutlinedTextField(value = newWorkoutName.value,
-                    onValueChange = { newWorkoutName.value = it },
-                    label = { Text("Workout name") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        selectedWorkout.value?.let { workout ->
+                            val difficulty = workoutViewModel.calculateWorkoutDifficulty(workout)
+                            val iconColor = when (difficulty) {
+                                DifficultyLevel.EASY -> EASY_COLOR
+                                DifficultyLevel.NORMAL -> NORMAL_COLOR
+                                DifficultyLevel.HARD -> HARD_COLOR
+                            }
+                            Icon(
+                                painter = painterResource(
+                                    id = when (difficulty) {
+                                        DifficultyLevel.EASY -> R.drawable.ic_smile_easy
+                                        DifficultyLevel.NORMAL -> R.drawable.ic_smile_normal
+                                        DifficultyLevel.HARD -> R.drawable.ic_smile_hard
+                                    }
+                                ),
+                                contentDescription = "Workout difficulty",
+                                tint = iconColor,
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .padding(end = 8.dp)
+                            )
+                        }
+                        Text(text = selectedWorkout.value?.name?.replaceFirstChar { it.uppercase() }
+                            ?: "",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis)
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = formatDate(selectedWorkout.value?.timestamp ?: 0L),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                }
 
                 selectedWorkout.value?.let { workout ->
-                    Text("Duration: ${formatTime(workout.duration)}")
-                    Text("${getWeekOfMonth(workout.timestamp)} week in month")
-                    Text("Workout in week $workoutIndex")
-                    Spacer(modifier = Modifier.height(16.dp))
+                    val totalKg =
+                        workout.exercises.flatMap { it.sets }.sumOf { it.weight.toDouble() }
+                            .toFloat()
 
-                    workout.exercises.forEachIndexed { index, extendedExercise ->
-                        val exercise = extendedExercise.exercise
-                        val sets = extendedExercise.sets
+                    TotalWeightAndTimeRow(
+                        timerValue = workout.duration, totalKg = totalKg, modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                    Text(
+                        text = "Exercises Performed",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier
+                            .padding(top = 8.dp, bottom = 4.dp)
+                            .fillMaxWidth()
+                            .align(Alignment.Start)
+                    )
 
-                        if (sets.isNotEmpty()) {
-                            Column(modifier = Modifier.fillMaxWidth()) {}
-                            Text(
-                                text = "${index + 1}. ${exercise.name}",
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(vertical = 8.dp)
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = "Set",
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = "Rep",
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = "Weight",
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Center
-                            )
-                        }
 
-                        sets.forEachIndexed { setIndex, set ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = "${setIndex + 1}",
-                                    modifier = Modifier.weight(1f),
-                                    textAlign = TextAlign.Center
-                                )
-                                Text(
-                                    text = "${set.rep}",
-                                    modifier = Modifier.weight(1f),
-                                    textAlign = TextAlign.Center
-                                )
-                                Text(
-                                    text = "${set.weight}",
-                                    modifier = Modifier.weight(1f),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
+                    selectedWorkout.value?.let { workout ->
+                        workout.exercises.forEachIndexed { index, extendedExercise ->
+                            ExerciseCardHistory(
+                                index = index,
+                                exercise = extendedExercise,
+                                exerciseSets = extendedExercise.sets,
+                                workoutViewModel = workoutViewModel,
+                                navController = navController
+                            )
                         }
                     }
                 }
+                Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp))
             }
         } else {
             LoadingView()

@@ -26,10 +26,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
-import com.example.motivationcalendarapi.ui.utils.dialogs.DeleteExerciseDialog
-import com.example.motivationcalendarapi.ui.utils.dialogs.EndWorkoutDialog
-import com.example.motivationcalendarapi.utils.getIconForBodyPart
-import com.example.motivationcalendarapi.utils.getIconForEquipment
+import com.example.motivationcalendarapi.ui.dialogs.DeleteExerciseDialog
+import com.example.motivationcalendarapi.model.getIconForBodyPart
+import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -41,7 +40,6 @@ fun ExerciseDetailScreen(
     navController: NavController,
     exerciseId: String,
     viewModel: ExerciseViewModel = viewModel(),
-    drawerState: DrawerState
 ) {
     val showDeleteDialog = remember { mutableStateOf(false) }
     val selectedExercise = remember { mutableStateOf<Exercise?>(null) }

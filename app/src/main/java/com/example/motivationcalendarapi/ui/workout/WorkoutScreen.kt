@@ -44,16 +44,16 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.ui.utils.dialogs.EndWorkoutDialog
-import com.example.motivationcalendarapi.ui.workout.utils.ExerciseSelectionBottomSheet
-import com.example.motivationcalendarapi.ui.workout.utils.TimerBottomSheet
-import com.example.motivationcalendarapi.ui.workout.utils.TotalWeightAndTimeRow
-import com.example.motivationcalendarapi.ui.workout.utils.WorkoutNameTextField
-import com.example.motivationcalendarapi.ui.utils.dialogs.AutoDismissDialog
-import com.example.motivationcalendarapi.ui.utils.dialogs.ExistWorkoutDialog
-import com.example.motivationcalendarapi.ui.utils.dialogs.TimerCompleteDialog
-import com.example.motivationcalendarapi.ui.utils.dialogs.WarmupDialog
-import com.example.motivationcalendarapi.ui.utils.dialogs.WeightDialog
+import com.example.motivationcalendarapi.ui.dialogs.EndWorkoutDialog
+import com.example.motivationcalendarapi.ui.workout.fragments.ExerciseSelectionBottomSheet
+import com.example.motivationcalendarapi.ui.workout.fragments.TimerBottomSheet
+import com.example.motivationcalendarapi.ui.workout.fragments.TotalWeightAndTimeRow
+import com.example.motivationcalendarapi.ui.workout.fragments.WorkoutNameTextField
+import com.example.motivationcalendarapi.ui.dialogs.AutoDismissDialog
+import com.example.motivationcalendarapi.ui.dialogs.ExistWorkoutDialog
+import com.example.motivationcalendarapi.ui.dialogs.TimerCompleteDialog
+import com.example.motivationcalendarapi.ui.dialogs.WarmupDialog
+import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
 import kotlinx.coroutines.delay
 
 
@@ -63,7 +63,7 @@ fun AddWorkoutScreen(
     workoutViewModel: WorkoutViewModel,
     exersiceViewModel: ExerciseViewModel,
     navController: NavController,
-    drawerState: DrawerState
+    drawerState: MutableState<DrawerState>
 ) {
     val workouts by workoutViewModel.allWorkouts.collectAsState()
     val timerValue by workoutViewModel.timerValue.collectAsState()
@@ -109,6 +109,9 @@ fun AddWorkoutScreen(
     var isTimerRunning by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        drawerState.value.close()
+    }
     var isMenuExpanded by remember { mutableStateOf(false) }
 
     var showValidationDialog by remember { mutableStateOf(false) }
@@ -143,7 +146,7 @@ fun AddWorkoutScreen(
             IconButton(
                 onClick = {
                     coroutineScope.launch {
-                        drawerState.open()
+                        drawerState.value.open()
                     }
                 }, modifier = Modifier.size(48.dp)
             ) {

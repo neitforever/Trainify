@@ -6,14 +6,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
-import com.example.motivationcalendarapi.utils.DifficultyLevel
+import com.example.motivationcalendarapi.model.DifficultyLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*

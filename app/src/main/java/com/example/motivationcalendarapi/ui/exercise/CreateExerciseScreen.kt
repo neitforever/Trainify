@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.ui.utils.dialogs.ErrorDialog
-import com.example.motivationcalendarapi.utils.getIconForBodyPart
-import com.example.motivationcalendarapi.utils.getIconForEquipment
+import com.example.motivationcalendarapi.ui.dialogs.ErrorDialog
+import com.example.motivationcalendarapi.model.getIconForBodyPart
+import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import java.util.UUID
 

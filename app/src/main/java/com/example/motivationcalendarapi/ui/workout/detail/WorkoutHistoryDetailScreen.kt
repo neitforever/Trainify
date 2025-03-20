@@ -35,6 +35,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,7 +67,7 @@ fun WorkoutHistoryDetailScreen(
     workoutId: Long?,
     viewModel: WorkoutViewModel,
     navController: NavController,
-    drawerState: DrawerState
+    drawerState: MutableState<DrawerState>
 ) {
     val workouts = viewModel.allWorkouts.collectAsState().value
     val workoutIndex = workouts.indexOfFirst { it.id == workoutId } + 1 // Номер тренировки
@@ -102,7 +103,7 @@ fun WorkoutHistoryDetailScreen(
             IconButton(
                 onClick = {
                     coroutineScope.launch {
-                        drawerState.open()
+                        drawerState.value.open()
                     }
                 }, modifier = Modifier.size(48.dp)
             ) {

@@ -15,9 +15,9 @@ import androidx.navigation.NavController
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.Dp
-import com.example.motivationcalendarapi.ui.exercise.utils.CollapsibleBodyPartItem
-import com.example.motivationcalendarapi.ui.exercise.utils.ExerciseItem
-import com.example.motivationcalendarapi.utils.getIconForBodyPart
+import com.example.motivationcalendarapi.ui.exercise.fragments.CollapsibleBodyPartItem
+import com.example.motivationcalendarapi.ui.exercise.fragments.ExerciseItem
+import com.example.motivationcalendarapi.model.getIconForBodyPart
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import java.util.Locale
 

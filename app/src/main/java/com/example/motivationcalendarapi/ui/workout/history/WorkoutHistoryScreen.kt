@@ -28,8 +28,8 @@ import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
-import com.example.motivationcalendarapi.ui.workout.history.utils.EmptyHistoryView
-import com.example.motivationcalendarapi.utils.DifficultyLevel
+import com.example.motivationcalendarapi.ui.workout.history.fragments.EmptyHistoryView
+import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import formatDate
 import java.util.Locale
@@ -76,6 +76,7 @@ fun WorkoutHistoryScreen(
     } else {
         LazyColumn(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(top = paddingValues)
                 .padding(horizontal = 12.dp),
         ) {

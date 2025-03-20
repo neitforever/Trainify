@@ -32,6 +32,7 @@ fun ThemeSettingsScreen(
     paddingValues: Dp
 ) {
     val mainViewModel: MainViewModel = viewModel(factory = MainViewModelFactory(context))
+
     val isDarkTheme = mainViewModel.isDarkTheme
 
 

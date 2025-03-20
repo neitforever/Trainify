@@ -78,23 +78,23 @@ fun AuthScreen(
             .background(Color.White),
         contentAlignment = Alignment.Center
     ) {
-            OutlinedButton(onClick = {
-                coroutineScope.launch(Dispatchers.IO) {
+        OutlinedButton(onClick = {
+            coroutineScope.launch(Dispatchers.IO) {
 
-                   authViewModel.signIn()
-                    Log.d("asdasd","12")
+                authViewModel.signIn()
+                Log.d("asdasd","12")
 
-                }
-            }) {
-                Text(
-                    text = "Sign In With Google",
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(
-                        horizontal = 24.dp, vertical = 4.dp
-                    )
-                )
             }
-
+        }) {
+            Text(
+                text = "Sign In With Google",
+                fontSize = 16.sp,
+                modifier = Modifier.padding(
+                    horizontal = 24.dp, vertical = 4.dp
+                )
+            )
         }
+
+    }
 
 }

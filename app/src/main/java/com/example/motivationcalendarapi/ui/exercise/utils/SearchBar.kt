@@ -1,4 +1,4 @@
-package com.example.motivationcalendarapi.ui.utils
+package com.example.motivationcalendarapi.ui.exercise.utils
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,13 +15,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp

@@ -1,4 +1,4 @@
-package com.example.motivationcalendarapi.ui.utils
+package com.example.motivationcalendarapi.ui.workout.history.utils
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,29 +20,32 @@ import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 
 @Composable
-fun NotFoundExerciseView(searchQuery: String) {
+fun EmptyHistoryView() {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_search_empty),
-                contentDescription = "No results",
+                contentDescription = "Empty history",
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = if (searchQuery.isNotEmpty()) {
-                    "No results for \"$searchQuery\""
-                } else {
-                    "No exercises found"
-                },
+                text = "Workout history is empty",
                 style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Your completed workouts will appear here",
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center
             )

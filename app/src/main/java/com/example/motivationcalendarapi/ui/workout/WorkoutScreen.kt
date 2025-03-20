@@ -1,7 +1,6 @@
 package com.motivationcalendar.ui
 
 import android.content.Context
-import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.compose.animation.AnimatedVisibility
@@ -14,10 +13,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CutCornerShape
@@ -42,20 +38,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.utils.dialogs.EndWorkoutDialog
-import com.example.motivationcalendarapi.ui.utils.ExerciseSelectionBottomSheet
-import com.example.motivationcalendarapi.ui.utils.TimerBottomSheet
-import com.example.motivationcalendarapi.ui.utils.TotalWeightAndTimeRow
-import com.example.motivationcalendarapi.ui.utils.WorkoutNameTextField
+import com.example.motivationcalendarapi.ui.workout.utils.ExerciseSelectionBottomSheet
+import com.example.motivationcalendarapi.ui.workout.utils.TimerBottomSheet
+import com.example.motivationcalendarapi.ui.workout.utils.TotalWeightAndTimeRow
+import com.example.motivationcalendarapi.ui.workout.utils.WorkoutNameTextField
 import com.example.motivationcalendarapi.ui.utils.dialogs.AutoDismissDialog
 import com.example.motivationcalendarapi.ui.utils.dialogs.ExistWorkoutDialog
 import com.example.motivationcalendarapi.ui.utils.dialogs.TimerCompleteDialog

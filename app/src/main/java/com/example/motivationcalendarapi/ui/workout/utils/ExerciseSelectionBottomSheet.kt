@@ -1,4 +1,4 @@
-package com.example.motivationcalendarapi.ui.utils
+package com.example.motivationcalendarapi.ui.workout.utils
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -13,6 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.padding
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExtendedExercise
+import com.example.motivationcalendarapi.ui.exercise.utils.SearchBar
+import com.example.motivationcalendarapi.ui.exercise.utils.SearchResultsList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +39,6 @@ fun ExerciseSelectionBottomSheet(
             val allSearchResults by exerciseViewModel.searchExercises(searchQuery)
                 .collectAsState(initial = emptyList())
 
-            // Фильтруем результаты поиска
             val filteredSearchResults = allSearchResults.filterNot { exercise ->
                 addedExercises.any { it.exercise.id == exercise.id }
             }

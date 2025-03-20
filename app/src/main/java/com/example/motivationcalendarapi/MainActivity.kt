@@ -15,6 +15,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +55,6 @@ class MainActivity : ComponentActivity() {
             val workoutRepository = WorkoutRepository(db)
             val exerciseRepository = ExerciseRepository(db)
             val mainRepository = MainRepository(context)
-
             val timerDataStore by lazy { TimerDataStore(applicationContext) }
 
             val workoutViewModel: WorkoutViewModel = viewModel(
@@ -75,21 +75,24 @@ class MainActivity : ComponentActivity() {
 
             val googleAuthClient = GoogleAuthClient(context = this)
             val authViewModel = AuthViewModel(googleAuthClient)
+            val userState = authViewModel.userState.collectAsState()
 
             MotivationCalendarAPITheme(mainViewModel = mainViewModel) {
 
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
-                    Box(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .fillMaxHeight()
-                            .fillMaxWidth(0.7f)
-                    ) {
-                        NavigationMenuView(navController = navController, onItemClick = {
-                            coroutineScope.launch {
-                                drawerState.close()
-                            }
-                        })
+                    if (userState.value is AuthViewModel.UserState.Authenticated) {
+                        Box(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .fillMaxHeight()
+                                .fillMaxWidth(0.7f)
+                        ) {
+                            NavigationMenuView(navController = navController, onItemClick = {
+                                coroutineScope.launch {
+                                    drawerState.close()
+                                }
+                            })
+                        }
                     }
                 }) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

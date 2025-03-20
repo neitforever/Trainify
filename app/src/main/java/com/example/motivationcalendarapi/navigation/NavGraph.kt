@@ -23,10 +23,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -58,7 +55,7 @@ import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.motivationcalendar.ui.AddWorkoutScreen
-import com.motivationcalendar.ui.WorkoutDetailScreen
+import com.motivationcalendar.ui.WorkoutHistoryDetailScreen
 import com.motivationcalendar.ui.WorkoutHistoryScreen
 import kotlinx.coroutines.launch
 
@@ -385,7 +382,7 @@ fun NavGraph(
                 arguments = listOf(navArgument("workoutId") { type = NavType.LongType })
             ) { stackEntry ->
                 val workoutId = stackEntry.arguments?.getLong("workoutId")
-                WorkoutDetailScreen(
+                WorkoutHistoryDetailScreen(
                     workoutId, workoutViewModel, navController, drawerState
                 )
             }

@@ -24,9 +24,9 @@ import androidx.compose.runtime.*
 import androidx.compose.material3.*
 import androidx.compose.ui.res.painterResource
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.ui.utils.ExerciseItem
-import com.example.motivationcalendarapi.ui.utils.NotFoundExerciseView
-import com.example.motivationcalendarapi.ui.utils.SearchBar
+import com.example.motivationcalendarapi.ui.exercise.utils.ExerciseItem
+import com.example.motivationcalendarapi.ui.exercise.utils.NotFoundExerciseView
+import com.example.motivationcalendarapi.ui.exercise.utils.SearchBar
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import kotlinx.coroutines.launch
 

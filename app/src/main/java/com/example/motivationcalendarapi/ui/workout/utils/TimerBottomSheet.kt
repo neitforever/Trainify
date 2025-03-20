@@ -1,4 +1,4 @@
-package com.example.motivationcalendarapi.ui.utils
+package com.example.motivationcalendarapi.ui.workout.utils
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

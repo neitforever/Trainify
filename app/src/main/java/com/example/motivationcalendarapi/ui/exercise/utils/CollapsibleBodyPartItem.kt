@@ -1,4 +1,4 @@
-package com.example.motivationcalendarapi.ui.utils
+package com.example.motivationcalendarapi.ui.exercise.utils
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween

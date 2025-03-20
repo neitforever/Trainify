@@ -1,6 +1,11 @@
 package com.example.motivationcalendarapi.ui.workout.fragments
 
 import LoadingView
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -42,6 +47,7 @@ fun BodyPartsList(
     val expandedBodyParts = remember { mutableStateMapOf<String, Boolean>() }
 
 
+
     if (bodyParts.isEmpty()) {
         LoadingView()
     } else {
@@ -52,54 +58,65 @@ fun BodyPartsList(
                     .fillMaxSize()
             ) {
                 items(sortedBodyParts) { bodyPart ->
+                    val isExpanded = expandedBodyParts[bodyPart] == true
 
-
-                val isExpanded = expandedBodyParts[bodyPart] ?: false
                     CollapsibleBodyPartItem(
                         bodyPart = bodyPart,
                         isExpanded = isExpanded,
                         onClick = { expandedBodyParts[bodyPart] = !isExpanded }
                     )
 
-                if (isExpanded) {
-                    val exercises by exerciseViewModel.getExercisesByBodyPart(bodyPart)
-                        .collectAsState(initial = emptyList())
+                    AnimatedVisibility(
+                        visible = isExpanded,
+                        enter = fadeIn() + expandVertically(
+                            expandFrom = Alignment.Top,
+                            initialHeight = { 0 }
+                        ),
+                        exit = fadeOut() + shrinkVertically(
+                            shrinkTowards = Alignment.Top
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val exercises by exerciseViewModel.getExercisesByBodyPart(bodyPart)
+                            .collectAsState(initial = emptyList())
 
-                    val filteredExercises = exercises.filterNot { ex ->
-                        addedExercises.any { it.id == ex.id }
+                        val filteredExercises = exercises.filterNot { ex ->
+                            addedExercises.any { it.id == ex.id }
+                        }
+
+                        val (favorites, nonFavorites) = filteredExercises.partition { exercise ->
+                            favoriteExercises.any { it.id == exercise.id }
+                        }
+
+                        val sortedFavorites = favorites.sortedBy { it.name }
+                        val sortedNonFavorites = nonFavorites.sortedBy { it.name }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            sortedFavorites.forEach { exercise ->
+                                ExerciseSelectionItem(
+                                    exercise = exercise,
+                                    isFavorite = true,
+                                    selectedOrder = selectedExercises.indexOfFirst { it.id == exercise.id }
+                                        .takeIf { it >= 0 }?.plus(1),
+                                    onItemClick = { onExerciseSelected(exercise) }
+                                )
+                            }
+
+                            sortedNonFavorites.forEach { exercise ->
+                                ExerciseSelectionItem(
+                                    exercise = exercise,
+                                    isFavorite = false,
+                                    selectedOrder = selectedExercises.indexOfFirst { it.id == exercise.id }
+                                        .takeIf { it >= 0 }?.plus(1),
+                                    onItemClick = { onExerciseSelected(exercise) }
+                                )
+                            }
+                        }
                     }
-
-                    val (favorites, nonFavorites) = filteredExercises.partition { exercise ->
-                        favoriteExercises.any { it.id == exercise.id }
-                    }
-
-                    val sortedFavorites = favorites.sortedBy { it.name }
-                    val sortedNonFavorites = nonFavorites.sortedBy { it.name }
-
-                    sortedFavorites.forEach { exercise ->
-                        ExerciseSelectionItem(
-                            exercise = exercise,
-                            isFavorite = true,
-                            selectedOrder = selectedExercises.indexOfFirst { it.id == exercise.id }
-                                .takeIf { it >= 0 }?.plus(1),
-                            onItemClick = { onExerciseSelected(exercise) }
-                        )
-                    }
-
-                    sortedNonFavorites.forEach { exercise ->
-                        ExerciseSelectionItem(
-                            exercise = exercise,
-                            isFavorite = false,
-                            selectedOrder = selectedExercises.indexOfFirst { it.id == exercise.id }
-                                .takeIf { it >= 0 }?.plus(1),
-                            onItemClick = { onExerciseSelected(exercise) }
-                        )
-                    }
-
-
                 }
-
-            }
                 item {
                     Spacer(
                         modifier = Modifier

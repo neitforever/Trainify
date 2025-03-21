@@ -39,8 +39,8 @@ fun CustomCalendarView(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 300.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         items(days.size) { index ->
             val date = days[index]

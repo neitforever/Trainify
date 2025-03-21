@@ -3,6 +3,7 @@ package com.example.motivationcalendarapi.ui.workout.calendar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.utils.CalendarState
 import java.time.format.DateTimeFormatter
@@ -32,20 +34,22 @@ fun CalendarHeader(
         IconButton(onClick = { calendarState.prevMonth() }) {
             Icon(
                 painter = painterResource(R.drawable.ic_arrow_back),
-                contentDescription = "Previous month"
+                contentDescription = "Previous month",
+                modifier = Modifier.size(28.dp)
             )
         }
 
         Text(
             text = currentMonth.format(monthYearFormatter),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         IconButton(onClick = { calendarState.nextMonth() }) {
             Icon(
-                painter = painterResource(R.drawable.ic_play_arrow),
-                contentDescription = "Next month"
+                painter = painterResource(R.drawable.ic_arrow_forward),
+                contentDescription = "Next month",
+                modifier = Modifier.size(28.dp)
             )
         }
     }

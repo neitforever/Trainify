@@ -39,15 +39,15 @@ fun CalendarDay(
         ) {
             Text(
                 text = day.toString(),
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (hasWorkout) MaterialTheme.colorScheme.onPrimaryContainer
+                style = MaterialTheme.typography.headlineMedium,
+                color = if (hasWorkout) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.onSurface
             )
 
             if (hasWorkout) {
                 Box(
                     modifier = Modifier
-                        .size(8.dp)
+                        .size(12.dp)
                         .background(
                             color = MaterialTheme.colorScheme.primary,
                             shape = CircleShape

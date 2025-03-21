@@ -22,6 +22,7 @@ private val DarkColorScheme = darkColorScheme(
     errorContainer = Color(0xFFB00020),
     inverseSurface = Color(0xFFE0E0E0),
     error = Color(0xFFFF0000),
+
 )
 
 private val LightColorScheme = lightColorScheme(

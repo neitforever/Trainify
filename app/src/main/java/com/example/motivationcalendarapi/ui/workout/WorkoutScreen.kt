@@ -94,8 +94,6 @@ fun AddWorkoutScreen(
     val selectedExercises by workoutViewModel.selectedExercises.collectAsState()
     val exerciseSetsMap by workoutViewModel.exerciseSetsMap.collectAsState()
 
-    val showSetDialog = remember { mutableStateOf(false) }
-    val newSet = remember { mutableStateOf(ExerciseSet(rep = 0, weight = 0f)) }
 
     val showOverwriteDialog by workoutViewModel.showOverwriteDialog.collectAsState()
 
@@ -331,6 +329,7 @@ fun AddWorkoutScreen(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
+                if (isWorkoutStarted) {
                 Column(
                     modifier = Modifier
                         .padding(
@@ -340,7 +339,6 @@ fun AddWorkoutScreen(
                         )
                         .verticalScroll(rememberScrollState())
                 ) {
-                    if (isWorkoutStarted) {
                         WorkoutNameTextField(
                             workoutName = workoutName, onValueChange = { newName ->
                                 if (newName.length <= 20) {
@@ -426,7 +424,8 @@ fun AddWorkoutScreen(
                             )
                         }
                         Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp))
-                    }}
+                    }
+                }
 
 
                 if (!isWorkoutStarted) {
@@ -435,12 +434,11 @@ fun AddWorkoutScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp)
-                            .padding(top = paddingValues.calculateTopPadding())
+                            .padding(top = paddingValues.calculateTopPadding() + 8.dp)
                     ) {
                         CalendarHeader(
                             calendarState = calendarState,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier.padding(bottom = 8.dp).padding(horizontal = 4.dp)
                         )
 
                         CustomCalendarView(
@@ -449,7 +447,7 @@ fun AddWorkoutScreen(
                             onWorkoutClick = { workoutId ->
                                 navController.navigate("${Screen.WorkoutDetail.route}/$workoutId")
                             },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
                         )
                     }
                 }

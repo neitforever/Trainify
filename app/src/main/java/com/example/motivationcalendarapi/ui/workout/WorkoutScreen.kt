@@ -44,6 +44,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.ui.workout.calendar.CalendarHeader
+import com.example.motivationcalendarapi.ui.workout.calendar.CustomCalendarView
 import com.example.motivationcalendarapi.ui.dialogs.EndWorkoutDialog
 import com.example.motivationcalendarapi.ui.workout.fragments.ExerciseSelectionBottomSheet
 import com.example.motivationcalendarapi.ui.workout.fragments.TimerBottomSheet
@@ -54,7 +56,9 @@ import com.example.motivationcalendarapi.ui.dialogs.ExistWorkoutDialog
 import com.example.motivationcalendarapi.ui.dialogs.TimerCompleteDialog
 import com.example.motivationcalendarapi.ui.dialogs.WarmupDialog
 import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
+import com.example.motivationcalendarapi.utils.CalendarState
 import kotlinx.coroutines.delay
+import java.time.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,6 +113,18 @@ fun AddWorkoutScreen(
     var isTimerRunning by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+
+
+
+
+    @Composable
+    fun rememberCalendarState(initialDate: LocalDate = LocalDate.now()) = remember {
+        CalendarState(initialDate)
+    }
+
+
+
+
     LaunchedEffect(Unit) {
         drawerState.value.close()
     }
@@ -139,7 +155,8 @@ fun AddWorkoutScreen(
     }
 
     Scaffold(topBar = {
-        TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
+        TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             titleContentColor = MaterialTheme.colorScheme.primary,
         ), navigationIcon = {
@@ -175,11 +192,11 @@ fun AddWorkoutScreen(
             shape = CutCornerShape(4.dp)
         )
         )
-    },
-        floatingActionButton = {
+    }, floatingActionButton = {
         if (isWorkoutStarted) {
 
-            Column(horizontalAlignment = Alignment.End,
+            Column(
+                horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .navigationBarsPadding()
@@ -302,12 +319,13 @@ fun AddWorkoutScreen(
             }
         }
     }) { paddingValues ->
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .pointerInput(Unit) {
-                detectTapGestures { isMenuExpanded = false }
-            }) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .pointerInput(Unit) {
+                    detectTapGestures { isMenuExpanded = false }
+                }) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -332,7 +350,9 @@ fun AddWorkoutScreen(
                         )
 
                         TotalWeightAndTimeRow(
-                            timerValue = timerValue, totalKg = totalKg,modifier = Modifier.padding(horizontal = 2.dp, vertical = 8.dp)
+                            timerValue = timerValue,
+                            totalKg = totalKg,
+                            modifier = Modifier.padding(horizontal = 2.dp, vertical = 8.dp)
                         )
 
                         ExerciseSelectionBottomSheet(
@@ -342,7 +362,8 @@ fun AddWorkoutScreen(
                             workoutViewModel = workoutViewModel
                         )
 
-                        TimerBottomSheet(showSheet = showWarmupBottomSheet,
+                        TimerBottomSheet(
+                            showSheet = showWarmupBottomSheet,
                             currentTime = currentTime,
                             warmupTime = warmupTime,
                             isTimerRunning = isTimerRunning,
@@ -405,41 +426,53 @@ fun AddWorkoutScreen(
                             )
                         }
                         Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp))
-                    } else {
+                    }}
 
 
-//                        Button(
-//                            onClick = { workoutViewModel.checkForExistingWorkout() },
-//                            border = BorderStroke(
-//                                width = 2.dp, MaterialTheme.colorScheme.secondary
-//                            ),
-//                            modifier = Modifier.fillMaxWidth(),
-//                        ) {
-//                            Text(
-//                                text = "Start Workout",
-//                                color = MaterialTheme.colorScheme.onPrimary,
-//                                style = MaterialTheme.typography.headlineMedium,
-//                            )
-//                        }
+                if (!isWorkoutStarted) {
+                    val workouts by workoutViewModel.allWorkouts.collectAsState()
+                    val calendarState = rememberCalendarState()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                            .padding(top = paddingValues.calculateTopPadding())
+                    ) {
+                        CalendarHeader(
+                            calendarState = calendarState,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
 
+                        CustomCalendarView(
+                            workouts = workouts,
+                            calendarState = calendarState,
+                            onWorkoutClick = { workoutId ->
+                                navController.navigate("${Screen.WorkoutDetail.route}/$workoutId")
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
                     }
-
                 }
+
+
 
             }
 
 
-            TimerCompleteDialog(showDialog = showTimerCompleteDialog,
+            TimerCompleteDialog(
+                showDialog = showTimerCompleteDialog,
                 onDismiss = { showTimerCompleteDialog = false })
 
-            WarmupDialog(showDialog = showTimerDialog,
+            WarmupDialog(
+                showDialog = showTimerDialog,
                 warmupTime = warmupTimeState,
                 onDismiss = { showTimerDialog = false },
                 onConfirm = { newTime ->
                     workoutViewModel.updateWarmupTime(newTime)
                 })
 
-            ExistWorkoutDialog(showDialog = showOverwriteDialog,
+            ExistWorkoutDialog(
+                showDialog = showOverwriteDialog,
                 onDismiss = { workoutViewModel.dismissOverwriteDialog() },
                 onConfirm = { workoutViewModel.confirmOverwrite() })
 
@@ -449,7 +482,8 @@ fun AddWorkoutScreen(
                 isPaused = isWorkoutPaused.value
             )
 
-            EndWorkoutDialog(showDialog = showEndWorkoutDialog.value,
+            EndWorkoutDialog(
+                showDialog = showEndWorkoutDialog.value,
                 onDismiss = { showEndWorkoutDialog.value = false },
                 onConfirm = {
                     val isNameEmpty = workoutName.isBlank()
@@ -480,7 +514,8 @@ fun AddWorkoutScreen(
                 message = validationMessage
             )
 
-            RepsDialog(showDialog = showRepDialog,
+            RepsDialog(
+                showDialog = showRepDialog,
                 initialRep = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.rep ?: 0,
                 onDismiss = { showRepDialog = false },
                 onSave = { newRep ->
@@ -488,7 +523,8 @@ fun AddWorkoutScreen(
                     showRepDialog = false
                 })
 
-            WeightDialog(showDialog = showWeightDialog,
+            WeightDialog(
+                showDialog = showWeightDialog,
                 initialWeight = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.weight
                     ?: 0f,
                 onDismiss = { showWeightDialog = false },

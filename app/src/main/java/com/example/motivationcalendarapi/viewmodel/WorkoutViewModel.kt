@@ -457,7 +457,6 @@ class WorkoutViewModel(
         }
     }
 
-
     fun updateWeight(exerciseIndex: Int, setIndex: Int, newWeight: Float) {
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         val sets = updatedMap[exerciseIndex]?.toMutableList() ?: return

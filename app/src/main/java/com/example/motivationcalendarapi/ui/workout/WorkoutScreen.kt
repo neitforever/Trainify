@@ -516,22 +516,31 @@ fun AddWorkoutScreen(
 
             RepsDialog(
                 showDialog = showRepDialog,
-                initialRep = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.rep ?: 0,
+                initialRep = exerciseSetsMap[currentExerciseIndex]?.getOrNull(currentSetIndex)?.rep ?: 0,
                 onDismiss = { showRepDialog = false },
                 onSave = { newRep ->
-                    workoutViewModel.updateRep(currentExerciseIndex, currentSetIndex, newRep)
+                    exerciseSetsMap[currentExerciseIndex]?.let { sets ->
+                        if (currentSetIndex < sets.size) {
+                            workoutViewModel.updateRep(currentExerciseIndex, currentSetIndex, newRep)
+                        }
+                    }
                     showRepDialog = false
-                })
+                }
+            )
 
             WeightDialog(
                 showDialog = showWeightDialog,
-                initialWeight = exerciseSetsMap[currentExerciseIndex]?.get(currentSetIndex)?.weight
-                    ?: 0f,
+                initialWeight = exerciseSetsMap[currentExerciseIndex]?.getOrNull(currentSetIndex)?.weight ?: 0f,
                 onDismiss = { showWeightDialog = false },
                 onSave = { newWeight ->
-                    workoutViewModel.updateWeight(currentExerciseIndex, currentSetIndex, newWeight)
+                    exerciseSetsMap[currentExerciseIndex]?.let { sets ->
+                        if (currentSetIndex < sets.size) {
+                            workoutViewModel.updateWeight(currentExerciseIndex, currentSetIndex, newWeight)
+                        }
+                    }
                     showWeightDialog = false
-                })
+                }
+            )
 
 
         }

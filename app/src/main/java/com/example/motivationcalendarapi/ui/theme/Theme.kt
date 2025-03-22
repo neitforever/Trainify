@@ -29,17 +29,18 @@ private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF006A60),
     secondary = Color(0xFF4A635E),
     tertiary = Color(0xFF3D8479),
-    background = Color(0xFFF7F7F7),
-    surface = Color.White,
+    background = Color(0xFFE0E0E0),
+    surface = Color(0xFFF5F5F5),
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = Color.White,
     onBackground = Color(0xFF1C1C1C),
     onSurface = Color(0xFF1C1C1C),
-    surfaceVariant = Color(0xFFE0E0E0),
-    error = Color(0xFFB00020),
+    surfaceVariant = Color(0xFFEEEEEE),
+    inverseSurface = Color(0xFF2D2D2D),
     errorContainer = Color(0xFFFCD8DF),
-    inverseSurface = Color(0xFF2D2D2D)
+    error = Color(0xFFFF0000),
+    onErrorContainer = Color(0xFFFF0000),
 )
 
 

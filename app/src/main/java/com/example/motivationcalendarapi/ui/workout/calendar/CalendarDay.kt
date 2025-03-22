@@ -1,6 +1,7 @@
 package com.example.motivationcalendarapi.ui.workout.calendar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -27,11 +28,17 @@ fun CalendarDay(
     Card(
         modifier = modifier
             .aspectRatio(1f)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline,
+                shape = MaterialTheme.shapes.small
+            ),
         colors = CardDefaults.cardColors(
             containerColor = if (hasWorkout) MaterialTheme.colorScheme.primaryContainer
             else MaterialTheme.colorScheme.surfaceVariant
-        )
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -44,18 +51,18 @@ fun CalendarDay(
                 else MaterialTheme.colorScheme.onSurface
             )
 
-            if (hasWorkout) {
-                Box(
-                    modifier = Modifier
-                        .size(12.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape
-                        )
-                        .align(Alignment.TopEnd)
-                        .padding(2.dp)
-                )
-            }
+//            if (hasWorkout) {
+//                Box(
+//                    modifier = Modifier
+//                        .size(12.dp)
+//                        .background(
+//                            color = MaterialTheme.colorScheme.primary,
+//                            shape = CircleShape
+//                        )
+//                        .align(Alignment.TopEnd)
+//                        .padding(2.dp)
+//                )
+//            }
         }
     }
 }

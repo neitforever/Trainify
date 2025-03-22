@@ -41,7 +41,17 @@ fun ExerciseCardHistory(
     var showNoteDialog by remember { mutableStateOf(false) }
 
     Card(
-        modifier = modifier.padding(vertical = 8.dp)
+        modifier = modifier
+            .padding(vertical = 8.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                shape = MaterialTheme.shapes.medium
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(
             modifier = Modifier

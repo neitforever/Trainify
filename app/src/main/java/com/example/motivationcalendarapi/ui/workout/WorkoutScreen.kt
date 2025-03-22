@@ -56,6 +56,7 @@ import com.example.motivationcalendarapi.ui.dialogs.ExistWorkoutDialog
 import com.example.motivationcalendarapi.ui.dialogs.TimerCompleteDialog
 import com.example.motivationcalendarapi.ui.dialogs.WarmupDialog
 import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
+import com.example.motivationcalendarapi.ui.workout.fragments.InActiveWorkoutScreen
 import com.example.motivationcalendarapi.utils.CalendarState
 import kotlinx.coroutines.delay
 import java.time.LocalDate
@@ -86,7 +87,7 @@ fun AddWorkoutScreen(
     val workoutsThisWeek = workouts.count { workout ->
         getWeekOfMonth(workout.timestamp) == currentWeek
     }
-    val workoutNumberInWeek = workoutsThisWeek + 1
+    val workoutNumberInWeek = workoutsThisWeek
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isSheetOpen = remember { mutableStateOf(false) }
@@ -155,42 +156,43 @@ fun AddWorkoutScreen(
     Scaffold(topBar = {
         TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ), navigationIcon = {
-            IconButton(
-                onClick = {
-                    coroutineScope.launch {
-                        drawerState.value.open()
-                    }
-                }, modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Menu,
-                    contentDescription = "Open Menu",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(36.dp)
-                )
-            }
-        }, title = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 4.dp)
-            ) {
-                Text(
-                    text = "$workoutNumberInWeek workout/week",
-                    style = MaterialTheme.typography.displaySmall,
-                    maxLines = 1,
-                    modifier = Modifier.align(Alignment.CenterStart)
-                )
-            }
-        }, modifier = Modifier.border(
-            border = BorderStroke(2.dp, MaterialTheme.colorScheme.tertiary),
-            shape = CutCornerShape(4.dp)
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ), navigationIcon = {
+                IconButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            drawerState.value.open()
+                        }
+                    }, modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = "Open Menu",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            }, title = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 4.dp)
+                ) {
+                    Text(
+                        text = "$workoutNumberInWeek workout/week",
+                        style = MaterialTheme.typography.headlineLarge,
+                        maxLines = 1,
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    )
+                }
+            }, modifier = Modifier.border(
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.tertiary),
+                shape = CutCornerShape(4.dp)
+            )
         )
-        )
-    }, floatingActionButton = {
+    },
+        floatingActionButton = {
         if (isWorkoutStarted) {
 
             Column(
@@ -330,15 +332,15 @@ fun AddWorkoutScreen(
                     .weight(1f)
             ) {
                 if (isWorkoutStarted) {
-                Column(
-                    modifier = Modifier
-                        .padding(
-                            top = paddingValues.calculateTopPadding() + 12.dp,
-                            start = 8.dp,
-                            end = 8.dp
-                        )
-                        .verticalScroll(rememberScrollState())
-                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(
+                                top = paddingValues.calculateTopPadding() + 12.dp,
+                                start = 8.dp,
+                                end = 8.dp
+                            )
+                            .verticalScroll(rememberScrollState())
+                    ) {
                         WorkoutNameTextField(
                             workoutName = workoutName, onValueChange = { newName ->
                                 if (newName.length <= 20) {
@@ -429,27 +431,12 @@ fun AddWorkoutScreen(
 
 
                 if (!isWorkoutStarted) {
-                    val workouts by workoutViewModel.allWorkouts.collectAsState()
-                    val calendarState = rememberCalendarState()
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = paddingValues.calculateTopPadding() + 8.dp)
-                    ) {
-                        CalendarHeader(
-                            calendarState = calendarState,
-                            modifier = Modifier.padding(bottom = 8.dp).padding(horizontal = 4.dp)
-                        )
-
-                        CustomCalendarView(
-                            workouts = workouts,
-                            calendarState = calendarState,
-                            onWorkoutClick = { workoutId ->
-                                navController.navigate("${Screen.WorkoutDetail.route}/$workoutId")
-                            },
-                            modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
-                        )
-                    }
+                    InActiveWorkoutScreen(
+                        workoutViewModel = workoutViewModel,
+                        exerciseViewModel = exersiceViewModel,
+                        navController = navController,
+                        paddingTop = paddingValues.calculateTopPadding()
+                    )
                 }
 
 

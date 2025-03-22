@@ -67,9 +67,9 @@ private fun WeightRow(
         modifier = Modifier.fillMaxWidth()
     ) {
         TextButton(onClick = {
-            onValueChange((value - 5f).coerceAtLeast(0f))
+            onValueChange((value - 10f).coerceAtLeast(0f))
         }) {
-            Text("-5", style = MaterialTheme.typography.bodyMedium)
+            Text("-10", style = MaterialTheme.typography.bodyMedium)
         }
 
         OutlinedTextField(value = value.toString(),
@@ -83,9 +83,9 @@ private fun WeightRow(
         )
 
         TextButton(onClick = {
-            onValueChange((value + 5f).coerceAtMost(200f))
+            onValueChange((value + 10f).coerceAtMost(200f))
         }) {
-            Text("+5", style = MaterialTheme.typography.bodyMedium)
+            Text("+10", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

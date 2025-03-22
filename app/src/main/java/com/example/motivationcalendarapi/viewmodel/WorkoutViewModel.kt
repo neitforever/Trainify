@@ -354,8 +354,8 @@ class WorkoutViewModel(
         val avgReps = totalReps.toFloat() / totalSets
 
         return when {
-            avgWeight > 70f && avgReps > 8 -> DifficultyLevel.HARD
-            avgWeight > 40f && avgReps > 5 -> DifficultyLevel.NORMAL
+            avgWeight > 100f && avgReps > 12 -> DifficultyLevel.HARD
+            avgWeight > 50f && avgReps > 6 -> DifficultyLevel.NORMAL
             else -> DifficultyLevel.EASY
         }
     }

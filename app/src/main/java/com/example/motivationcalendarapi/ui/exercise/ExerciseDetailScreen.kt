@@ -101,7 +101,8 @@ fun ExerciseDetailScreen(
                 shape = CutCornerShape(4.dp)
             )
             )
-        }, floatingActionButton = {
+        },
+        floatingActionButton = {
             Row(
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier.navigationBarsPadding()

@@ -30,4 +30,5 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object CreateExercise : Screen("create_exercise", "New Exercise", Icons.Default.Add)
     object Auth : Screen("auth", "auth", Icons.Default.Add)
     object Profile : Screen("profile", "Profile", Icons.Default.AccountBox)
+    object BodyProgress : Screen("body_progress", "Weight progress", Icons.Default.AccountBox)
 }

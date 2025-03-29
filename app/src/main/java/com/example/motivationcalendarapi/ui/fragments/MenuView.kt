@@ -24,7 +24,7 @@ import com.example.motivationcalendarapi.R
 @Composable
 fun NavigationMenuView(navController: NavController, onItemClick: () -> Unit) {
     val items = listOf(
-        Screen.AddWorkout, Screen.WorkoutHistory, Screen.ExercisesView, Screen.Settings,Screen.Profile
+        Screen.Profile,Screen.AddWorkout, Screen.WorkoutHistory, Screen.ExercisesView, Screen.Settings, Screen.BodyProgress
     )
 
     Column(
@@ -62,6 +62,7 @@ fun NavigationMenuView(navController: NavController, onItemClick: () -> Unit) {
                     Screen.WorkoutHistory.route -> R.drawable.ic_history
                     Screen.AddWorkout.route -> R.drawable.ic_add
                     Screen.ExercisesView.route -> R.drawable.ic_list
+                    Screen.BodyProgress.route -> R.drawable.ic_progress
                     else -> null
                 }
 

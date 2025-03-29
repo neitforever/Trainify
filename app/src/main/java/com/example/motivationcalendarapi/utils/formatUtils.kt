@@ -10,15 +10,6 @@ fun formatTime(seconds: Int?): String {
     return String.format("%02d:%02d", seconds!! / 60, seconds!! % 60)
 }
 
-fun formatTimestamp(timestamp: Long?): String {
-    return try {
-        val date = Date(timestamp!!)
-        val formatter = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
-        formatter.format(date)
-    } catch (e: Exception) {
-        "Неверная дата"
-    }
-}
 
 fun formatDate(timestamp: Long): String {
     val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())

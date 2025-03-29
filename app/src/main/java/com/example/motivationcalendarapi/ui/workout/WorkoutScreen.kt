@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import getWeekOfMonth
@@ -44,12 +43,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.ui.workout.calendar.CalendarHeader
-import com.example.motivationcalendarapi.ui.workout.calendar.CustomCalendarView
 import com.example.motivationcalendarapi.ui.dialogs.EndWorkoutDialog
 import com.example.motivationcalendarapi.ui.workout.fragments.ExerciseSelectionBottomSheet
 import com.example.motivationcalendarapi.ui.workout.fragments.TimerBottomSheet
-import com.example.motivationcalendarapi.ui.workout.fragments.TotalWeightAndTimeRow
+import com.example.motivationcalendarapi.ui.workout.detail.fragments.TotalWeightAndTimeRow
 import com.example.motivationcalendarapi.ui.workout.fragments.WorkoutNameTextField
 import com.example.motivationcalendarapi.ui.dialogs.AutoDismissDialog
 import com.example.motivationcalendarapi.ui.dialogs.ExistWorkoutDialog

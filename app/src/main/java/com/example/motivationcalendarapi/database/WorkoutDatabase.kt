@@ -6,17 +6,20 @@ import com.example.motivationcalendarapi.database.ExerciseDao
 import com.example.motivationcalendarapi.model.Converters
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.tryy.BodyProgress
+import com.example.motivationcalendarapi.tryy.BodyProgressDao
 
 
 @Database(
-    entities = [Workout::class, Exercise::class],
-    version = 1,
+    entities = [Workout::class, Exercise::class, BodyProgress::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class WorkoutDatabase : RoomDatabase() {
     abstract fun workoutDao(): WorkoutDao
     abstract fun exerciseDao(): ExerciseDao
+    abstract fun bodyProgressDao(): BodyProgressDao
 
 
     companion object {

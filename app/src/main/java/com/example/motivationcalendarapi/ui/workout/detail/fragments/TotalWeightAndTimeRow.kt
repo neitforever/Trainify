@@ -1,4 +1,4 @@
-package com.example.motivationcalendarapi.ui.workout.fragments
+package com.example.motivationcalendarapi.ui.workout.detail.fragments
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier

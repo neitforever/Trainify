@@ -39,7 +39,7 @@ import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
 import com.example.motivationcalendarapi.ui.workout.detail.fragments.ExerciseCardHistory
-import com.example.motivationcalendarapi.ui.workout.fragments.TotalWeightAndTimeRow
+import com.example.motivationcalendarapi.ui.workout.detail.fragments.TotalWeightAndTimeRow
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import formatDate
 import kotlinx.coroutines.CoroutineScope

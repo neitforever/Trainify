@@ -20,6 +20,9 @@ import com.example.motivationcalendarapi.repositories.ExerciseRepository
 import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
+import com.example.motivationcalendarapi.tryy.BodyProgressRepository
+import com.example.motivationcalendarapi.tryy.BodyProgressViewModel
+import com.example.motivationcalendarapi.tryy.BodyProgressViewModelFactory
 import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
@@ -44,7 +47,10 @@ class MainActivity : ComponentActivity() {
             val exerciseRepository = ExerciseRepository(db)
             val mainRepository = MainRepository(context)
             val timerDataStore by lazy { TimerDataStore(applicationContext) }
-
+            val bodyProgressRepository = BodyProgressRepository(db)
+            val bodyProgressViewModel: BodyProgressViewModel = viewModel(
+                factory = BodyProgressViewModelFactory(bodyProgressRepository)
+            )
             val workoutViewModel: WorkoutViewModel = viewModel(
                 factory = WorkoutViewModelFactory(
                     workoutRepository, timerDataStore
@@ -75,7 +81,8 @@ class MainActivity : ComponentActivity() {
                         exerciseViewModel,
                         drawerState,
                         googleAuthClient,
-                        authViewModel
+                        authViewModel,
+                        bodyProgressViewModel = bodyProgressViewModel,
                     )
 //                }
 //            else {

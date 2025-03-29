@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -43,6 +44,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.tryy.BodyProgressRepository
+import com.example.motivationcalendarapi.tryy.BodyProgressScreen
+import com.example.motivationcalendarapi.tryy.BodyProgressViewModel
+import com.example.motivationcalendarapi.tryy.BodyProgressViewModelFactory
 import com.example.motivationcalendarapi.ui.AuthScreen
 import com.example.motivationcalendarapi.ui.ProfileScreen
 import com.example.motivationcalendarapi.ui.exercise.BodyPartSelectionScreen
@@ -77,6 +82,7 @@ fun NavGraph(
     drawerState: MutableState<DrawerState>,
     googleAuthClient: GoogleAuthClient,
     authViewModel: AuthViewModel,
+    bodyProgressViewModel: BodyProgressViewModel,
     ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
@@ -99,7 +105,8 @@ fun NavGraph(
         Screen.ThemeSettings,
         Screen.EquipmentSelection,
         Screen.BodyPartSelection,
-        Screen.Auth
+        Screen.Auth,
+        Screen.BodyProgress
     )
     ModalNavigationDrawer(drawerState = drawerState.value, drawerContent = {
         if (userState.value is AuthViewModel.UserState.Authenticated) {
@@ -416,6 +423,15 @@ fun NavGraph(
                         val workoutId = stackEntry.arguments?.getLong("workoutId")
                         WorkoutHistoryDetailScreen(
                             workoutId, workoutViewModel, navController,
+                            paddingValues = paddingValue.calculateTopPadding()
+                        )
+                    }
+                    composable(Screen.BodyProgress.route) {
+                        val context = LocalContext.current
+                        BodyProgressScreen(
+                            viewModel = bodyProgressViewModel,
+                            navController = navHostController,
+                            context = context,
                             paddingValues = paddingValue.calculateTopPadding()
                         )
                     }

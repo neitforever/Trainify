@@ -6,13 +6,13 @@ import com.example.motivationcalendarapi.database.ExerciseDao
 import com.example.motivationcalendarapi.model.Converters
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.Workout
-import com.example.motivationcalendarapi.tryy.BodyProgress
-import com.example.motivationcalendarapi.tryy.BodyProgressDao
+import com.example.motivationcalendarapi.database.BodyProgressDao
+import com.example.motivationcalendarapi.model.BodyProgress
 
 
 @Database(
     entities = [Workout::class, Exercise::class, BodyProgress::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

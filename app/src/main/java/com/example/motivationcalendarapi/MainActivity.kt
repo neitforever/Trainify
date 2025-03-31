@@ -20,9 +20,9 @@ import com.example.motivationcalendarapi.repositories.ExerciseRepository
 import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
-import com.example.motivationcalendarapi.tryy.BodyProgressRepository
-import com.example.motivationcalendarapi.tryy.BodyProgressViewModel
-import com.example.motivationcalendarapi.tryy.BodyProgressViewModelFactory
+import com.example.motivationcalendarapi.repositories.BodyProgressRepository
+import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
+import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModelFactory
 import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel

@@ -1,4 +1,4 @@
-package com.example.motivationcalendarapi.tryy
+package com.example.motivationcalendarapi.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

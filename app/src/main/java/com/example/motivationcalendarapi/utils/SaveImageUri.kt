@@ -1,9 +1,7 @@
-package com.example.motivationcalendarapi.tryy
+package com.example.motivationcalendarapi.utils
 
-import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
-import android.provider.MediaStore
 import java.io.File
 import java.io.FileOutputStream
 

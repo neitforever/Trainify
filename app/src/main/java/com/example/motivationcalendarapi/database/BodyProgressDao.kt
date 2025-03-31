@@ -1,9 +1,10 @@
-package com.example.motivationcalendarapi.tryy
+package com.example.motivationcalendarapi.database
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import com.example.motivationcalendarapi.model.BodyProgress
 import kotlinx.coroutines.flow.Flow
 
 @Dao

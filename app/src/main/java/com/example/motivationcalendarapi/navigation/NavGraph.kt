@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -44,10 +43,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.tryy.BodyProgressRepository
-import com.example.motivationcalendarapi.tryy.BodyProgressScreen
-import com.example.motivationcalendarapi.tryy.BodyProgressViewModel
-import com.example.motivationcalendarapi.tryy.BodyProgressViewModelFactory
+import com.example.motivationcalendarapi.ui.body_progress.BodyProgressScreen
+import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.ui.AuthScreen
 import com.example.motivationcalendarapi.ui.ProfileScreen
 import com.example.motivationcalendarapi.ui.exercise.BodyPartSelectionScreen

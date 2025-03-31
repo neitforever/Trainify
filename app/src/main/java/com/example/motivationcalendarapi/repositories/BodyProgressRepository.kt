@@ -1,5 +1,6 @@
-package com.example.motivationcalendarapi.tryy
+package com.example.motivationcalendarapi.repositories
 
+import com.example.motivationcalendarapi.model.BodyProgress
 import com.motivationcalendar.data.WorkoutDatabase
 import kotlinx.coroutines.flow.Flow
 

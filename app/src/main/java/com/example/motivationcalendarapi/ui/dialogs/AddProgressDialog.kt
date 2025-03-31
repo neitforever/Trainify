@@ -1,11 +1,7 @@
-package com.example.motivationcalendarapi.tryy
+package com.example.motivationcalendarapi.ui.dialogs
 
-import android.Manifest
 import com.example.motivationcalendarapi.R
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -18,7 +14,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,10 +33,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,12 +50,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
-import kotlinx.coroutines.delay
 
 @Composable
 fun AddProgressDialog(
@@ -96,7 +84,7 @@ fun AddProgressDialog(
                     Text(
                         text = "Add Progress",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = colorScheme.onBackground
                     )
                 }
             },
@@ -117,16 +105,16 @@ fun AddProgressDialog(
                                 .fillMaxWidth()
                                 .heightIn(max = 400.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .background(colorScheme.surfaceVariant)
                                 .border(
                                     width = 2.dp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                     shape = RoundedCornerShape(12.dp)
                                 )
                                 .shadow(
                                     elevation = 8.dp,
                                     shape = RoundedCornerShape(12.dp),
-                                    spotColor = MaterialTheme.colorScheme.primary
+                                    spotColor = colorScheme.primary
                                 )
                         ) {
                             Image(
@@ -154,10 +142,10 @@ fun AddProgressDialog(
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(
                             1.dp,
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                            colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         ),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onSurface
+                            contentColor = colorScheme.onSurface
                         )
                     ) {
                         Text(
@@ -178,7 +166,7 @@ fun AddProgressDialog(
                     Text(
                         text = "Save",
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
+                        color = if (photoUri != null && weight > 0) colorScheme.primary else colorScheme.secondary
                     )
                 }
             },
@@ -189,11 +177,11 @@ fun AddProgressDialog(
                     Text(
                         text = "Cancel",
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = colorScheme.secondary
                     )
                 }
             },
-            containerColor = MaterialTheme.colorScheme.background,
+            containerColor = colorScheme.background,
             tonalElevation = 8.dp,
             shape = RoundedCornerShape(16.dp))
     }
@@ -216,7 +204,7 @@ private fun WeightRow(
             Icon(
                 painter = painterResource(R.drawable.ic_minus),
                 contentDescription = "Decrease weight",
-                tint = MaterialTheme.colorScheme.primary,
+                tint = colorScheme.primary,
                 modifier = Modifier.size(32.dp)
             )
         }
@@ -231,11 +219,11 @@ private fun WeightRow(
                 Text(
                     "Weight (kg)",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = colorScheme.onSurfaceVariant
                 )
             },
             textStyle = MaterialTheme.typography.headlineMedium.copy(
-                color = MaterialTheme.colorScheme.onBackground,
+                color = colorScheme.onBackground,
                 textAlign = TextAlign.Center
             ),
             keyboardOptions = KeyboardOptions(
@@ -250,10 +238,10 @@ private fun WeightRow(
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
-                focusedTextColor = MaterialTheme.colorScheme.onBackground,
-                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-                focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                focusedTextColor = colorScheme.onBackground,
+                unfocusedTextColor = colorScheme.onBackground,
+                focusedLabelColor = colorScheme.onSurfaceVariant,
+                unfocusedLabelColor = colorScheme.onSurfaceVariant
             )
         )
 
@@ -264,7 +252,7 @@ private fun WeightRow(
             Icon(
                 painter = painterResource(R.drawable.ic_plus),
                 contentDescription = "Increase weight",
-                tint = MaterialTheme.colorScheme.primary,
+                tint = colorScheme.primary,
                 modifier = Modifier.size(32.dp)
             )
         }

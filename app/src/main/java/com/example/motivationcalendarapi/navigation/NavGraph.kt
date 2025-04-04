@@ -113,7 +113,8 @@ fun NavGraph(
                     .fillMaxHeight()
                     .fillMaxWidth(0.7f)
             ) {
-                NavigationMenuView(navController = navController, onItemClick = {
+                NavigationMenuView(    mainViewModel = mainViewModel,
+                    authViewModel = authViewModel,navController = navController, onItemClick = {
                     coroutineScope.launch {
                         drawerState.value.close()
                     }

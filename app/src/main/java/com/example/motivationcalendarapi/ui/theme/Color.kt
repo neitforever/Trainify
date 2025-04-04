@@ -13,3 +13,6 @@ val Pink40 = Color(0xFF7D5260)
 val EASY_COLOR = Color(0xFF4CAF50)
 val NORMAL_COLOR = Color(0xFFFFC107)
 val HARD_COLOR = Color(0xFFFF0000)
+
+val BLACK_COLOR = Color.Black
+val WHITE_COLOR = Color(0xFFE0E0E0)

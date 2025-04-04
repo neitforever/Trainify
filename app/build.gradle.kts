@@ -2,8 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.gms)
     id("com.google.devtools.ksp")
-    id("com.google.gms.google-services")
 
 }
 
@@ -50,20 +50,17 @@ android {
 dependencies {
 
 
-
     // Google auth
-    implementation("androidx.credentials:credentials:1.3.0")
-    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("androidx.credentials:credentials:1.5.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 
     //Firebase bom
-    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
+    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
 
-    //Realtime database
-//    implementation("com.google.firebase:firebase-database")
-
-//    implementation("com.google.firebase:firebase-firestore")
-
+    //Database
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-firestore")
 
     //Firebase storage
     implementation("com.google.firebase:firebase-storage")
@@ -72,15 +69,15 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
 
     //navigation
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.8.9")
 
     //Retrofit 2
-    implementation("com.squareup.retrofit2:retrofit:2.6.2")
-    implementation("com.squareup.retrofit2:converter-gson:2.6.2")
-    implementation("com.squareup.retrofit2:converter-scalars:2.6.2")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.11.0")
 
     //coil
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 //
 //    //Live data
 //    implementation ("androidx.compose.runtime:runtime-livedata:1.0.0-beta01")
@@ -101,16 +98,12 @@ dependencies {
     implementation(libs.androidx.foundation.android)
 
 
+    implementation(libs.androidx.datastore.preferences)
 
-    //fonts
     implementation(libs.androidx.ui.text.google.fonts)
 
-
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.datastore.core.android)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.logging.interceptor)
-    implementation(libs.screenshot.validation.junit.engine)
+//    implementation(libs.logging.interceptor)
+//    implementation(libs.screenshot.validation.junit.engine)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

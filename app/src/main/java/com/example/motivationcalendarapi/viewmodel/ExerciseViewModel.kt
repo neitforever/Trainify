@@ -3,7 +3,6 @@ package com.example.motivationcalendarapi.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.tools.screenshot.isValid
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.database.toDatabaseModels
 import com.example.motivationcalendarapi.mapper.toEntity

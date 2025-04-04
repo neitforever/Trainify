@@ -1,6 +1,7 @@
 package com.example.motivationcalendarapi.ui
 
 import GoogleAuthClient
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -33,7 +34,9 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -46,6 +49,7 @@ fun ProfileScreen(
     ) {
     val userState = authViewModel.userState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+
 
     LaunchedEffect(Unit) {
         authViewModel.checkAuthState()

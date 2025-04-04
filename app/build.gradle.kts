@@ -12,9 +12,8 @@ android {
     compileSdk = 35
 
     packaging {
-        resources.excludes.add("META-INF/LICENSE-notice.md")
-        resources.excludes.add("META-INF/LICENSE.md")
-        resources.excludes.add("META-INF/NOTICE.md")
+        resources.excludes.add("META-INF/*")
+        resources.excludes.add("google/protobuf/*")
     }
 
     defaultConfig {
@@ -50,46 +49,69 @@ android {
 
 dependencies {
 
-//    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
-//    implementation("com.google.firebase:firebase-auth")
-//    implementation("androidx.credentials:credentials:1.3.0")
-//    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
-//    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+
+    // Google auth
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    //Firebase bom
+    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
+
+    //Realtime database
+//    implementation("com.google.firebase:firebase-database")
+
+//    implementation("com.google.firebase:firebase-firestore")
+
+
+    //Firebase storage
+    implementation("com.google.firebase:firebase-storage")
+
+    //Firebase Auth
+    implementation("com.google.firebase:firebase-auth")
+
+    //navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    //Retrofit 2
+    implementation("com.squareup.retrofit2:retrofit:2.6.2")
+    implementation("com.squareup.retrofit2:converter-gson:2.6.2")
+    implementation("com.squareup.retrofit2:converter-scalars:2.6.2")
+
+    //coil
+    implementation("io.coil-kt:coil-compose:2.6.0")
 //
+//    //Live data
+//    implementation ("androidx.compose.runtime:runtime-livedata:1.0.0-beta01")
 
+//    //work-manager
+//    implementation ("androidx.work:work-runtime-ktx:2.7.1")
+//    implementation("androidx.compose.material:material:1.8.0-beta01")
+//    implementation("androidx.wear.compose:compose-navigation:1.4.1")
 
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
-    implementation(libs.googleid)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth.ktx)
-
-    implementation("androidx.compose.material:material:1.8.0-beta01")
-    implementation("androidx.wear.compose:compose-navigation:1.4.1")
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.ui.text.google.fonts)
-    implementation(libs.coil.compose.v200)
-    implementation(libs.coil.gif)
-    implementation(libs.ui)
-    implementation(libs.material3)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    //room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.logging.interceptor)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.navigation.runtime.ktx)
-    implementation(libs.androidx.datastore.core.android)
-    implementation(libs.screenshot.validation.junit.engine)
-    implementation(libs.androidx.foundation.android)
-    implementation(libs.androidx.foundation.android)
-    implementation(libs.androidx.foundation.android)
-    implementation(libs.androidx.compose.material)
-    implementation(libs.firebase.auth.ktx)
-    implementation(libs.googleid)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
+
+
+    //ui
+//    implementation(libs.ui)
+    implementation(libs.androidx.foundation.android)
+
+
+
+    //fonts
+    implementation(libs.androidx.ui.text.google.fonts)
+
+
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.core.android)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.logging.interceptor)
+    implementation(libs.screenshot.validation.junit.engine)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -98,11 +120,5 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+
 }

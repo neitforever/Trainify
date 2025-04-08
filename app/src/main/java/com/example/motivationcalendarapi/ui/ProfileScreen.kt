@@ -50,6 +50,17 @@ fun ProfileScreen(
     val userState = authViewModel.userState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
+    val fs = Firebase.firestore
+    fs.collection("adsdsa").document("fy").set(mapOf("xyu" to "1"))
+    val test = fs.collection("adsdsa").document("fy")
+    test.get()
+        .addOnSuccessListener { document ->
+        if (document != null) {
+            Log.d("firess", "DocumentSnapshot data: ${document.data}")
+        } else {
+            Log.d("firess", "No such document")
+        }
+    }
 
     LaunchedEffect(Unit) {
         authViewModel.checkAuthState()

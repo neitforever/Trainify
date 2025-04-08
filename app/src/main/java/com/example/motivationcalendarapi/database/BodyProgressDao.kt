@@ -17,4 +17,7 @@ interface BodyProgressDao {
 
     @Delete
     suspend fun delete(progress: BodyProgress)
+
+    @Query("DELETE FROM BodyProgress")
+    suspend fun deleteAll()
 }

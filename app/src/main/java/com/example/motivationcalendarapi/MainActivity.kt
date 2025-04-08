@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.motivationcalendarapi.repositories.BodyProgressFirestoreRepository
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
 import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.TimerDataStore
@@ -29,6 +30,9 @@ import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModelFactory
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.motivationcalendar.data.WorkoutDatabase
 
 class MainActivity : ComponentActivity() {
@@ -42,12 +46,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val db = WorkoutDatabase.getDatabase(LocalContext.current)
+            val firestoreRepo = BodyProgressFirestoreRepository()
+            val auth = FirebaseAuth.getInstance()
 
+            FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build()
             val workoutRepository = WorkoutRepository(db)
             val exerciseRepository = ExerciseRepository(db)
             val mainRepository = MainRepository(context)
+            val bodyProgressRepository = BodyProgressRepository(db, firestoreRepo, auth)
+
             val timerDataStore by lazy { TimerDataStore(applicationContext) }
-            val bodyProgressRepository = BodyProgressRepository(db)
             val bodyProgressViewModel: BodyProgressViewModel = viewModel(
                 factory = BodyProgressViewModelFactory(bodyProgressRepository)
             )
@@ -67,11 +77,13 @@ class MainActivity : ComponentActivity() {
             val coroutineScope = rememberCoroutineScope()
 
             val googleAuthClient = GoogleAuthClient(context = this)
-            val authViewModel = AuthViewModel(googleAuthClient)
+            val authViewModel = AuthViewModel(googleAuthClient, bodyProgressRepository)
             val userState = authViewModel.userState.collectAsState()
+
 
             MotivationCalendarAPITheme(mainViewModel = mainViewModel) {
 //                if (userState.value is AuthViewModel.UserState.Authenticated) {
+
 
                     NavGraph(
                         navHostController = navController,
@@ -98,7 +110,6 @@ class MainActivity : ComponentActivity() {
 
     }
 }
-
 
 
 

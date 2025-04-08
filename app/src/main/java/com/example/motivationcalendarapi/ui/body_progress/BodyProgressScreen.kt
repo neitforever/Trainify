@@ -74,6 +74,7 @@ import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.ui.dialogs.AddProgressDialog
 import com.example.motivationcalendarapi.ui.dialogs.ProgressDetailDialog
 import com.example.motivationcalendarapi.utils.saveImageToInternalStorage
+import java.util.UUID
 
 
 @Composable
@@ -338,6 +339,7 @@ fun BodyProgressScreen(
                 val photoPath = saveImageToInternalStorage(context, photoUri)
                 viewModel.addProgress(
                     BodyProgress(
+                        id = UUID.randomUUID().toString(),
                         weight = weight,
                         photoPath = photoPath
                     )

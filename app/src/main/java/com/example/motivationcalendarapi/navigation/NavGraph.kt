@@ -94,7 +94,6 @@ fun NavGraph(
 
     val userState = authViewModel.userState.collectAsState()
     // val pagerState = rememberPagerState(pageCount = { 2 })
-
     val screens = listOf(
         Screen.WorkoutHistory,
         Screen.ExercisesView,

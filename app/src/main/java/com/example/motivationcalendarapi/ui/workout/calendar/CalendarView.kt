@@ -31,7 +31,7 @@ import java.time.YearMonth
 fun CustomCalendarView(
     workouts: List<Workout>,
     calendarState: CalendarState,
-    onWorkoutClick: (Long) -> Unit,
+    onWorkoutClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val currentMonth = calendarState.currentMonth.value

@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkoutHistoryDetailScreen(
-    workoutId: Long?,
+    workoutId: String?,
     workoutViewModel: WorkoutViewModel,
     navController: NavController,
     paddingValues: Dp

@@ -147,7 +147,7 @@ class WorkoutViewModel(
         _exerciseSetsMap.value = emptyMap()
     }
 
-    fun getWorkoutById(id: Long): Workout {
+    fun getWorkoutById(id: String): Workout {
         return workoutRepository.getWorkoutById(id)
     }
 

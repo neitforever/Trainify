@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.motivationcalendarapi.repositories.BodyProgressRepository
+import com.example.motivationcalendarapi.repositories.WorkoutRepository
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,8 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val authClient: GoogleAuthClient,
-    private val bodyProgressRepository: BodyProgressRepository
+    private val bodyProgressRepository: BodyProgressRepository,
+    private val workoutRepository: WorkoutRepository
 ) : ViewModel() {
     private val _userState = MutableStateFlow<UserState>(UserState.Loading)
     val userState: StateFlow<UserState> = _userState
@@ -37,14 +39,21 @@ class AuthViewModel(
     fun getCurrentUser() = authClient.getCurrentUser()
 
     private suspend fun syncLocalDataToFirestore() {
-        val localData = bodyProgressRepository.getAllProgress().first()
-        localData.forEach { progress ->
+        // Существующий код для BodyProgress
+        val localBodyProgress = bodyProgressRepository.getAllProgress().first()
+        localBodyProgress.forEach { progress ->
             bodyProgressRepository.insert(progress)
         }
 
-        bodyProgressRepository.syncWithFirestore()
-    }
+        // Добавить синхронизацию тренировок
+        val localWorkouts = workoutRepository.getAllWorkouts().first()
+        localWorkouts.forEach { workout ->
+            workoutRepository.insertWorkout(workout)
+        }
 
+        bodyProgressRepository.syncWithFirestore()
+        workoutRepository.syncWithFirestore() // Новый метод синхронизации
+    }
 
 
     fun signIn() {

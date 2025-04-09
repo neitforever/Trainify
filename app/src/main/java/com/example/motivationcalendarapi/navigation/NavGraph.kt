@@ -415,11 +415,13 @@ fun NavGraph(
 
                     composable(
                         Screen.WorkoutDetail.route + "/{workoutId}",
-                        arguments = listOf(navArgument("workoutId") { type = NavType.LongType })
-                    ) { stackEntry ->
-                        val workoutId = stackEntry.arguments?.getLong("workoutId")
+                        arguments = listOf(navArgument("workoutId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val workoutId = backStackEntry.arguments?.getString("workoutId")
                         WorkoutHistoryDetailScreen(
-                            workoutId, workoutViewModel, navController,
+                            workoutId = workoutId,
+                            workoutViewModel = workoutViewModel,
+                            navController = navController,
                             paddingValues = paddingValue.calculateTopPadding()
                         )
                     }

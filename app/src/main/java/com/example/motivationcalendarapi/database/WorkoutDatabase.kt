@@ -12,7 +12,7 @@ import com.example.motivationcalendarapi.model.BodyProgress
 
 @Database(
     entities = [Workout::class, Exercise::class, BodyProgress::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

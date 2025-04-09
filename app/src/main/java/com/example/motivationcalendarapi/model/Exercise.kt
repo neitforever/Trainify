@@ -9,18 +9,20 @@ import com.google.gson.reflect.TypeToken
 
 @Entity(tableName = "exercises")
 data class Exercise(
-    @PrimaryKey val id: String,
-    val bodyPart: String,
-    val name: String,
-    val equipment: String,
-    val target: String,
-    val secondaryMuscles: List<String>,
+    @PrimaryKey val id: String = "",
+    val bodyPart: String = "",
+    val name: String = "",
+    val equipment: String = "",
+    val target: String = "",
+    val secondaryMuscles: List<String> = emptyList(),
     @TypeConverters(Converters::class)
-    val instructions: List<String>,
-    val gifUrl: String,
+    val instructions: List<String> = emptyList(),
+    val gifUrl: String = "",
     val isFavorite: Boolean = false,
-    val note: String
-)
+    val note: String = ""
+) {
+    constructor() : this("")
+}
 
 
 data class ExerciseResponse(

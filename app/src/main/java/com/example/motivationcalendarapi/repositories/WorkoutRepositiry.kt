@@ -2,23 +2,67 @@ package com.example.motivationcalendarapi.repositories
 
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.Workout
+import com.google.firebase.auth.FirebaseAuth
 import com.motivationcalendar.data.WorkoutDatabase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
-class WorkoutRepository(val appDatabase: WorkoutDatabase) {
 
+class WorkoutRepository(
+    private val appDatabase: WorkoutDatabase,
+    private val firestoreRepo: WorkoutFirestoreRepository,
+    private val auth: FirebaseAuth
+) {
 
-    suspend fun insertWorkout(workout: Workout) {
-        return appDatabase.workoutDao().insert(workout)
-    }
-
-    suspend fun delete(workout: Workout) = appDatabase.workoutDao().deleteWorkout(workout.id)
+    private val currentUser get() = auth.currentUser
 
     fun getAllWorkouts(): Flow<List<Workout>> {
-        return appDatabase.workoutDao().getAllWorkouts()
+        return if (currentUser != null) {
+            firestoreRepo.getAllWorkouts()
+        } else {
+            appDatabase.workoutDao().getAllWorkouts()
+        }
     }
 
-    fun getWorkoutById(id: Long): Workout {
+    suspend fun insertWorkout(workout: Workout) {
+        if (currentUser != null) {
+            firestoreRepo.insert(workout)
+            appDatabase.workoutDao().insert(workout)
+        } else {
+            appDatabase.workoutDao().insert(workout)
+        }
+    }
+
+    suspend fun delete(workout: Workout) {
+        if (currentUser != null) {
+            firestoreRepo.delete(workout)
+            appDatabase.workoutDao().deleteWorkout(workout.id)
+        } else {
+            appDatabase.workoutDao().deleteWorkout(workout.id)
+        }
+    }
+
+    suspend fun updateWorkout(workout: Workout) {
+        if (currentUser != null) {
+            firestoreRepo.update(workout)
+            appDatabase.workoutDao().updateWorkout(workout)
+        } else {
+            appDatabase.workoutDao().updateWorkout(workout)
+        }
+    }
+
+    suspend fun syncWithFirestore() {
+        if (currentUser == null) return
+
+        val remoteData = firestoreRepo.getAllWorkoutsOnce()
+        appDatabase.workoutDao().deleteAll()
+        remoteData.forEach { appDatabase.workoutDao().insert(it) }
+
+        val localData = appDatabase.workoutDao().getAllWorkouts().first()
+        localData.forEach { firestoreRepo.insert(it) }
+    }
+
+    fun getWorkoutById(id: String): Workout {
         return appDatabase.workoutDao().getWorkoutById(id)
     }
 
@@ -33,8 +77,7 @@ class WorkoutRepository(val appDatabase: WorkoutDatabase) {
         appDatabase.exerciseDao().updateExerciseNote(id, newNote)
     }
 
-    suspend fun updateWorkout(workout: Workout) =
-        appDatabase.workoutDao().updateWorkout(workout)
+
 
     fun getWorkoutsToday(): Flow<List<Workout>> {
         return appDatabase.workoutDao().getWorkoutsToday()

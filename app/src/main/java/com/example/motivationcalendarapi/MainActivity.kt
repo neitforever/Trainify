@@ -22,6 +22,7 @@ import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
 import com.example.motivationcalendarapi.repositories.BodyProgressRepository
+import com.example.motivationcalendarapi.repositories.WorkoutFirestoreRepository
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModelFactory
 import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
@@ -46,16 +47,21 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val db = WorkoutDatabase.getDatabase(LocalContext.current)
-            val firestoreRepo = BodyProgressFirestoreRepository()
             val auth = FirebaseAuth.getInstance()
+            val workoutFirestoreRepo = WorkoutFirestoreRepository()
+            val bodyProgressFirestoreRepo = BodyProgressFirestoreRepository()
 
             FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)
                 .build()
-            val workoutRepository = WorkoutRepository(db)
+            val workoutRepository = WorkoutRepository(
+                db,
+                workoutFirestoreRepo,
+                auth
+            )
             val exerciseRepository = ExerciseRepository(db)
             val mainRepository = MainRepository(context)
-            val bodyProgressRepository = BodyProgressRepository(db, firestoreRepo, auth)
+            val bodyProgressRepository = BodyProgressRepository(db, bodyProgressFirestoreRepo, auth)
 
             val timerDataStore by lazy { TimerDataStore(applicationContext) }
             val bodyProgressViewModel: BodyProgressViewModel = viewModel(
@@ -77,7 +83,7 @@ class MainActivity : ComponentActivity() {
             val coroutineScope = rememberCoroutineScope()
 
             val googleAuthClient = GoogleAuthClient(context = this)
-            val authViewModel = AuthViewModel(googleAuthClient, bodyProgressRepository)
+            val authViewModel = AuthViewModel(googleAuthClient, bodyProgressRepository, workoutRepository)
             val userState = authViewModel.userState.collectAsState()
 
 

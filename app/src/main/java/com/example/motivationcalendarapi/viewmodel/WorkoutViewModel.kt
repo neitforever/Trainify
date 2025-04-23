@@ -36,6 +36,7 @@ class WorkoutViewModel(
     val notesUpdates: StateFlow<Map<String, String>> = _notesUpdates.asStateFlow()
 
 
+
     fun updateSetStatus(exerciseIndex: Int, setIndex: Int, newStatus: SetStatus) {
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         val sets = updatedMap[exerciseIndex]?.toMutableList() ?: return
@@ -135,6 +136,7 @@ class WorkoutViewModel(
         }
     }
 
+
     fun resetWorkout() {
         _timerRunning.value = false
         savedStateHandle.set(TIMER_RUNNING_KEY, false)
@@ -155,6 +157,30 @@ class WorkoutViewModel(
     private val _allWorkouts = MutableStateFlow<List<Workout>>(emptyList())
     val allWorkouts: StateFlow<List<Workout>> = _allWorkouts.asStateFlow()
 
+
+    val totalReps: StateFlow<Int> = allWorkouts.map { workouts ->
+        workouts.sumOf { workout ->
+            workout.exercises.sumOf { exercise ->
+                exercise.sets.sumOf { it.rep }
+            }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
+    )
+
+    val totalWeight: StateFlow<Float> = allWorkouts.map { workouts ->
+        workouts.sumOf { workout ->
+            workout.exercises.sumOf { exercise ->
+                exercise.sets.sumOf { it.weight.toDouble() }
+            }
+        }.toFloat()
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0f
+    )
 
     fun updateExerciseNote(exerciseId: String, newNote: String) {
         viewModelScope.launch {

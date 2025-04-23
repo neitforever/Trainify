@@ -46,7 +46,7 @@ import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.body_progress.BodyProgressScreen
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.ui.AuthScreen
-import com.example.motivationcalendarapi.ui.ProfileScreen
+import com.example.motivationcalendarapi.ui.profile.ProfileScreen
 import com.example.motivationcalendarapi.ui.exercise.BodyPartSelectionScreen
 import com.example.motivationcalendarapi.ui.exercise.CreateExerciseScreen
 import com.example.motivationcalendarapi.ui.exercise.EditExerciseInstructionsScreen
@@ -110,7 +110,7 @@ fun NavGraph(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .fillMaxHeight()
-                    .fillMaxWidth(0.7f)
+                    .fillMaxWidth(0.8f)
             ) {
                 NavigationMenuView(    mainViewModel = mainViewModel,
                     authViewModel = authViewModel,navController = navController, onItemClick = {
@@ -279,7 +279,6 @@ fun NavGraph(
                 ) {
 
                     composable(Screen.AddWorkout.route) {
-
                         AddWorkoutScreen(
                             workoutViewModel, exerciseViewModel, navController, drawerState
                         )
@@ -319,7 +318,7 @@ fun NavGraph(
                         ProfileScreen(
                             authViewModel,
                             navController,
-
+                            workoutViewModel = workoutViewModel
                             )
                     }
 

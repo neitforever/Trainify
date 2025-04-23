@@ -25,7 +25,7 @@ fun LegendItem(level: DifficultyLevel, text: String) {
     ) {
         Box(
             modifier = Modifier
-                .size(12.dp)
+                .size(18.dp)
                 .background(
                     color = when (level) {
                         DifficultyLevel.EASY -> EASY_COLOR
@@ -37,7 +37,7 @@ fun LegendItem(level: DifficultyLevel, text: String) {
         )
         Text(
             text = text,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(start = 4.dp)
         )
     }

@@ -12,12 +12,21 @@ import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -30,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +52,10 @@ import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.ui.profile.profile_calendar.ProfileCalendarView
 import com.example.motivationcalendarapi.ui.profile.profile_calendar.fragments.LegendItem
+import com.example.motivationcalendarapi.ui.profile.profile_calendar.fragments.LegendRow
+import com.example.motivationcalendarapi.ui.profile.profile_calendar.fragments.LogoutButton
+import com.example.motivationcalendarapi.ui.profile.profile_calendar.fragments.ProfileHeader
+import com.example.motivationcalendarapi.ui.profile.profile_calendar.fragments.StatsRow
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
@@ -49,6 +63,7 @@ import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -60,110 +75,62 @@ fun ProfileScreen(
     authViewModel: AuthViewModel,
     navController: NavController,
     workoutViewModel: WorkoutViewModel,
-    ) {
+) {
     val userState = authViewModel.userState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-
-    val fs = Firebase.firestore
     val allWorkouts by workoutViewModel.allWorkouts.collectAsState()
-    val totalWorkouts by workoutViewModel.allWorkouts.collectAsState()
     val totalReps by workoutViewModel.totalReps.collectAsState()
     val totalWeight by workoutViewModel.totalWeight.collectAsState()
-
 
     LaunchedEffect(Unit) {
         authViewModel.checkAuthState()
         workoutViewModel.loadWorkouts()
     }
-    Column(
-        modifier = Modifier.fillMaxSize().padding(top = 64.dp), horizontalAlignment = Alignment.CenterHorizontally
-    ) {
 
-        Image(
-            painter = rememberAsyncImagePainter(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(authViewModel.getCurrentUser()?.photoUrl)
-                    .crossfade(true)
-                    .build()
-            ),
-            contentDescription = null,
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
             modifier = Modifier
-                .size(96.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.tertiary, CircleShape),
-            contentScale = ContentScale.Crop
-        )
-
-        Text(authViewModel.getCurrentUser()?.displayName.toString())
-        Text(authViewModel.getCurrentUser()?.uid.toString())
-        Text(authViewModel.getCurrentUser()?.email.toString())
-        Text(authViewModel.getCurrentUser()?.phoneNumber.toString())
-        Divider()
-
-        ProfileCalendarView(
-            workouts = allWorkouts,
-            workoutViewModel = workoutViewModel,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 64.dp)
+                .padding(bottom = 80.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LegendItem(DifficultyLevel.EASY, "Easy")
-            LegendItem(DifficultyLevel.NORMAL, "Medium")
-            LegendItem(DifficultyLevel.HARD, "Hard")
-        }
-
-        Text(
-            text = "Total workouts: ${totalWorkouts.size}",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(4.dp)
-        )
-
-        Text(
-            text = "Total reps: ${totalReps}",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(4.dp)
-        )
-
-        Text(
-            text = "Total weight lifted: ${"%.1f".format(totalWeight)} kg",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(4.dp)
-        )
-
-        OutlinedButton(onClick = { navController.navigate(Screen.BodyProgress.route) }) {
-            Text("Body Progress")
-        }
-
-
-        OutlinedButton(onClick = {
-            coroutineScope.launch {
-                authViewModel.signOut()
-                navController.navigate(Screen.Auth.route)
+            item {
+                ProfileHeader(authViewModel, modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp))
+                StatsRow(allWorkouts, totalReps, totalWeight, modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .padding(horizontal = 4.dp))
             }
-        }) {
-            Text(
-                text = "logout",
-                fontSize = 16.sp,
-                modifier = Modifier.padding(
-                    horizontal = 24.dp, vertical = 4.dp
-                )
-            )
 
+            item {
+                ProfileCalendarView(
+                    workouts = allWorkouts,
+                    workoutViewModel = workoutViewModel,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                        .padding(horizontal = 4.dp)
+                        .height(180.dp)
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = MaterialTheme.shapes.medium,
+                            clip = true
+                        )
+                )
+                LegendRow(modifier = Modifier.padding(top = 12.dp).padding(horizontal = 8.dp))
+            }
         }
 
-        Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp))
-
+        LogoutButton(
+            coroutineScope = coroutineScope,
+            authViewModel = authViewModel,
+            navController = navController,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 32.dp)
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
+        )
     }
 }
-
-
-
 

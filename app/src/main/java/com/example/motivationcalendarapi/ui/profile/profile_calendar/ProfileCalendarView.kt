@@ -24,7 +24,7 @@ import java.time.ZoneId
 fun ProfileCalendarView(
     workouts: List<Workout>,
     workoutViewModel: WorkoutViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
     val currentDate = LocalDate.now()
     val months = listOf(
@@ -48,7 +48,7 @@ fun ProfileCalendarView(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(vertical = 8.dp, horizontal = 4.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
@@ -60,7 +60,7 @@ fun ProfileCalendarView(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .padding(vertical = 8.dp, horizontal = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             months.forEach { monthStart ->

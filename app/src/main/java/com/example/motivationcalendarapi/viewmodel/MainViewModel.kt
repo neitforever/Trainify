@@ -12,6 +12,8 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(private val repository: MainRepository) : ViewModel() {
 
+
+
     var isDarkTheme by mutableStateOf(true)
         private set
 
@@ -26,6 +28,13 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
     fun toggleTheme() {
         viewModelScope.launch {
             repository.toggleTheme()
+        }
+    }
+
+    fun setTheme(isDark: Boolean) {
+        viewModelScope.launch {
+            repository.saveThemePreference(isDark)
+            isDarkTheme = isDark
         }
     }
 }

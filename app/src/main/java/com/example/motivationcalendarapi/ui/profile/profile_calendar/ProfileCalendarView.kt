@@ -13,7 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.model.Workout
-import com.example.motivationcalendarapi.ui.profile.profile_calendar.fragments.ProfileMonthCalendar
+import com.example.motivationcalendarapi.ui.profile.fragments.ProfileMonthCalendar
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import java.time.Instant
 import java.time.LocalDate

@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 
-private val DarkColorScheme = darkColorScheme(
+val DarkColorScheme = darkColorScheme(
     primary = Color(0xFFFFD700),
     secondary = Color(0xFFB0B0B0),
     tertiary = Color(0xFF808080),
@@ -25,7 +25,7 @@ private val DarkColorScheme = darkColorScheme(
     surfaceDim = Color(0xFF1C1C1C),
 )
 
-private val LightColorScheme = lightColorScheme(
+val LightColorScheme = lightColorScheme(
     primary = Color(0xFF006A60),
     secondary = Color(0xFF4A635E),
     tertiary = Color(0xFF3D8479),

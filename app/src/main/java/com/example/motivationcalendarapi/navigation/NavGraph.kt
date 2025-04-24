@@ -55,8 +55,8 @@ import com.example.motivationcalendarapi.ui.exercise.EquipmentSelectionScreen
 import com.example.motivationcalendarapi.ui.exercise.ExerciseDetailScreen
 import com.example.motivationcalendarapi.ui.exercise.ExerciseScreen
 import com.example.motivationcalendarapi.ui.exercise.SearchExerciseScreen
-import com.example.motivationcalendarapi.ui.SettingsScreen
-import com.example.motivationcalendarapi.ui.ThemeSettingsScreen
+import com.example.motivationcalendarapi.ui.settings.SettingsScreen
+import com.example.motivationcalendarapi.ui.settings.theme_settings.ThemeSettingsScreen
 import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel

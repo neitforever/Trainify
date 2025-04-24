@@ -34,8 +34,8 @@ fun ProfileScreen(
     val userState = authViewModel.userState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val allWorkouts by workoutViewModel.allWorkouts.collectAsState()
-    val totalReps by workoutViewModel.totalReps.collectAsState()
-    val totalWeight by workoutViewModel.totalWeight.collectAsState()
+    val weekReps by workoutViewModel.weekReps.collectAsState()
+    val weekWeight by workoutViewModel.weekWeight.collectAsState()
 
     LaunchedEffect(Unit) {
         authViewModel.checkAuthState()
@@ -52,7 +52,7 @@ fun ProfileScreen(
         ) {
             item {
                 ProfileHeader(authViewModel, modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp))
-                StatsRow(allWorkouts, totalReps, totalWeight, modifier = Modifier
+                StatsRow(allWorkouts, weekReps, weekWeight, modifier = Modifier
                     .padding(vertical = 8.dp)
                     .padding(horizontal = 4.dp))
             }

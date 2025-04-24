@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.Month
@@ -158,24 +159,36 @@ class WorkoutViewModel(
     val allWorkouts: StateFlow<List<Workout>> = _allWorkouts.asStateFlow()
 
 
-    val totalReps: StateFlow<Int> = allWorkouts.map { workouts ->
-        workouts.sumOf { workout ->
-            workout.exercises.sumOf { exercise ->
-                exercise.sets.sumOf { it.rep }
+    private fun isInCurrentWeek(timestamp: Long): Boolean {
+        val workoutDate = Instant.ofEpochMilli(timestamp)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+        val today = LocalDate.now()
+        val startOfWeek = today.with(DayOfWeek.MONDAY)
+        val endOfWeek = startOfWeek.plusDays(6)
+        return workoutDate in startOfWeek..endOfWeek
+    }
+
+    val weekReps: StateFlow<Int> = allWorkouts.map { workouts ->
+        workouts.filter { isInCurrentWeek(it.timestamp) }
+            .sumOf { workout ->
+                workout.exercises.sumOf { exercise ->
+                    exercise.sets.sumOf { it.rep }
+                }
             }
-        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = 0
     )
 
-    val totalWeight: StateFlow<Float> = allWorkouts.map { workouts ->
-        workouts.sumOf { workout ->
-            workout.exercises.sumOf { exercise ->
-                exercise.sets.sumOf { it.weight * it.rep.toDouble() }
-            }
-        }.toFloat()
+    val weekWeight: StateFlow<Float> = allWorkouts.map { workouts ->
+        workouts.filter { isInCurrentWeek(it.timestamp) }
+            .sumOf { workout ->
+                workout.exercises.sumOf { exercise ->
+                    exercise.sets.sumOf { it.weight * it.rep.toDouble() }
+                }
+            }.toFloat()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),

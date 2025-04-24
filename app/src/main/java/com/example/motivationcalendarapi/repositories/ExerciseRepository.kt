@@ -21,6 +21,9 @@ class ExerciseRepository(val appDatabase: WorkoutDatabase){
     }
 
 
+    suspend fun getAllExercisesOnce(): List<Exercise> {
+        return appDatabase.exerciseDao().getAllExercisesOnce()
+    }
 
     fun getAllBodyParts() = appDatabase.exerciseDao().getAllBodyParts()
 

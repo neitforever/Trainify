@@ -24,6 +24,8 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercises")
     fun getAllExercisesWithNotes(): Flow<List<Exercise>>
 
+    @Query("SELECT * FROM exercises")
+    suspend fun getAllExercisesOnce(): List<Exercise>
 
     @Query("UPDATE exercises SET note = :newNote WHERE id = :id")
     suspend fun updateExerciseNote(id: String, newNote: String)

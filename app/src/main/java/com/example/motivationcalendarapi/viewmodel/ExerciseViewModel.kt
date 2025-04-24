@@ -83,28 +83,28 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()
     }
 
 
-    fun fetchAndSaveExercises() {
-        viewModelScope.launch (Dispatchers.IO){
-            try {
-                val currentCount = exerciseRepository.getExerciseCount()
+    suspend fun fetchAndSaveExercises() {
+        try {
+            val response = ApiClient.apiService.getExercises()
+            val responseEntity = response.map { it.toEntity() }
 
-                val response = ApiClient.apiService.getExercises()
+            val existingExercises = exerciseRepository.getAllExercisesOnce()
+            val existingExercisesMap = existingExercises.associateBy { it.id }
 
-                val responseEntity= response.map { it.toEntity() }
-                if (response.size != currentCount) {
-                    if (response.isNotEmpty()) {
-
-                        val exercises = responseEntity.toDatabaseModels()
-                        exercises.forEach(){
-                            ex->
-                            exerciseRepository.insertExercise(ex)
-
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            val exercisesToInsert = responseEntity.map { apiExercise ->
+                existingExercisesMap[apiExercise.id]?.let { existing ->
+                    apiExercise.copy(
+                        isFavorite = existing.isFavorite,
+                        note = existing.note
+                    )
+                } ?: apiExercise
             }
+
+            exercisesToInsert.forEach { ex ->
+                exerciseRepository.insertExercise(ex)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

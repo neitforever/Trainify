@@ -173,7 +173,7 @@ class WorkoutViewModel(
     val totalWeight: StateFlow<Float> = allWorkouts.map { workouts ->
         workouts.sumOf { workout ->
             workout.exercises.sumOf { exercise ->
-                exercise.sets.sumOf { it.weight.toDouble() }
+                exercise.sets.sumOf { it.weight * it.rep.toDouble() }
             }
         }.toFloat()
     }.stateIn(
@@ -181,6 +181,30 @@ class WorkoutViewModel(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = 0f
     )
+
+    fun calculateWorkoutDifficulty(workout: Workout): DifficultyLevel {
+        val totalKg = calculateTotalKg(workout)
+        val totalSets = workout.exercises.sumOf { it.sets.size }
+
+        if (totalSets == 0) return DifficultyLevel.EASY
+
+        val avgKgPerSet = totalKg / totalSets
+
+        return when {
+            avgKgPerSet > 600f -> DifficultyLevel.HARD
+            avgKgPerSet > 300f -> DifficultyLevel.NORMAL
+            else -> DifficultyLevel.EASY
+        }
+    }
+
+    fun calculateTotalKg(workout: Workout): Float {
+        return workout.exercises.sumOf { exercise ->
+            exercise.sets.sumOf { set ->
+                (set.weight * set.rep).toDouble()
+            }
+        }.toFloat()
+    }
+
 
     fun updateExerciseNote(exerciseId: String, newNote: String) {
         viewModelScope.launch {
@@ -361,30 +385,7 @@ class WorkoutViewModel(
         }
     }
 
-    fun calculateWorkoutDifficulty(workout: Workout): DifficultyLevel {
-        var totalWeight = 0f
-        var totalReps = 0
-        var totalSets = 0
 
-        workout.exercises.forEach { exercise ->
-            exercise.sets.forEach { set ->
-                totalWeight += set.weight
-                totalReps += set.rep
-                totalSets++
-            }
-        }
-
-        if (totalSets == 0) return DifficultyLevel.EASY
-
-        val avgWeight = totalWeight / totalSets
-        val avgReps = totalReps.toFloat() / totalSets
-
-        return when {
-            avgWeight > 100f && avgReps > 12 -> DifficultyLevel.HARD
-            avgWeight > 50f && avgReps > 6 -> DifficultyLevel.NORMAL
-            else -> DifficultyLevel.EASY
-        }
-    }
 
 
     private fun calculateWeekOfMonth(timestamp: Long): Int {
@@ -496,7 +497,7 @@ class WorkoutViewModel(
     val totalKg: StateFlow<Float> =
         combine(selectedExercises, exerciseSetsMap) { exercises, setsMap ->
             exercises.indices.sumOf { index ->
-                setsMap[index]?.sumOf { it.weight.toDouble() } ?: 0.0
+                setsMap[index]?.sumOf { it.weight.toDouble() * it.rep.toDouble()} ?: 0.0
             }.toFloat()
         }.stateIn(
             scope = viewModelScope,

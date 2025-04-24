@@ -167,9 +167,7 @@ fun WorkoutHistoryDetailScreen(
                 }
 
                 selectedWorkout.value?.let { workout ->
-                    val totalKg =
-                        workout.exercises.flatMap { it.sets }.sumOf { it.weight.toDouble() }
-                            .toFloat()
+                    val totalKg = workoutViewModel.calculateTotalKg(workout)
 
                     TotalWeightAndTimeRow(
                         timerValue = workout.duration, totalKg = totalKg, modifier = Modifier.padding(vertical = 8.dp)

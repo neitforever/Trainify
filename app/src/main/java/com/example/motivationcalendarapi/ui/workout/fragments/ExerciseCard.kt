@@ -48,6 +48,10 @@ fun ExerciseCard(
     val currentNote = notesMap[exercise.exercise.id] ?: exercise.exercise.note
     var localNote by remember { mutableStateOf(currentNote) }
 
+    val maxSet = remember(exercise.exercise.id) {
+        workoutViewModel.findMaxSetForExercise(exercise.exercise.id)
+    }
+
     LaunchedEffect(currentNote) {
         localNote = currentNote
     }
@@ -171,6 +175,31 @@ fun ExerciseCard(
                             navController.navigate("exercise_detail/${exercise.exercise.id}")
                             showMenu = false
                         })
+
+                        if (maxSet != null) {
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_equipment_body_weight),
+                                            contentDescription = "Max Set",
+                                            modifier = Modifier.size(24.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "Max Set: ${"%.1f".format(maxSet.weight)}kg × ${maxSet.rep}",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                },
+                                onClick = { showMenu = false }
+                            )
+                        }
 
                     }
                 }

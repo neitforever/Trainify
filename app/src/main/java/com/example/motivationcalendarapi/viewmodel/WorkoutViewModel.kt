@@ -182,6 +182,14 @@ class WorkoutViewModel(
         initialValue = 0f
     )
 
+    fun findMaxSetForExercise(exerciseId: String): ExerciseSet? {
+        return allWorkouts.value
+            .flatMap { it.exercises }
+            .filter { it.exercise.id == exerciseId }
+            .flatMap { it.sets }
+            .maxByOrNull { it.weight }
+    }
+
     fun calculateWorkoutDifficulty(workout: Workout): DifficultyLevel {
         val totalKg = calculateTotalKg(workout)
         val totalSets = workout.exercises.sumOf { it.sets.size }

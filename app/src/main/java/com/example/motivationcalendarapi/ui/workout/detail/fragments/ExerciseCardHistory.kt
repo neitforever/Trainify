@@ -40,6 +40,11 @@ fun ExerciseCardHistory(
     }
     var showNoteDialog by remember { mutableStateOf(false) }
 
+    var showMenu by remember { mutableStateOf(false) }
+    val maxSet = remember(exercise.exercise.id) {
+        workoutViewModel.findMaxSetForExercise(exercise.exercise.id)
+    }
+
     Card(
         modifier = modifier
             .padding(vertical = 8.dp)
@@ -95,7 +100,7 @@ fun ExerciseCardHistory(
                 }
                 Box(modifier = Modifier.fillMaxHeight()) {
                     IconButton(
-                        onClick = { navController.navigate("exercise_detail/${exercise.exercise.id}") },
+                        onClick = { showMenu = true },
                         modifier = Modifier.size(24.dp)
                     ) {
                         Icon(
@@ -104,6 +109,65 @@ fun ExerciseCardHistory(
                             modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
+                    }
+
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                        modifier = Modifier.background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                        )
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_info),
+                                        contentDescription = "Exercise Info",
+                                        modifier = Modifier.size(24.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Exercise Info",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+                            },
+                            onClick = {
+                                navController.navigate("exercise_detail/${exercise.exercise.id}")
+                                showMenu = false
+                            }
+                        )
+
+                        if (maxSet != null) {
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_equipment_body_weight),
+                                            contentDescription = "Max Set",
+                                            modifier = Modifier.size(24.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "Max Set: ${"%.1f".format(maxSet.weight)}kg × ${maxSet.rep}",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                },
+                                onClick = { showMenu = false }
+                            )
+                        }
                     }
                 }
             }

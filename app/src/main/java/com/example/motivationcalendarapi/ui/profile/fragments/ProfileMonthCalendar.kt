@@ -1,4 +1,4 @@
-package com.example.motivationcalendarapi.ui.profile.profile_calendar.fragments
+package com.example.motivationcalendarapi.ui.profile.fragments
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

@@ -1,4 +1,4 @@
-package com.example.motivationcalendarapi.ui
+package com.example.motivationcalendarapi.ui.settings
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,11 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.viewmodel.MainViewModel
-import com.example.motivationcalendarapi.viewmodel.MainViewModelFactory
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)

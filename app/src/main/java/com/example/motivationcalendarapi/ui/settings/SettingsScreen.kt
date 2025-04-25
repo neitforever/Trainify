@@ -25,9 +25,7 @@ fun SettingsScreen(
 ) {
     val items = listOf(
         Screen.ThemeSettings,
-        Screen.ThemeSettings,
-        Screen.ThemeSettings,
-        Screen.ThemeSettings
+        Screen.WorkoutSettings,
     )
 
     Column(

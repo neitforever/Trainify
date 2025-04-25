@@ -58,6 +58,7 @@ import com.example.motivationcalendarapi.ui.exercise.SearchExerciseScreen
 import com.example.motivationcalendarapi.ui.settings.SettingsScreen
 import com.example.motivationcalendarapi.ui.settings.theme_settings.ThemeSettingsScreen
 import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
+import com.example.motivationcalendarapi.ui.settings.workout_settings.WorkoutSettingsScreen
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
@@ -99,6 +100,7 @@ fun NavGraph(
         Screen.ExercisesView,
         Screen.Settings,
         Screen.ThemeSettings,
+        Screen.WorkoutSettings,
         Screen.EquipmentSelection,
         Screen.BodyPartSelection,
         Screen.Auth,
@@ -332,6 +334,14 @@ fun NavGraph(
 
                     composable(Screen.ThemeSettings.route) {
                         ThemeSettingsScreen(
+                            context,
+                            navController,
+                            paddingValues = paddingValue.calculateTopPadding()
+                        )
+                    }
+
+                    composable(Screen.WorkoutSettings.route) {
+                        WorkoutSettingsScreen(
                             context,
                             navController,
                             paddingValues = paddingValue.calculateTopPadding()

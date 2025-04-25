@@ -31,6 +31,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.motivationcalendarapi.ui.settings.workout_settings.dialogs.ErrorWorkoutSettingsDialog
+import com.example.motivationcalendarapi.ui.settings.workout_settings.fragments.FloatNumberSettingItem
+import com.example.motivationcalendarapi.ui.settings.workout_settings.fragments.NumberSettingItem
+import com.example.motivationcalendarapi.ui.settings.workout_settings.fragments.SettingsSection
 import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModelFactory
 import kotlinx.coroutines.flow.Flow
@@ -66,6 +70,14 @@ fun WorkoutSettingsScreen(
                         viewModel.maxRep.value,
                         viewModel.stepRep.value
                     )
+                },
+                validate = { newValue ->
+                    when {
+                        newValue < 0 -> "Minimum reps cannot be negative"
+                        newValue > viewModel.maxRep.value ->
+                            "Min reps cannot exceed max (${viewModel.maxRep.value})"
+                        else -> null
+                    }
                 }
             )
 
@@ -78,6 +90,13 @@ fun WorkoutSettingsScreen(
                         newMax,
                         viewModel.stepRep.value
                     )
+                },
+                validate = { newValue ->
+                    when {
+                        newValue < viewModel.minRep.value ->
+                            "Max reps cannot be less than min (${viewModel.minRep.value})"
+                        else -> null
+                    }
                 }
             )
 
@@ -90,6 +109,12 @@ fun WorkoutSettingsScreen(
                         viewModel.maxRep.value,
                         newStep
                     )
+                },
+                validate = { newValue ->
+                    when {
+                        newValue <= 0 -> "Step must be greater than 0"
+                        else -> null
+                    }
                 }
             )
         }
@@ -104,6 +129,14 @@ fun WorkoutSettingsScreen(
                         viewModel.maxWeight.value,
                         viewModel.stepWeight.value
                     )
+                },
+                validate = { newValue ->
+                    when {
+                        newValue < 0 -> "Weight cannot be negative"
+                        newValue > viewModel.maxWeight.value ->
+                            "Min weight cannot exceed max (${viewModel.maxWeight.value} kg)"
+                        else -> null
+                    }
                 }
             )
 
@@ -116,6 +149,13 @@ fun WorkoutSettingsScreen(
                         newMax,
                         viewModel.stepWeight.value
                     )
+                },
+                validate = { newValue ->
+                    when {
+                        newValue < viewModel.minWeight.value ->
+                            "Max weight cannot be less than min (${viewModel.minWeight.value} kg)"
+                        else -> null
+                    }
                 }
             )
 
@@ -128,111 +168,20 @@ fun WorkoutSettingsScreen(
                         viewModel.maxWeight.value,
                         newStep
                     )
+                },
+                validate = { newValue ->
+                    when {
+                        newValue <= 0 -> "Step must be greater than 0"
+                        else -> null
+                    }
                 }
             )
         }
     }
 }
 
-@Composable
-private fun NumberSettingItem(
-    title: String,
-    valueState: StateFlow<Int>,
-    onSave: (Int) -> Unit
-) {
-    var textValue by remember { mutableStateOf("") }
-    val currentValue by valueState.collectAsState()
-
-    LaunchedEffect(currentValue) {
-        textValue = currentValue.toString()
-    }
-
-    SettingItemLayout(title = title) {
-        OutlinedTextField(
-            value = textValue,
-            onValueChange = { newValue ->
-                if (newValue.isEmpty() || newValue.toIntOrNull() != null) {
-                    textValue = newValue
-                }
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.width(120.dp),
-            singleLine = true,
-            trailingIcon = {
-                IconButton(onClick = {
-                    textValue.toIntOrNull()?.let { onSave(it) }
-                }) {
-                    Icon(Icons.Default.Check, contentDescription = "Save")
-                }
-            }
-        )
-    }
-}
-
-@Composable
-private fun FloatNumberSettingItem(
-    title: String,
-    valueState: StateFlow<Float>,
-    onSave: (Float) -> Unit
-) {
-    var textValue by remember { mutableStateOf("") }
-    val currentValue by valueState.collectAsState()
-
-    LaunchedEffect(currentValue) {
-        textValue = currentValue.toString()
-    }
-
-    SettingItemLayout(title = title) {
-        OutlinedTextField(
-            value = textValue,
-            onValueChange = { newValue ->
-                if (newValue.isEmpty() || newValue.toFloatOrNull() != null) {
-                    textValue = newValue
-                }
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.width(120.dp),
-            singleLine = true,
-            trailingIcon = {
-                IconButton(onClick = {
-                    textValue.toFloatOrNull()?.let { onSave(it) }
-                }) {
-                    Icon(Icons.Default.Check, contentDescription = "Save")
-                }
-            }
-        )
-    }
-}
 
 
-@Composable
-private fun SettingsSection(title: String, content: @Composable () -> Unit) {
-    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        content()
-    }
-}
 
-@Composable
-private fun SettingItemLayout(
-    title: String,
-    content: @Composable () -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge
-        )
-        content()
-    }
-}
+
+

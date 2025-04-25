@@ -29,6 +29,8 @@ import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
+import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModel
+import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModelFactory
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
@@ -69,8 +71,12 @@ class MainActivity : ComponentActivity() {
             )
             val workoutViewModel: WorkoutViewModel = viewModel(
                 factory = WorkoutViewModelFactory(
-                    workoutRepository, timerDataStore
+                    workoutRepository, timerDataStore, mainRepository
                 )
+            )
+
+            val workoutSettingsViewModel: WorkoutSettingsViewModel = viewModel(
+                factory = WorkoutSettingsViewModelFactory(mainRepository)
             )
 
             val exerciseViewModel = ExerciseViewModel(
@@ -101,6 +107,7 @@ class MainActivity : ComponentActivity() {
                         googleAuthClient,
                         authViewModel,
                         bodyProgressViewModel = bodyProgressViewModel,
+                        workoutSettingsViewModel = workoutSettingsViewModel,
                     )
 //                }
 //            else {

@@ -13,6 +13,7 @@ import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
 import com.example.motivationcalendarapi.model.DifficultyLevel
+import com.example.motivationcalendarapi.repositories.MainRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -29,7 +30,8 @@ import java.util.Collections
 class WorkoutViewModel(
     val workoutRepository: WorkoutRepository,
     private val savedStateHandle: SavedStateHandle,
-    private val timerDataStore: TimerDataStore
+    private val timerDataStore: TimerDataStore,
+    private val mainRepository: MainRepository,
 ) : ViewModel() {
 
 
@@ -541,17 +543,42 @@ class WorkoutViewModel(
         _exerciseSetsMap.value = updatedMap
     }
 
+    val minRep: StateFlow<Int> = mainRepository.minRepFlow
+        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
+
+    val maxRep: StateFlow<Int> = mainRepository.maxRepFlow
+        .stateIn(viewModelScope, SharingStarted.Lazily, 24)
+
+    val stepRep: StateFlow<Int> = mainRepository.stepRepFlow
+        .stateIn(viewModelScope, SharingStarted.Lazily, 4)
+
+    val minWeight: StateFlow<Float> = mainRepository.minWeightFlow
+        .stateIn(viewModelScope, SharingStarted.Lazily, 0f)
+
+    val maxWeight: StateFlow<Float> = mainRepository.maxWeightFlow
+        .stateIn(viewModelScope, SharingStarted.Lazily, 200f)
+
+    val stepWeight: StateFlow<Float> = mainRepository.stepWeightFlow
+        .stateIn(viewModelScope, SharingStarted.Lazily, 10f)
+
     fun addExerciseSet(exerciseId: Int) {
-        val updatedMap = _exerciseSetsMap.value.toMutableMap()
-        val sets = updatedMap[exerciseId]?.toMutableList() ?: mutableListOf()
+        viewModelScope.launch {
+            val minRep = minRep.value
+            val minWeight = minWeight.value
 
-        val newSet = sets.lastOrNull()?.copy() ?: ExerciseSet(rep = 0, weight = 0f)
-        sets.add(newSet)
+            val updatedMap = _exerciseSetsMap.value.toMutableMap()
+            val sets = updatedMap[exerciseId]?.toMutableList() ?: mutableListOf()
 
-        updatedMap[exerciseId] = sets
-        _exerciseSetsMap.value = updatedMap
+            val newSet = sets.lastOrNull()?.copy(
+                rep = minRep,
+                weight = minWeight
+            ) ?: ExerciseSet(rep = minRep, weight = minWeight)
+
+            sets.add(newSet)
+            updatedMap[exerciseId] = sets
+            _exerciseSetsMap.value = updatedMap
+        }
     }
-
 
     fun moveExerciseUp(index: Int) {
         if (index <= 0) return
@@ -588,11 +615,11 @@ class WorkoutViewModel(
 }
 
 class WorkoutViewModelFactory(
-    private val workoutRepository: WorkoutRepository, private val timerDataStore: TimerDataStore
+    private val workoutRepository: WorkoutRepository, private val timerDataStore: TimerDataStore,private val mainRepository: MainRepository
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         val savedStateHandle = extras.createSavedStateHandle()
-        return WorkoutViewModel(workoutRepository, savedStateHandle, timerDataStore) as T
+        return WorkoutViewModel(workoutRepository, savedStateHandle, timerDataStore, mainRepository) as T
     }
 }

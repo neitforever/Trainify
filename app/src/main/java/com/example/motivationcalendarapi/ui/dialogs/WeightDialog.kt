@@ -16,7 +16,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun WeightDialog(
-    showDialog: Boolean, initialWeight: Float, onDismiss: () -> Unit, onSave: (Float) -> Unit
+    showDialog: Boolean,
+    initialWeight: Float,
+    minWeight: Float,
+    maxWeight: Float,
+    stepWeight: Float,
+    onDismiss: () -> Unit,
+    onSave: (Float) -> Unit
 ) {
     if (showDialog) {
         var weight by remember { mutableStateOf(initialWeight) }
@@ -34,7 +40,13 @@ fun WeightDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                WeightRow(value = weight, onValueChange = { weight = it })
+                WeightRow(
+                    value = weight,
+                    min = minWeight,
+                    max = maxWeight,
+                    step = stepWeight,
+                    onValueChange = { weight = it }
+                )
             }
         }, confirmButton = {
             TextButton(onClick = { onSave(weight) }) {
@@ -59,33 +71,33 @@ fun WeightDialog(
 
 @Composable
 private fun WeightRow(
-    value: Float, onValueChange: (Float) -> Unit
+    value: Float,
+    min: Float,
+    max: Float,
+    step: Float,
+    onValueChange: (Float) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth()
     ) {
-        TextButton(onClick = {
-            onValueChange((value - 10f).coerceAtLeast(0f))
-        }) {
-            Text("-10", style = MaterialTheme.typography.bodyMedium)
+        TextButton(onClick = { onValueChange((value - step).coerceAtLeast(min)) }) {
+            Text("-$step", style = MaterialTheme.typography.bodyMedium)
         }
 
         OutlinedTextField(value = value.toString(),
             onValueChange = { input ->
-                val weight = input.toFloatOrNull() ?: 0f
-                onValueChange(weight.coerceIn(0f, 200f))
+                val weight = input.toFloatOrNull() ?: min
+                onValueChange(weight.coerceIn(min, max))
             },
             label = { Text("Weight", style = MaterialTheme.typography.titleMedium) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.width(120.dp)
+            modifier = Modifier.width(100.dp)
         )
 
-        TextButton(onClick = {
-            onValueChange((value + 10f).coerceAtMost(200f))
-        }) {
-            Text("+10", style = MaterialTheme.typography.bodyMedium)
+        TextButton(onClick = { onValueChange((value + step).coerceAtMost(max)) }) {
+            Text("+$step", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

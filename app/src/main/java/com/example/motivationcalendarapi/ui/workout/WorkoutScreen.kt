@@ -89,6 +89,14 @@ fun AddWorkoutScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isSheetOpen = remember { mutableStateOf(false) }
 
+
+    val minRep by workoutViewModel.minRep.collectAsState()
+    val maxRep by workoutViewModel.maxRep.collectAsState()
+    val stepRep by workoutViewModel.stepRep.collectAsState()
+    val minWeight by workoutViewModel.minWeight.collectAsState()
+    val maxWeight by workoutViewModel.maxWeight.collectAsState()
+    val stepWeight by workoutViewModel.stepWeight.collectAsState()
+
     val selectedExercises by workoutViewModel.selectedExercises.collectAsState()
     val exerciseSetsMap by workoutViewModel.exerciseSetsMap.collectAsState()
 
@@ -498,7 +506,10 @@ fun AddWorkoutScreen(
 
             RepsDialog(
                 showDialog = showRepDialog,
-                initialRep = exerciseSetsMap[currentExerciseIndex]?.getOrNull(currentSetIndex)?.rep ?: 0,
+                initialRep = exerciseSetsMap[currentExerciseIndex]?.getOrNull(currentSetIndex)?.rep ?: minRep,
+                minRep = minRep,
+                maxRep = maxRep,
+                stepRep = stepRep,
                 onDismiss = { showRepDialog = false },
                 onSave = { newRep ->
                     exerciseSetsMap[currentExerciseIndex]?.let { sets ->
@@ -512,7 +523,10 @@ fun AddWorkoutScreen(
 
             WeightDialog(
                 showDialog = showWeightDialog,
-                initialWeight = exerciseSetsMap[currentExerciseIndex]?.getOrNull(currentSetIndex)?.weight ?: 0f,
+                initialWeight = exerciseSetsMap[currentExerciseIndex]?.getOrNull(currentSetIndex)?.weight ?: minWeight,
+                minWeight = minWeight,
+                maxWeight = maxWeight,
+                stepWeight = stepWeight,
                 onDismiss = { showWeightDialog = false },
                 onSave = { newWeight ->
                     exerciseSetsMap[currentExerciseIndex]?.let { sets ->

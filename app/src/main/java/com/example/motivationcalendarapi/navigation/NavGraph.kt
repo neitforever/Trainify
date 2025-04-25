@@ -62,6 +62,7 @@ import com.example.motivationcalendarapi.ui.settings.workout_settings.WorkoutSet
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
+import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.motivationcalendar.ui.AddWorkoutScreen
 import com.motivationcalendar.ui.WorkoutHistoryDetailScreen
@@ -81,6 +82,7 @@ fun NavGraph(
     googleAuthClient: GoogleAuthClient,
     authViewModel: AuthViewModel,
     bodyProgressViewModel: BodyProgressViewModel,
+    workoutSettingsViewModel: WorkoutSettingsViewModel
     ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
@@ -342,7 +344,7 @@ fun NavGraph(
 
                     composable(Screen.WorkoutSettings.route) {
                         WorkoutSettingsScreen(
-                            context,
+                            viewModel = workoutSettingsViewModel,
                             navController,
                             paddingValues = paddingValue.calculateTopPadding()
                         )

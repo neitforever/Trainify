@@ -16,7 +16,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun RepsDialog(
-    showDialog: Boolean, initialRep: Int, onDismiss: () -> Unit, onSave: (Int) -> Unit
+    showDialog: Boolean,
+    initialRep: Int,
+    minRep: Int,
+    maxRep: Int,
+    stepRep: Int,
+    onDismiss: () -> Unit,
+    onSave: (Int) -> Unit
 ) {
     if (showDialog) {
         var rep by remember { mutableStateOf(initialRep) }
@@ -34,7 +40,13 @@ fun RepsDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                RepsRow(value = rep, onValueChange = { rep = it })
+                RepsRow(
+                    value = rep,
+                    min = minRep,
+                    max = maxRep,
+                    step = stepRep,
+                    onValueChange = { rep = it }
+                )
             }
         }, confirmButton = {
             TextButton(onClick = { onSave(rep) }) {
@@ -59,33 +71,33 @@ fun RepsDialog(
 
 @Composable
 private fun RepsRow(
-    value: Int, onValueChange: (Int) -> Unit
+    value: Int,
+    min: Int,
+    max: Int,
+    step: Int,
+    onValueChange: (Int) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth()
     ) {
-        TextButton(onClick = {
-            onValueChange((value - 4).coerceAtLeast(0))
-        }) {
-            Text("-4", style = MaterialTheme.typography.bodyMedium)
+        TextButton(onClick = { onValueChange((value - step).coerceAtLeast(min)) }) {
+            Text("-$step", style = MaterialTheme.typography.bodyMedium)
         }
 
         OutlinedTextField(value = value.toString(),
             onValueChange = { input ->
-                val reps = input.toIntOrNull() ?: 0
-                onValueChange(reps.coerceIn(0, 32))
+                val reps = input.toIntOrNull() ?: min
+                onValueChange(reps.coerceIn(min, max))
             },
             label = { Text("Reps", style = MaterialTheme.typography.titleMedium) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.width(120.dp)
+            modifier = Modifier.width(100.dp)
         )
 
-        TextButton(onClick = {
-            onValueChange((value + 4).coerceAtMost(32))
-        }) {
-            Text("+4", style = MaterialTheme.typography.bodyMedium)
+        TextButton(onClick = { onValueChange((value + step).coerceAtMost(max)) }) {
+            Text("+$step", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

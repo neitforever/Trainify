@@ -51,15 +51,9 @@ fun WorkoutSettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
             .padding(top = paddingValues)
     ) {
-        Text(
-            text = "Workout Settings",
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(vertical = 16.dp)
-        )
-
         SettingsSection(title = "Repetitions Configuration") {
             NumberSettingItem(
                 title = "Minimum Reps",

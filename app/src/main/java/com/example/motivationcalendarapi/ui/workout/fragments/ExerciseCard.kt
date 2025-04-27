@@ -94,7 +94,7 @@ fun ExerciseCard(
                     )
 
                     Text(
-                        text = exercise.exercise.name,
+                        text = exercise.exercise.name.replaceFirstChar { it.uppercase() },
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .clickable { isExpanded.value = !isExpanded.value },

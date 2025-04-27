@@ -59,6 +59,8 @@ import com.example.motivationcalendarapi.ui.settings.SettingsScreen
 import com.example.motivationcalendarapi.ui.settings.theme_settings.ThemeSettingsScreen
 import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
 import com.example.motivationcalendarapi.ui.settings.workout_settings.WorkoutSettingsScreen
+import com.example.motivationcalendarapi.ui.template.EditTemplateNameScreen
+import com.example.motivationcalendarapi.ui.template.TemplateDetailScreen
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
@@ -106,7 +108,8 @@ fun NavGraph(
         Screen.EquipmentSelection,
         Screen.BodyPartSelection,
         Screen.Auth,
-        Screen.BodyProgress
+        Screen.BodyProgress,
+        Screen.TemplateDetailView
     )
     ModalNavigationDrawer(drawerState = drawerState.value, drawerContent = {
         if (userState.value is AuthViewModel.UserState.Authenticated) {
@@ -301,15 +304,42 @@ fun NavGraph(
                         ExerciseScreen(
                             navController,
                             exerciseViewModel,
+                            workoutViewModel,
                             paddingTopValues = paddingValue.calculateTopPadding(),
                         )
                     }
+
+                    composable(
+                        Screen.TemplateDetailView.route + "/{templateId}",
+                        arguments = listOf(navArgument("templateId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val templateId = backStackEntry.arguments?.getString("templateId")
+                            TemplateDetailScreen(
+                                templateId = templateId,
+                                viewModel = workoutViewModel,
+                                navController = navController,
+                                paddingTopValues = paddingValue.calculateTopPadding(),
+                                exerciseViewModel = exerciseViewModel,
+                            )
+                        }
 
                     composable(Screen.Auth.route) {
                         AuthScreen(
                             authViewModel,
                             navController = navHostController,
                             drawerState
+                        )
+                    }
+
+                    composable(
+                        Screen.EditTemplateName.route + "/{templateId}",
+                        arguments = listOf(navArgument("templateId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val templateId = backStackEntry.arguments?.getString("templateId")
+                        EditTemplateNameScreen(
+                            navController = navController,
+                            templateId = templateId ?: "",
+                            viewModel = workoutViewModel
                         )
                     }
 
@@ -446,16 +476,18 @@ fun NavGraph(
                         )
                     }
 
+
+
                     composable(
                         Screen.ExerciseDetailView.route + "/{exerciseId}",
                         arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
-                    ) { stackEntry ->
-                        val exerciseId = stackEntry.arguments?.getString("exerciseId")
-                        if (exerciseId != null) {
-                            ExerciseDetailScreen(
-                                navController, exerciseId, exerciseViewModel
-                            )
-                        }
+                    ) { backStackEntry ->
+                        val exerciseId = backStackEntry.arguments?.getString("exerciseId")
+                        ExerciseDetailScreen(
+                            navController = navController,
+                            exerciseId = exerciseId ?: "",
+                            viewModel = exerciseViewModel
+                        )
                     }
                 }
             }

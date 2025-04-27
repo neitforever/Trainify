@@ -13,6 +13,7 @@ import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
 import com.example.motivationcalendarapi.model.DifficultyLevel
+import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.repositories.MainRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -51,6 +52,17 @@ class WorkoutViewModel(
         }
     }
 
+
+    fun addExercisesToTemplate(templateId: String, newExercises: List<ExtendedExercise>) {
+        viewModelScope.launch {
+            val template = workoutRepository.getTemplateById(templateId).first()
+            template?.let {
+                val updatedExercises = it.exercises + newExercises
+                workoutRepository.updateTemplate(it.copy(exercises = updatedExercises))
+            }
+        }
+    }
+
     fun removeExerciseSet(exerciseIndex: Int, setIndex: Int) {
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         updatedMap[exerciseIndex]?.let { sets ->
@@ -86,10 +98,67 @@ class WorkoutViewModel(
         }
     }
 
+
+    fun updateTemplateExercises(templateId: String, newExercises: List<ExtendedExercise>) {
+        viewModelScope.launch {
+            val template = workoutRepository.getTemplateById(templateId).first()
+            template?.let {
+                val updated = it.copy(exercises = newExercises)
+                workoutRepository.updateTemplate(updated)
+            }
+        }
+    }
+
+    suspend fun updateTemplate(template: Template) {
+        workoutRepository.updateTemplate(template)
+    }
+
+    fun deleteTemplate(template: Template) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.deleteTemplate(template)
+        }
+    }
+    fun updateTemplateName(templateId: String, newName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.updateTemplateName(templateId, newName)
+        }
+    }
+
+    fun getTemplateById(id: String): Flow<Template?> {
+        return workoutRepository.getTemplateById(id)
+    }
+
+    fun addExercisesFromTemplate(template: Template) {
+        template.exercises.forEach { ex ->
+            addExercise(ex)
+        }
+    }
+
     fun updateWarmupTime(newTime: Int) {
         _warmupTime.value = newTime
         viewModelScope.launch {
             timerDataStore.saveWarmupTime(newTime)
+        }
+    }
+
+    val templates: Flow<List<Template>> = workoutRepository.getAllTemplates()
+
+    fun loadTemplates() {
+        viewModelScope.launch {
+            workoutRepository.getAllTemplates()
+        }
+    }
+
+    fun saveAsTemplate(workout: Workout, templateName: String) {
+        val template = Template(
+            name = templateName,
+            exercises = workout.exercises.map { ex ->
+                ex.copy(sets = emptyList())
+            },
+            timestamp = System.currentTimeMillis()
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.insertTemplate(template)
         }
     }
 

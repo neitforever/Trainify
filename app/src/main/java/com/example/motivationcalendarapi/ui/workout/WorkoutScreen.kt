@@ -414,18 +414,20 @@ fun AddWorkoutScreen(
                         Row(
                             modifier = Modifier
                                 .clickable(onClick = {
-                                    isSheetOpen.value = true
+                                    if (selectedExercises.isEmpty()) {
+                                        isSheetOpen.value = true
+                                    } else {
+                                        isSheetOpen.value = true
+                                    }
                                 })
                                 .padding(top = 12.dp)
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
-
-
                         ) {
-
                             Text(
-                                text = "Add Exercises",
+                                text = if (selectedExercises.isEmpty()) "Добавить упражнения или шаблон"
+                                else "Добавить упражнения",
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.bodyLarge,
                             )

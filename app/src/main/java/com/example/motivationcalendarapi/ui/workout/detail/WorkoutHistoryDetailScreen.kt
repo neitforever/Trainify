@@ -14,19 +14,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -35,6 +42,8 @@ import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.ui.dialogs.DeleteWorkoutDialog
+import com.example.motivationcalendarapi.ui.dialogs.SaveTemplateDialog
+import com.example.motivationcalendarapi.ui.dialogs.TemplateSavedDialog
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
@@ -44,6 +53,7 @@ import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import formatDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -58,6 +68,38 @@ fun WorkoutHistoryDetailScreen(
 
     val selectedWorkout = remember { mutableStateOf<Workout?>(null) }
     val showDeleteDialog = remember { mutableStateOf(false) }
+    val showSaveTemplateDialog = remember { mutableStateOf(false) }
+    val showSaveSuccessDialog = remember { mutableStateOf(false) }
+    val savedTemplateName = remember { mutableStateOf("") }
+
+    if (showSaveTemplateDialog.value) {
+        SaveTemplateDialog(
+            showDialog = true,
+            onDismiss = { showSaveTemplateDialog.value = false },
+            onConfirm = { name ->
+                selectedWorkout.value?.let { workout ->
+                    val exercisesWithoutSets = workout.exercises.map { ex ->
+                        ex.copy(sets = emptyList())
+                    }
+                    val templateWorkout = workout.copy(
+                        name = name,
+                        exercises = exercisesWithoutSets,
+                        duration = 0,
+                        timestamp = System.currentTimeMillis()
+                    )
+                    workoutViewModel.saveAsTemplate(templateWorkout, name)
+                    savedTemplateName.value = name
+                    showSaveSuccessDialog.value = true
+                }
+            }
+        )
+    }
+
+    TemplateSavedDialog(
+        showDialog = showSaveSuccessDialog.value,
+        templateName = savedTemplateName.value,
+        onDismiss = { showSaveSuccessDialog.value = false }
+    )
 
     if (showDeleteDialog.value) {
         DeleteWorkoutDialog(
@@ -89,8 +131,24 @@ fun WorkoutHistoryDetailScreen(
         floatingActionButton = {
             Row(
                 verticalAlignment = Alignment.Bottom,
-                modifier = Modifier.navigationBarsPadding()
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                FloatingActionButton(
+                    onClick = { showSaveTemplateDialog.value = true },
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(64.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_save),
+                        contentDescription = "Save template",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
                 FloatingActionButton(
                     onClick = { showDeleteDialog.value = true },
                     containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -170,7 +228,9 @@ fun WorkoutHistoryDetailScreen(
                     val totalKg = workoutViewModel.calculateTotalKg(workout)
 
                     TotalWeightAndTimeRow(
-                        timerValue = workout.duration, totalKg = totalKg, modifier = Modifier.padding(vertical = 8.dp)
+                        timerValue = workout.duration,
+                        totalKg = totalKg,
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                     Text(
                         text = "Exercises Performed",
@@ -202,13 +262,6 @@ fun WorkoutHistoryDetailScreen(
         }
     }
 }
-
-
-
-
-
-
-
 
 
 

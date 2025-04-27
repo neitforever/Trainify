@@ -1,6 +1,7 @@
 package com.example.motivationcalendarapi.repositories
 
 import com.example.motivationcalendarapi.model.Exercise
+import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.Workout
 import com.google.firebase.auth.FirebaseAuth
 import com.motivationcalendar.data.WorkoutDatabase
@@ -15,6 +16,31 @@ class WorkoutRepository(
 ) {
 
     private val currentUser get() = auth.currentUser
+
+
+    suspend fun insertTemplate(template: Template) {
+        appDatabase.templateDao().insert(template)
+    }
+
+    suspend fun updateTemplateName(templateId: String, newName: String) {
+        appDatabase.templateDao().updateTemplateName(templateId, newName)
+    }
+
+    suspend fun updateTemplate(template: Template) {
+        appDatabase.templateDao().insert(template)
+    }
+
+    fun getTemplateById(id: String): Flow<Template?> {
+        return appDatabase.templateDao().getTemplateById(id)
+    }
+
+    fun getAllTemplates(): Flow<List<Template>> {
+        return appDatabase.templateDao().getAllTemplates()
+    }
+
+    suspend fun deleteTemplate(template: Template) {
+        appDatabase.templateDao().deleteTemplate(template.id)
+    }
 
     fun getAllWorkouts(): Flow<List<Workout>> {
         return if (currentUser != null) {

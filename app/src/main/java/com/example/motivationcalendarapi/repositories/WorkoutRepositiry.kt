@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.first
 class WorkoutRepository(
     private val appDatabase: WorkoutDatabase,
     private val firestoreRepo: WorkoutFirestoreRepository,
+    private val templateFirestoreRepo: TemplateFirestoreRepository,
     private val auth: FirebaseAuth
 ) {
 
@@ -19,28 +20,60 @@ class WorkoutRepository(
 
 
     suspend fun insertTemplate(template: Template) {
-        appDatabase.templateDao().insert(template)
+        if (currentUser != null) {
+            templateFirestoreRepo.insert(template)
+            appDatabase.templateDao().insert(template)
+        } else {
+            appDatabase.templateDao().insert(template)
+        }
     }
+
+    suspend fun updateTemplate(template: Template) {
+        if (currentUser != null) {
+            templateFirestoreRepo.update(template)
+            appDatabase.templateDao().insert(template)
+        } else {
+            appDatabase.templateDao().insert(template)
+        }
+    }
+
+    suspend fun deleteTemplate(template: Template) {
+        if (currentUser != null) {
+            templateFirestoreRepo.delete(template.id)
+        }
+        appDatabase.templateDao().deleteTemplate(template.id)
+    }
+
+    fun getAllTemplates(): Flow<List<Template>> {
+        return if (currentUser != null) {
+            templateFirestoreRepo.getAllTemplates()
+        } else {
+            appDatabase.templateDao().getAllTemplates()
+        }
+    }
+
+    suspend fun syncTemplatesWithFirestore() {
+        if (currentUser == null) return
+
+        val remoteTemplates = templateFirestoreRepo.getAllTemplatesOnce()
+        appDatabase.templateDao().deleteAllTemplates()
+        remoteTemplates.forEach { appDatabase.templateDao().insert(it) }
+
+        val localTemplates = appDatabase.templateDao().getAllTemplates().first()
+        localTemplates.forEach { templateFirestoreRepo.insert(it) }
+    }
+
 
     suspend fun updateTemplateName(templateId: String, newName: String) {
         appDatabase.templateDao().updateTemplateName(templateId, newName)
     }
 
-    suspend fun updateTemplate(template: Template) {
-        appDatabase.templateDao().insert(template)
-    }
 
     fun getTemplateById(id: String): Flow<Template?> {
         return appDatabase.templateDao().getTemplateById(id)
     }
 
-    fun getAllTemplates(): Flow<List<Template>> {
-        return appDatabase.templateDao().getAllTemplates()
-    }
 
-    suspend fun deleteTemplate(template: Template) {
-        appDatabase.templateDao().deleteTemplate(template.id)
-    }
 
     fun getAllWorkouts(): Flow<List<Workout>> {
         return if (currentUser != null) {

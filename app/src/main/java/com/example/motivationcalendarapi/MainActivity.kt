@@ -22,6 +22,7 @@ import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
 import com.example.motivationcalendarapi.repositories.BodyProgressRepository
+import com.example.motivationcalendarapi.repositories.TemplateFirestoreRepository
 import com.example.motivationcalendarapi.repositories.WorkoutFirestoreRepository
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModelFactory
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
             val auth = FirebaseAuth.getInstance()
             val workoutFirestoreRepo = WorkoutFirestoreRepository()
             val bodyProgressFirestoreRepo = BodyProgressFirestoreRepository()
+            val templateFirestoreRepo = TemplateFirestoreRepository()
 
             FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)
@@ -59,6 +61,7 @@ class MainActivity : ComponentActivity() {
             val workoutRepository = WorkoutRepository(
                 db,
                 workoutFirestoreRepo,
+                templateFirestoreRepo,
                 auth
             )
             val exerciseRepository = ExerciseRepository(db)

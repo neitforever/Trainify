@@ -23,4 +23,7 @@ interface TemplateDao {
 
     @Query("UPDATE templates SET name = :newName WHERE id = :id")
     suspend fun updateTemplateName(id: String, newName: String)
+
+    @Query("DELETE FROM templates")
+    suspend fun deleteAllTemplates()
 }

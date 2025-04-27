@@ -63,6 +63,13 @@ class WorkoutViewModel(
         }
     }
 
+    fun syncAllData() {
+        viewModelScope.launch {
+            workoutRepository.syncWithFirestore()
+            workoutRepository.syncTemplatesWithFirestore()
+        }
+    }
+
     fun removeExerciseSet(exerciseIndex: Int, setIndex: Int) {
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         updatedMap[exerciseIndex]?.let { sets ->

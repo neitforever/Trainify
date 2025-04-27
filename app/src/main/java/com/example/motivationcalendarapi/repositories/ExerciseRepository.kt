@@ -27,6 +27,29 @@ class ExerciseRepository(
         }
     }
 
+
+    suspend fun updateFavoriteStatus(id: String, isFavorite: Boolean) {
+        val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
+        val updatedExercise = exercise.copy(isFavorite = isFavorite)
+
+        appDatabase.exerciseDao().insertExercise(updatedExercise)
+
+        if (currentUser != null) {
+            firestoreRepo.update(updatedExercise)
+        }
+    }
+
+    suspend fun updateExerciseName(id: String, newName: String) {
+        val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
+        val updatedExercise = exercise.copy(name = newName)
+
+        appDatabase.exerciseDao().insertExercise(updatedExercise)
+
+        if (currentUser != null) {
+            firestoreRepo.update(updatedExercise)
+        }
+    }
+
     internal suspend fun getExerciseFromApi(): List<Exercise> {
         return try {
             ApiClient.apiService.getExercises()
@@ -78,33 +101,36 @@ class ExerciseRepository(
 
     fun getFavoriteExercises() = appDatabase.exerciseDao().getFavoriteExercises()
 
-    suspend fun updateFavoriteStatus(id: String, isFavorite: Boolean) {
-        appDatabase.exerciseDao().updateFavoriteStatus(id, isFavorite)
-    }
+
 
 
     fun searchExercises(query: String): Flow<List<Exercise>> {
         return appDatabase.exerciseDao().searchExercises(query)
     }
 
-    suspend fun updateExerciseName(id: String, newName: String) {
-        appDatabase.exerciseDao().updateExerciseName(id, newName)
-    }
-
-
     fun getAllEquipment() = appDatabase.exerciseDao().getAllEquipment()
 
     suspend fun updateExerciseEquipment(id: String, newEquipment: String) {
-        appDatabase.exerciseDao().updateExerciseEquipment(id, newEquipment)
+        val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
+        val updatedExercise = exercise.copy(equipment = newEquipment)
+        insertExercise(updatedExercise)
     }
 
     suspend fun updateExerciseBodyPart(id: String, newBodyPart: String) {
-        appDatabase.exerciseDao().updateExerciseBodyPart(id, newBodyPart)
+        val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
+        val updatedExercise = exercise.copy(bodyPart = newBodyPart)
+        insertExercise(updatedExercise)
     }
 
 
     suspend fun updateExerciseSecondaryMuscles(id: String, newSecondaryMuscles: String) {
-        appDatabase.exerciseDao().updateExerciseSecondaryMuscles(id, newSecondaryMuscles)
+        val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
+        val updatedExercise = exercise.copy(secondaryMuscles = parseSecondaryMuscles(newSecondaryMuscles))
+        insertExercise(updatedExercise)
+    }
+
+    private fun parseSecondaryMuscles(input: String): List<String> {
+        return input.split(",").map { it.trim() }.filter { it.isNotEmpty() }
     }
 
     fun getAllSecondaryMuscles() = appDatabase.exerciseDao().getAllSecondaryMuscles()
@@ -112,8 +138,9 @@ class ExerciseRepository(
     private val gson = Gson()
 
     suspend fun updateExerciseInstructions(id: String, newInstructions: List<String>) {
-        val instructionsJson = gson.toJson(newInstructions)
-        appDatabase.exerciseDao().updateExerciseInstructions(id, instructionsJson)
+        val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
+        val updatedExercise = exercise.copy(instructions = newInstructions)
+        insertExercise(updatedExercise)
     }
 
 

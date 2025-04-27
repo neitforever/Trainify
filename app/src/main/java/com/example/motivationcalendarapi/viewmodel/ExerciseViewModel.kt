@@ -24,6 +24,8 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()
         }
     }
 
+
+
     suspend fun fetchAndSaveExercises() {
         try {
             // Проверяем наличие данных
@@ -60,12 +62,15 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()
     fun getFavoriteExercises(): Flow<List<Exercise>> {
         return exerciseRepository.getFavoriteExercises()
     }
-
     fun toggleFavorite(exercise: Exercise) {
         viewModelScope.launch(Dispatchers.IO) {
-            exerciseRepository.updateFavoriteStatus(exercise.id, !exercise.isFavorite)
+            exerciseRepository.updateFavoriteStatus(
+                id = exercise.id,
+                isFavorite = !exercise.isFavorite
+            )
         }
     }
+
 
     fun searchExercises(query: String): Flow<List<Exercise>> {
         return exerciseRepository.searchExercises(query)

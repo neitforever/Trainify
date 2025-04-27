@@ -426,8 +426,8 @@ fun AddWorkoutScreen(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = if (selectedExercises.isEmpty()) "Добавить упражнения или шаблон"
-                                else "Добавить упражнения",
+                                text = if (selectedExercises.isEmpty()) "Add exercise or template"
+                                else "Add exercise ",
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.bodyLarge,
                             )

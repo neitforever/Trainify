@@ -1,22 +1,66 @@
 package com.example.motivationcalendarapi.repositories
 
+import com.example.motivationcalendarapi.mapper.toEntity
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseResponse
 import com.example.motivationcalendarapi.network.ApiClient
+import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.motivationcalendar.data.WorkoutDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class ExerciseRepository(val appDatabase: WorkoutDatabase){
+class ExerciseRepository(
+    val appDatabase: WorkoutDatabase,
+    private val firestoreRepo: ExerciseFirestoreRepository,
+    private val auth: FirebaseAuth
+) {
 
-    suspend fun getExerciseFromApi(): List<ExerciseResponse> = ApiClient.apiService.getExercises()
+    private val currentUser get() = auth.currentUser
 
     suspend fun insertExercise(exercise: Exercise) {
-        appDatabase.exerciseDao().insertExercise(exercise)
+        if (currentUser != null) {
+            firestoreRepo.insert(exercise)
+            appDatabase.exerciseDao().insertExercise(exercise)
+        } else {
+            appDatabase.exerciseDao().insertExercise(exercise)
+        }
     }
 
-    fun getExercisesByBodyPart(bodyPart: String): Flow<List<Exercise>>{
+    internal suspend fun getExerciseFromApi(): List<Exercise> {
+        return try {
+            ApiClient.apiService.getExercises()
+                .map { it.toEntity() }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun syncExercisesWithFirestore() {
+        if (currentUser == null) return
+
+        val remoteExercises = firestoreRepo.getAllExercisesOnce()
+        if (remoteExercises.isNotEmpty()) {
+            appDatabase.exerciseDao().deleteAllExercises()
+            remoteExercises.forEach { appDatabase.exerciseDao().insertExercise(it) }
+        } else {
+            val apiExercises = getExerciseFromApi()
+            apiExercises.forEach { exercise ->
+                insertExercise(exercise)
+                firestoreRepo.insert(exercise)
+            }
+        }
+    }
+
+
+
+    suspend fun deleteExercise(id: String) {
+        if (currentUser != null) {
+            firestoreRepo.delete(id)
+        }
+        appDatabase.exerciseDao().deleteExercise(id)
+    }
+    fun getExercisesByBodyPart(bodyPart: String): Flow<List<Exercise>> {
         return appDatabase.exerciseDao().getExercisesByBodyPart(bodyPart)
     }
 
@@ -48,8 +92,6 @@ class ExerciseRepository(val appDatabase: WorkoutDatabase){
     }
 
 
-
-
     fun getAllEquipment() = appDatabase.exerciseDao().getAllEquipment()
 
     suspend fun updateExerciseEquipment(id: String, newEquipment: String) {
@@ -74,8 +116,6 @@ class ExerciseRepository(val appDatabase: WorkoutDatabase){
         appDatabase.exerciseDao().updateExerciseInstructions(id, instructionsJson)
     }
 
-    suspend fun deleteExercise(id: String) {
-        appDatabase.exerciseDao().deleteExercise(id)
-    }
+
 
 }

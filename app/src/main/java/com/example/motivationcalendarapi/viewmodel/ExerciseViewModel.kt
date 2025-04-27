@@ -18,7 +18,28 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()
 
     val allBodyParts: Flow<List<String>> = exerciseRepository.getAllBodyParts()
 
+    init {
+        viewModelScope.launch {
+            exerciseRepository.syncExercisesWithFirestore()
+        }
+    }
 
+    suspend fun fetchAndSaveExercises() {
+        try {
+            // Проверяем наличие данных
+            val localCount = exerciseRepository.getExerciseCount()
+            if (localCount == 0) {
+                val response = ApiClient.apiService.getExercises()
+                val exercises = response.map { it.toEntity() }
+
+                exercises.forEach { ex ->
+                    exerciseRepository.insertExercise(ex)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     fun getExerciseFromApi() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -83,30 +104,7 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()
     }
 
 
-    suspend fun fetchAndSaveExercises() {
-        try {
-            val response = ApiClient.apiService.getExercises()
-            val responseEntity = response.map { it.toEntity() }
 
-            val existingExercises = exerciseRepository.getAllExercisesOnce()
-            val existingExercisesMap = existingExercises.associateBy { it.id }
-
-            val exercisesToInsert = responseEntity.map { apiExercise ->
-                existingExercisesMap[apiExercise.id]?.let { existing ->
-                    apiExercise.copy(
-                        isFavorite = existing.isFavorite,
-                        note = existing.note
-                    )
-                } ?: apiExercise
-            }
-
-            exercisesToInsert.forEach { ex ->
-                exerciseRepository.insertExercise(ex)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
 
     private val _tempExercise = MutableStateFlow<Exercise?>(null)
     val tempExercise: StateFlow<Exercise?> = _tempExercise

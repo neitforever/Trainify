@@ -640,16 +640,18 @@ class WorkoutViewModel(
 
     fun addExerciseSet(exerciseId: Int) {
         viewModelScope.launch {
-            val minRep = minRep.value
-            val minWeight = minWeight.value
-
             val updatedMap = _exerciseSetsMap.value.toMutableMap()
             val sets = updatedMap[exerciseId]?.toMutableList() ?: mutableListOf()
 
-            val newSet = sets.lastOrNull()?.copy(
-                rep = minRep,
-                weight = minWeight
-            ) ?: ExerciseSet(rep = minRep, weight = minWeight)
+            val lastSet = sets.lastOrNull()
+            val newRep = lastSet?.rep ?: minRep.value
+            val newWeight = lastSet?.weight ?: minWeight.value
+
+            val newSet = ExerciseSet(
+                rep = newRep,
+                weight = newWeight,
+                status = SetStatus.NONE
+            )
 
             sets.add(newSet)
             updatedMap[exerciseId] = sets

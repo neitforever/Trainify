@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -90,6 +91,7 @@ class MainActivity : ComponentActivity() {
                 factory = WorkoutSettingsViewModelFactory(mainRepository)
             )
 
+
             val exerciseViewModel = ExerciseViewModel(
                 exerciseRepository
             )
@@ -103,6 +105,11 @@ class MainActivity : ComponentActivity() {
             val authViewModel = AuthViewModel(googleAuthClient, bodyProgressRepository, workoutRepository)
             val userState = authViewModel.userState.collectAsState()
 
+            LaunchedEffect(Unit) {
+                if (userState.value is AuthViewModel.UserState.Authenticated) {
+                    workoutViewModel.syncAllData()
+                }
+            }
 
             MotivationCalendarAPITheme(mainViewModel = mainViewModel) {
 //                if (userState.value is AuthViewModel.UserState.Authenticated) {
@@ -126,6 +133,8 @@ class MainActivity : ComponentActivity() {
 //                }
 
             }
+
+
         }
     }
 

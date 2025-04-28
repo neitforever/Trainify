@@ -26,4 +26,7 @@ interface TemplateDao {
 
     @Query("DELETE FROM templates")
     suspend fun deleteAllTemplates()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(templates: List<Template>)
 }

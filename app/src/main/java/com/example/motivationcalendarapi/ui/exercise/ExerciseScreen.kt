@@ -59,10 +59,7 @@ fun ExerciseScreen(
     workoutViewModel: WorkoutViewModel,
     paddingTopValues: Dp
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.fetchAndSaveExercises()
-        workoutViewModel.loadTemplates()
-    }
+
 
     val templates by workoutViewModel.templates.collectAsState(initial = emptyList())
 
@@ -78,6 +75,14 @@ fun ExerciseScreen(
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedTemplateForDeletion by remember { mutableStateOf<Template?>(null) }
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchAndSaveExercises()
+    }
+
+    LaunchedEffect(Unit) {
+        workoutViewModel.loadTemplates()
+    }
 
     DeleteTemplateDialog(
         showDialog = showDeleteDialog,
@@ -116,6 +121,11 @@ fun ExerciseScreen(
                     exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top)
                 ) {
                     Column {
+                        if (templates.isEmpty()) {
+                            Text(
+                                "No templates found",
+                                modifier = Modifier.padding(16.dp))
+                        } else {
                         templates.forEach { template ->
                             TemplateItem(
                                 template = template,
@@ -128,6 +138,7 @@ fun ExerciseScreen(
                                 },
                                 navController = navController
                             )
+                        }
                         }
                     }
                 }

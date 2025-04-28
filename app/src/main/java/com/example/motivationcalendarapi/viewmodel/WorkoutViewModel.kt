@@ -70,6 +70,7 @@ class WorkoutViewModel(
         }
     }
 
+
     fun removeExerciseSet(exerciseIndex: Int, setIndex: Int) {
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         updatedMap[exerciseIndex]?.let { sets ->
@@ -148,11 +149,11 @@ class WorkoutViewModel(
         }
     }
 
-    val templates: Flow<List<Template>> = workoutRepository.getAllTemplates()
-
+    val templates: Flow<List<Template>>
+        get() = workoutRepository.getAllTemplates()
     fun loadTemplates() {
         viewModelScope.launch {
-            workoutRepository.getAllTemplates()
+            workoutRepository.syncTemplatesWithFirestore()
         }
     }
 

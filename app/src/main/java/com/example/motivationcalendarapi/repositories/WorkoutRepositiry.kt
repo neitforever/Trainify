@@ -28,6 +28,7 @@ class WorkoutRepository(
         }
     }
 
+
     suspend fun updateTemplate(template: Template) {
         if (currentUser != null) {
             templateFirestoreRepo.update(template)
@@ -45,24 +46,64 @@ class WorkoutRepository(
     }
 
     fun getAllTemplates(): Flow<List<Template>> {
-        return if (currentUser != null) {
-            templateFirestoreRepo.getAllTemplates()
-        } else {
-            appDatabase.templateDao().getAllTemplates()
-        }
+        return appDatabase.templateDao().getAllTemplates()
     }
 
     suspend fun syncTemplatesWithFirestore() {
-        if (currentUser == null) return
+        try {
+            if (currentUser == null) {
+                println("Sync skipped: user not authenticated")
+                return
+            }
 
-        val remoteTemplates = templateFirestoreRepo.getAllTemplatesOnce()
-        appDatabase.templateDao().deleteAllTemplates()
-        remoteTemplates.forEach { appDatabase.templateDao().insert(it) }
+            println("Starting sync...")
+            val remote = templateFirestoreRepo.getAllTemplatesOnce()
+            println("Remote templates: ${remote.size}")
 
-        val localTemplates = appDatabase.templateDao().getAllTemplates().first()
-        localTemplates.forEach { templateFirestoreRepo.insert(it) }
+            val local = appDatabase.templateDao().getAllTemplates().first()
+            println("Local templates: ${local.size}")
+
+            val merged = mergeTemplates(remote, local)
+            println("Merged templates: ${merged.size}")
+
+            appDatabase.templateDao().deleteAllTemplates()
+            appDatabase.templateDao().insertAll(merged)
+
+            println("Local DB updated")
+
+            merged.forEach {
+                templateFirestoreRepo.insert(it)
+            }
+            println("Firestore updated")
+        } catch (e: Exception) {
+            println("Sync error: ${e.message}")
+        }
     }
 
+
+    private fun mergeTemplates(remote: List<Template>, local: List<Template>): List<Template> {
+        val merged = mutableListOf<Template>()
+        val allIds = (remote.map { it.id } + local.map { it.id }).toSet()
+
+        allIds.forEach { id ->
+            val remoteTemplate = remote.find { it.id == id }
+            val localTemplate = local.find { it.id == id }
+
+            when {
+                remoteTemplate == null -> localTemplate?.let { merged.add(it) }
+                localTemplate == null -> merged.add(remoteTemplate)
+                else -> {
+                    // Выбираем шаблон с более новым timestamp
+                    if (remoteTemplate.timestamp > localTemplate.timestamp) {
+                        merged.add(remoteTemplate)
+                    } else {
+                        merged.add(localTemplate)
+                    }
+                }
+            }
+        }
+        return merged
+    }
 
     suspend fun updateTemplateName(templateId: String, newName: String) {
         appDatabase.templateDao().updateTemplateName(templateId, newName)

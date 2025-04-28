@@ -125,7 +125,8 @@ fun ExerciseScreen(
                                 onDelete = {
                                     selectedTemplateForDeletion = template
                                     showDeleteDialog = true
-                                }
+                                },
+                                navController = navController
                             )
                         }
                     }

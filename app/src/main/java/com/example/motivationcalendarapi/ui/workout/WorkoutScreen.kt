@@ -364,7 +364,8 @@ fun AddWorkoutScreen(
                             isSheetOpen = isSheetOpen,
                             sheetState = sheetState,
                             exerciseViewModel = exersiceViewModel,
-                            workoutViewModel = workoutViewModel
+                            workoutViewModel = workoutViewModel,
+                            navController = navController,
                         )
 
                         TimerBottomSheet(

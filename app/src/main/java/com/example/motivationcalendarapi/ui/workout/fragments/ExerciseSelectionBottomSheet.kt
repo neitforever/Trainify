@@ -23,6 +23,7 @@ import com.example.motivationcalendarapi.ui.exercise.fragments.SearchBar
 import com.example.motivationcalendarapi.ui.exercise.fragments.SearchResultsList
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +31,8 @@ fun ExerciseSelectionBottomSheet(
     isSheetOpen: MutableState<Boolean>,
     sheetState: SheetState,
     exerciseViewModel: ExerciseViewModel,
-    workoutViewModel: WorkoutViewModel
+    workoutViewModel: WorkoutViewModel,
+    navController: NavController
 ) {
     if (isSheetOpen.value) {
         val selectedExercises = remember { mutableStateListOf<Exercise>() }
@@ -59,17 +61,17 @@ fun ExerciseSelectionBottomSheet(
 
 
             if (showTemplates) {
-
-
                 TemplatesListSection(
                     templates = templates,
                     onTemplateSelected = { template ->
                         template.exercises.forEach { ex ->
                             workoutViewModel.addExercise(
-                                ExtendedExercise(ex.exercise, ex.sets)
-                            )
+                                ExtendedExercise(ex.exercise, ex.sets))
                         }
                         isSheetOpen.value = false
+                    },
+                    onViewDetails = { template ->
+                        navController.navigate("${Screen.TemplateDetailView.route}/${template.id}")
                     }
                 )
             } else {

@@ -4,24 +4,26 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import com.google.firebase.database.PropertyName
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 @Entity(tableName = "exercises")
 data class Exercise(
-    @PrimaryKey val id: String = "",
-    val bodyPart: String = "",
-    val name: String = "",
-    val equipment: String = "",
-    val target: String = "",
-    val secondaryMuscles: List<String> = emptyList(),
+    @PrimaryKey val id: String,
+    val bodyPart: String,
+    val name: String,
+    val equipment: String,
+    val target: String,
+    val secondaryMuscles: List<String>,
     @TypeConverters(Converters::class)
-    val instructions: List<String> = emptyList(),
-    val gifUrl: String = "",
-    val isFavorite: Boolean = false,
-    val note: String = ""
+    val instructions: List<String>,
+    val gifUrl: String,
+    @field:PropertyName("favorite")
+    var favorite: Boolean,
+    val note: String
 ) {
-    constructor() : this("")
+    constructor() : this("","","","","",emptyList(),emptyList(),"", false,"")
 }
 
 
@@ -34,8 +36,9 @@ data class ExerciseResponse(
     val secondaryMuscles: List<String>,
     val instructions: List<String>,
     val gifUrl: String,
-    val isFavorite: Boolean = false
+    val favorite: Boolean
 )
+
 
 class Converters {
 

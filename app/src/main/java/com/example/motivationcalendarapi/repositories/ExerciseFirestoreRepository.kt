@@ -37,7 +37,12 @@ class ExerciseFirestoreRepository {
         return firestore.collection("users/$userId/exercises")
             .get()
             .await()
-            .toObjects(Exercise::class.java)
+            .documents
+            .map { doc ->
+                doc.toObject(Exercise::class.java)!!.apply {
+                    favorite = doc.getBoolean("favorite") ?: false
+                }
+            }
     }
 
     suspend fun insert(exercise: Exercise) {

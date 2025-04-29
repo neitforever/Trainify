@@ -1,12 +1,11 @@
 package com.example.motivationcalendarapi.mapper
 
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.example.motivationcalendarapi.model.Converters
+import android.util.Log
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseResponse
 
 fun ExerciseResponse.toEntity(): Exercise {
+    Log.d("Mapping exercise", "${this.id} isFavorite=${this.favorite}")
     return Exercise(
         id = id,
         bodyPart = bodyPart,
@@ -16,7 +15,7 @@ fun ExerciseResponse.toEntity(): Exercise {
         secondaryMuscles = secondaryMuscles,
         instructions = instructions,
         gifUrl = gifUrl,
-        isFavorite = isFavorite,
+        favorite = favorite,
         note = ""
     )
 }

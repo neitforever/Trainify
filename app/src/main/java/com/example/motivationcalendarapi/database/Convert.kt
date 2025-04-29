@@ -12,6 +12,7 @@ fun NetworkExercise.toDatabaseModel(): NetworkExercise {
         secondaryMuscles = this.secondaryMuscles,
         instructions = this.instructions,
         gifUrl = this.gifUrl,
+        favorite = this.favorite,
         note = this.note
     )
 }

@@ -2,13 +2,11 @@ package com.example.motivationcalendarapi.repositories
 
 import com.example.motivationcalendarapi.mapper.toEntity
 import com.example.motivationcalendarapi.model.Exercise
-import com.example.motivationcalendarapi.model.ExerciseResponse
 import com.example.motivationcalendarapi.network.ApiClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.motivationcalendar.data.WorkoutDatabase
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class ExerciseRepository(
     val appDatabase: WorkoutDatabase,
@@ -30,12 +28,14 @@ class ExerciseRepository(
 
     suspend fun updateFavoriteStatus(id: String, isFavorite: Boolean) {
         val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
-        val updatedExercise = exercise.copy(isFavorite = isFavorite)
+        val updatedExercise = exercise.copy(favorite = isFavorite)
 
         appDatabase.exerciseDao().insertExercise(updatedExercise)
 
         if (currentUser != null) {
-            firestoreRepo.update(updatedExercise)
+            firestoreRepo.update(updatedExercise.copy(
+                favorite = isFavorite
+            ))
         }
     }
 
@@ -50,10 +50,16 @@ class ExerciseRepository(
         }
     }
 
-    internal suspend fun getExerciseFromApi(): List<Exercise> {
+    suspend fun getExerciseFromApi(): List<Exercise> {
         return try {
+            val localExercises = appDatabase.exerciseDao().getAllExercisesOnce()
             ApiClient.apiService.getExercises()
-                .map { it.toEntity() }
+                .map { response ->
+                    val localExercise = localExercises.find { it.id == response.id }
+                    response.toEntity().copy(
+                        favorite = localExercise?.favorite ?: false
+                    )
+                }
         } catch (e: Exception) {
             emptyList()
         }
@@ -63,16 +69,16 @@ class ExerciseRepository(
         if (currentUser == null) return
 
         val remoteExercises = firestoreRepo.getAllExercisesOnce()
-        if (remoteExercises.isNotEmpty()) {
-            appDatabase.exerciseDao().deleteAllExercises()
-            remoteExercises.forEach { appDatabase.exerciseDao().insertExercise(it) }
-        } else {
-            val apiExercises = getExerciseFromApi()
-            apiExercises.forEach { exercise ->
-                insertExercise(exercise)
-                firestoreRepo.insert(exercise)
-            }
+        val localExercises = appDatabase.exerciseDao().getAllExercisesOnce()
+
+        val updatedExercises = remoteExercises.map { remote ->
+            val local = localExercises.find { it.id == remote.id }
+            remote.copy(
+                favorite = local?.favorite ?: remote.favorite
+            )
         }
+
+        appDatabase.exerciseDao().insertAllExercises(updatedExercises)
     }
 
 

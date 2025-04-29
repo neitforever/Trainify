@@ -12,7 +12,7 @@ interface ExerciseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExercises(exercises: Exercise)
 
-    @Query("SELECT * FROM exercises WHERE bodyPart = :bodyPart ORDER BY isFavorite DESC, name ASC")
+    @Query("SELECT * FROM exercises WHERE bodyPart = :bodyPart ORDER BY favorite DESC, name ASC")
     fun getExercisesByBodyPart(bodyPart: String): Flow<List<Exercise>>
 
     @Query("SELECT DISTINCT bodyPart FROM exercises")
@@ -36,13 +36,16 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercises WHERE id = :id LIMIT 1")
     fun getExerciseById(id: String): Exercise?
 
-    @Query("SELECT * FROM exercises WHERE isFavorite = 1 ORDER BY name ASC")
+    @Query("SELECT * FROM exercises WHERE favorite = 1 ORDER BY name ASC")
     fun getFavoriteExercises(): Flow<List<Exercise>>
 
-    @Query("UPDATE exercises SET isFavorite = :isFavorite WHERE id = :id")
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllExercises(exercises: List<Exercise>)
+
+    @Query("UPDATE exercises SET favorite = :isFavorite WHERE id = :id")
     suspend fun updateFavoriteStatus(id: String, isFavorite: Boolean)
 
-    @Query("SELECT * FROM exercises WHERE name LIKE '%' || :query || '%' ORDER BY isFavorite DESC, name ASC")
+    @Query("SELECT * FROM exercises WHERE name LIKE '%' || :query || '%' ORDER BY favorite DESC, name ASC")
     fun searchExercises(query: String): Flow<List<Exercise>>
 
     @Query("UPDATE exercises SET name = :newName WHERE id = :id")

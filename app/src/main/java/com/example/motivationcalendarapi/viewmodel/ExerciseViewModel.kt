@@ -4,17 +4,18 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.motivationcalendarapi.model.Exercise
-import com.example.motivationcalendarapi.database.toDatabaseModels
 import com.example.motivationcalendarapi.mapper.toEntity
 import com.example.motivationcalendarapi.network.ApiClient
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()  {
+class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private val auth: FirebaseAuth
+): ViewModel()  {
 
     val allBodyParts: Flow<List<String>> = exerciseRepository.getAllBodyParts()
 
@@ -24,18 +25,24 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()
         }
     }
 
+    private val currentUser get() = auth.currentUser
+
 
 
     suspend fun fetchAndSaveExercises() {
         try {
-            // Проверяем наличие данных
+            if (currentUser != null) {
+                exerciseRepository.syncExercisesWithFirestore()
+            }
+
             val localCount = exerciseRepository.getExerciseCount()
             if (localCount == 0) {
                 val response = ApiClient.apiService.getExercises()
                 val exercises = response.map { it.toEntity() }
-
                 exercises.forEach { ex ->
-                    exerciseRepository.insertExercise(ex)
+                    exerciseRepository.insertExercise(ex.copy(
+                        favorite = false // Явно инициализируем isFavorite
+                    ))
                 }
             }
         } catch (e: Exception) {
@@ -66,7 +73,7 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()
         viewModelScope.launch(Dispatchers.IO) {
             exerciseRepository.updateFavoriteStatus(
                 id = exercise.id,
-                isFavorite = !exercise.isFavorite
+                isFavorite = !exercise.favorite
             )
         }
     }
@@ -124,7 +131,7 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository): ViewModel()
             secondaryMuscles = listOf(),
             instructions = listOf(),
             gifUrl = "",
-            isFavorite = false,
+            favorite = false,
             note = ""
         )
     }

@@ -39,7 +39,7 @@ fun SearchResultsList(
                 items(filteredResults) { exercise ->
                     ExerciseSelectionItem(
                         exercise = exercise,
-                        isFavorite = exercise.isFavorite,
+                        isFavorite = exercise.favorite,
                         selectedOrder = selectedExercises
                             .indexOfFirst { it.id == exercise.id }
                             .takeIf { it >= 0 }

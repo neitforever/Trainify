@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
 
 
             val exerciseViewModel = ExerciseViewModel(
-                exerciseRepository
+                exerciseRepository, auth
             )
             val mainViewModel = MainViewModel(mainRepository)
 

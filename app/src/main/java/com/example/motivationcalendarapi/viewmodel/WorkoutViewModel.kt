@@ -291,8 +291,8 @@ class WorkoutViewModel(
         val avgKgPerSet = totalKg / totalSets
 
         return when {
-            avgKgPerSet > 600f -> DifficultyLevel.HARD
-            avgKgPerSet > 300f -> DifficultyLevel.NORMAL
+            avgKgPerSet > 400f -> DifficultyLevel.HARD
+            avgKgPerSet > 200f -> DifficultyLevel.NORMAL
             else -> DifficultyLevel.EASY
         }
     }

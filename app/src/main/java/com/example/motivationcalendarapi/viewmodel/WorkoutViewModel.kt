@@ -459,7 +459,7 @@ class WorkoutViewModel(
 
     fun workoutsByYearMonthAndWeek(): Flow<Map<Int, Map<String, Map<Int, List<Workout>>>>> {
         return allWorkouts.map { workouts ->
-            workouts.groupBy { workout ->
+            workouts.sortedBy { it.timestamp }.groupBy { workout ->
                 Instant.ofEpochMilli(workout.timestamp)
                     .atZone(ZoneId.systemDefault()).year
             }.mapValues { yearEntry ->

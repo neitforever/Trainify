@@ -30,7 +30,7 @@ import coil.request.ImageRequest
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.theme.BLACK_COLOR
 import com.example.motivationcalendarapi.ui.theme.WHITE_COLOR
-
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 
@@ -45,6 +45,10 @@ fun NavigationMenuView(
         Screen.Profile, Screen.BodyProgress, Screen.AddWorkout,
         Screen.WorkoutHistory, Screen.ExercisesView, Screen.Settings,
     )
+
+    val navBackStackEntry = navController.currentBackStackEntryAsState().value
+    val currentRoute = navBackStackEntry?.destination?.route?.split("/")?.get(0)
+
     val isDarkTheme = mainViewModel.isDarkTheme
     val color = if (isDarkTheme) BLACK_COLOR else WHITE_COLOR
 
@@ -96,6 +100,7 @@ fun NavigationMenuView(
         }
 
         items.forEach { screen ->
+            val isSelected = screen.route.split("/")[0] == currentRoute
             Row(
                 modifier = Modifier
                     .clickable {
@@ -129,13 +134,15 @@ fun NavigationMenuView(
                         painter = painterResource(id = it),
                         contentDescription = "${screen.title} Icon",
                         modifier = Modifier.size(28.dp),
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = if (isSelected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(
                     text = screen.title,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge
                 )
             }

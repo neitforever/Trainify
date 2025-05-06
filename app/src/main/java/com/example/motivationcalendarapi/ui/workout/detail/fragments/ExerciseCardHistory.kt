@@ -48,15 +48,15 @@ fun ExerciseCardHistory(
     Card(
         modifier = modifier
             .padding(vertical = 8.dp)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                shape = MaterialTheme.shapes.medium
-            ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+//            .border(
+//                width = 1.dp,
+//                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+//                shape = MaterialTheme.shapes.medium
+//            ),
+//        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+//        colors = CardDefaults.cardColors(
+//            containerColor = MaterialTheme.colorScheme.surface
+//        )
     ) {
         Column(
             modifier = Modifier
@@ -104,7 +104,7 @@ fun ExerciseCardHistory(
                         modifier = Modifier.size(24.dp)
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_info),
+                            painter = painterResource(R.drawable.ic_dots),
                             contentDescription = "Info",
                             modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.onSurface

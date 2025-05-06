@@ -109,7 +109,8 @@ fun NavGraph(
         Screen.BodyPartSelection,
         Screen.Auth,
         Screen.BodyProgress,
-        Screen.TemplateDetailView
+        Screen.TemplateDetailView,
+        Screen.Profile,
     )
     ModalNavigationDrawer(drawerState = drawerState.value, drawerContent = {
         if (userState.value is AuthViewModel.UserState.Authenticated) {
@@ -172,7 +173,7 @@ fun NavGraph(
                                         }, modifier = Modifier.size(48.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Filled.Menu,
+                                            painter = painterResource(id = R.drawable.ic_menu),
                                             contentDescription = "Open Menu",
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(42.dp)
@@ -352,7 +353,8 @@ fun NavGraph(
                         ProfileScreen(
                             authViewModel,
                             navController,
-                            workoutViewModel = workoutViewModel
+                            workoutViewModel = workoutViewModel,
+                            paddingValues = paddingValue.calculateTopPadding()
                             )
                     }
 

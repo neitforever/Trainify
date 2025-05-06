@@ -36,6 +36,9 @@ import com.example.motivationcalendarapi.ui.workout.history.fragments.WorkoutIte
 import com.example.motivationcalendarapi.ui.workout.history.fragments.YearHeader
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import formatDate
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -51,28 +54,16 @@ fun WorkoutHistoryScreen(
     var expandedMonths by remember { mutableStateOf(setOf<Pair<Int, String>>()) }
     var expandedWeeks by remember { mutableStateOf(setOf<Triple<Int, String, Int>>()) }
 
+    val currentYear = LocalDate.now().year
+    val currentMonth = DateTimeFormatter.ofPattern("MMMM").format(LocalDate.now())
+    val currentWeek = Calendar.getInstance().get(Calendar.WEEK_OF_MONTH)
+
     LaunchedEffect(groupedWorkouts) {
         if (expandedYears.isEmpty() && groupedWorkouts.isNotEmpty()) {
-            val initialYears = groupedWorkouts.keys.toSet()
-            expandedYears = initialYears
 
-            val initialMonths = mutableSetOf<Pair<Int, String>>()
-            groupedWorkouts.forEach { (year, months) ->
-                months.keys.forEach { monthName ->
-                    initialMonths.add(year to monthName)
-                }
-            }
-            expandedMonths = initialMonths
-
-            val initialWeeks = mutableSetOf<Triple<Int, String, Int>>()
-            groupedWorkouts.forEach { (year, months) ->
-                months.forEach { (monthName, weeks) ->
-                    weeks.keys.forEach { weekNumber ->
-                        initialWeeks.add(Triple(year, monthName, weekNumber))
-                    }
-                }
-            }
-            expandedWeeks = initialWeeks
+            expandedYears = setOf(currentYear)
+            expandedMonths = setOf(currentYear to currentMonth)
+            expandedWeeks = setOf(Triple(currentYear, currentMonth, currentWeek))
         }
     }
     if (groupedWorkouts.isEmpty()) {

@@ -45,6 +45,14 @@ class ExerciseFirestoreRepository {
             }
     }
 
+    suspend fun updateExerciseNote(exerciseId: String, newNote: String) {
+        val userId = auth.currentUser?.uid ?: return
+        firestore.collection("users/$userId/exercises")
+            .document(exerciseId)
+            .update("note", newNote)
+            .await()
+    }
+
     suspend fun insert(exercise: Exercise) {
         val userId = auth.currentUser?.uid ?: return
         firestore.collection("users/$userId/exercises")

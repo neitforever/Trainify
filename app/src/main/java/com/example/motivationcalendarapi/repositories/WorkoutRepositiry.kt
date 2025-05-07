@@ -13,6 +13,7 @@ class WorkoutRepository(
     private val appDatabase: WorkoutDatabase,
     private val firestoreRepo: WorkoutFirestoreRepository,
     private val templateFirestoreRepo: TemplateFirestoreRepository,
+    private val exerciseFirestoreRepo: ExerciseFirestoreRepository,
     private val auth: FirebaseAuth
 ) {
 
@@ -27,6 +28,7 @@ class WorkoutRepository(
             appDatabase.templateDao().insert(template)
         }
     }
+
 
 
     suspend fun updateTemplate(template: Template) {
@@ -175,8 +177,11 @@ class WorkoutRepository(
 
     suspend fun updateExerciseNote(id: String, newNote: String) {
         appDatabase.exerciseDao().updateExerciseNote(id, newNote)
-    }
 
+        if (currentUser != null) {
+                exerciseFirestoreRepo.updateExerciseNote(id, newNote)
+        }
+    }
 
 
     fun getWorkoutsToday(): Flow<List<Workout>> {

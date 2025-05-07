@@ -180,7 +180,6 @@ fun ExerciseCardHistory(
                             .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        // Sets Column
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "Set",
@@ -204,7 +203,6 @@ fun ExerciseCardHistory(
                             }
                         }
 
-                        // Reps Column
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "Rep",

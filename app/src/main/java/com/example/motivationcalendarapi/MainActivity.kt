@@ -65,6 +65,7 @@ class MainActivity : ComponentActivity() {
                 db,
                 workoutFirestoreRepo,
                 templateFirestoreRepo,
+                exerciseFirestoreRepo,
                 auth
             )
             val exerciseRepository = ExerciseRepository(

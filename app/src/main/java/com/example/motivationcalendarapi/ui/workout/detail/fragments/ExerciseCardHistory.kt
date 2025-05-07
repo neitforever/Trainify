@@ -139,7 +139,7 @@ fun ExerciseCardHistory(
                                 }
                             },
                             onClick = {
-                                navController.navigate("exercise_detail/${exercise.exercise.id}")
+                                navController.navigate("exercises/exercise_detail/${exercise.exercise.id}")
                                 showMenu = false
                             }
                         )

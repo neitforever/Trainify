@@ -10,10 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.model.DifficultyLevel
+import formatDate
+import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,18 +42,20 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .clickable { navController.navigate(screen.route) }
                     .padding(vertical = 12.dp),
-                color = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.secondary,
-                shape = MaterialTheme.shapes.medium) {
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium,
+                tonalElevation = 2.dp) {
                 Row(
                     modifier = Modifier
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp, horizontal = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .height(IntrinsicSize.Min),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(48.dp)
                     ) {
                         Icon(
                             painter = painterResource(
@@ -61,11 +67,19 @@ fun SettingsScreen(
                             ),
                             contentDescription = screen.title,
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(32.dp)
                         )
+                    }
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
 
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(vertical = 4.dp),
+                        verticalArrangement = Arrangement.Center
+                    ) {
                         Text(
                             text = screen.title,
                             style = MaterialTheme.typography.headlineLarge,
@@ -73,21 +87,19 @@ fun SettingsScreen(
                         )
                     }
 
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_right),
-                        contentDescription = "Navigate",
-                        tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(28.dp)
-                    )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(48.dp).padding(start = 8.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_arrow_right),
+                            contentDescription = "Navigate",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                 }
-            }
-
-            if (index != items.lastIndex) {
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 0.dp),
-                    thickness = 2.dp,
-                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f)
-                )
             }
         }
     }

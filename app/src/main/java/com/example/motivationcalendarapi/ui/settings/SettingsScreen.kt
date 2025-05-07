@@ -41,7 +41,7 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { navController.navigate(screen.route) }
-                    .padding(vertical = 12.dp),
+                    .padding(top = 12.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = MaterialTheme.shapes.medium,
                 tonalElevation = 2.dp) {

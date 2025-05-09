@@ -85,7 +85,7 @@ fun NavGraph(
     authViewModel: AuthViewModel,
     bodyProgressViewModel: BodyProgressViewModel,
     workoutSettingsViewModel: WorkoutSettingsViewModel
-    ) {
+) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
     val currentDestination = currentBackStackEntry?.destination
@@ -122,157 +122,157 @@ fun NavGraph(
             ) {
                 NavigationMenuView(    mainViewModel = mainViewModel,
                     authViewModel = authViewModel,navController = navController, onItemClick = {
-                    coroutineScope.launch {
-                        drawerState.value.close()
-                    }
-                })
+                        coroutineScope.launch {
+                            drawerState.value.close()
+                        }
+                    })
             }
         }
 
     }) {
-    Scaffold(
-        topBar = {
-            screens.forEach { it ->
+        Scaffold(
+            topBar = {
+                screens.forEach { it ->
 
-                if (it.route == currentRoute && it.route != Screen.Auth.route) {
-                    TopAppBar(
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.background,
-                            titleContentColor = MaterialTheme.colorScheme.primary,
-                        ),
-                        navigationIcon = {
-                            when (it.route) {
-                                Screen.EquipmentSelection.route -> {
-                                    IconButton(onClick = { navController.popBackStack() }) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_arrow_back),
-                                            contentDescription = "Back",
-                                            tint = MaterialTheme.colorScheme.onBackground
-                                        )
-                                    }
-
-                                }
-
-                                Screen.BodyPartSelection.route -> {
-                                    IconButton(onClick = { navController.popBackStack() }) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_arrow_back),
-                                            contentDescription = "Back",
-                                            tint = MaterialTheme.colorScheme.onBackground
-                                        )
-                                    }
-
-                                }
-
-                                else -> {
-                                    IconButton(
-                                        onClick = {
-                                            coroutineScope.launch {
-                                                drawerState.value.open()
-                                            }
-                                        }, modifier = Modifier.size(48.dp)
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_menu),
-                                            contentDescription = "Open Menu",
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(42.dp)
-                                        )
-                                    }
-                                }
-                            }
-
-                        },
-                        title = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 4.dp)
-                            ) {
-                                Text(
-                                    text = it.title,
-                                    style = MaterialTheme.typography.displaySmall,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        },
-                        modifier = Modifier.border(
-                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.tertiary),
-                            shape = CutCornerShape(4.dp)
-                        ),
-                        actions = {
-                            when (it.route) {
-                                Screen.ExerciseDetailView.route -> {
-                                    Row {
+                    if (it.route == currentRoute && it.route != Screen.Auth.route) {
+                        TopAppBar(
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.background,
+                                titleContentColor = MaterialTheme.colorScheme.primary,
+                            ),
+                            navigationIcon = {
+                                when (it.route) {
+                                    Screen.EquipmentSelection.route -> {
                                         IconButton(onClick = { navController.popBackStack() }) {
                                             Icon(
-                                                painter = painterResource(id = R.drawable.ic_close),
-                                                contentDescription = "Close",
-                                                modifier = Modifier
-                                                    .size(36.dp)
-                                                    .align(Alignment.CenterVertically),
-                                                tint = MaterialTheme.colorScheme.onSurface
+                                                painter = painterResource(id = R.drawable.ic_arrow_back),
+                                                contentDescription = "Back",
+                                                tint = MaterialTheme.colorScheme.onBackground
                                             )
                                         }
-                                    }
-                                }
 
-                                Screen.ExercisesView.route -> {
-                                    Row {
-                                        IconButton(onClick = { navController.navigate(Screen.SearchExercise.route) }) {
+                                    }
+
+                                    Screen.BodyPartSelection.route -> {
+                                        IconButton(onClick = { navController.popBackStack() }) {
                                             Icon(
-                                                painter = painterResource(id = R.drawable.ic_search),
-                                                contentDescription = "Search",
-                                                tint = MaterialTheme.colorScheme.primary
+                                                painter = painterResource(id = R.drawable.ic_arrow_back),
+                                                contentDescription = "Back",
+                                                tint = MaterialTheme.colorScheme.onBackground
+                                            )
+                                        }
+
+                                    }
+
+                                    else -> {
+                                        IconButton(
+                                            onClick = {
+                                                coroutineScope.launch {
+                                                    drawerState.value.open()
+                                                }
+                                            }, modifier = Modifier.size(48.dp)
+                                        ) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.ic_menu),
+                                                contentDescription = "Open Menu",
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(42.dp)
                                             )
                                         }
                                     }
                                 }
-                            }
 
-                        },
-
-                        )
-                }
-            }
-        },
-        floatingActionButton = {
-            screens.forEach { it ->
-                if (it.route == currentRoute) {
-                    when (it.route) {
-
-                        Screen.ExercisesView.route -> {
-                            Row(
-                                verticalAlignment = Alignment.Bottom,
-                                modifier = Modifier.navigationBarsPadding()
-                            ) {
-                                FloatingActionButton(
-                                    onClick = { navController.navigate(Screen.CreateExercise.route) },
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size(64.dp)
+                            },
+                            title = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 4.dp)
                                 ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_add),
-                                        contentDescription = "Add new exercise",
-                                        modifier = Modifier.size(36.dp),
-                                        tint = MaterialTheme.colorScheme.primary
+                                    Text(
+                                        text = it.title,
+                                        style = MaterialTheme.typography.displaySmall,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
+                                }
+                            },
+                            modifier = Modifier.border(
+                                border = BorderStroke(2.dp, MaterialTheme.colorScheme.tertiary),
+                                shape = CutCornerShape(4.dp)
+                            ),
+                            actions = {
+                                when (it.route) {
+                                    Screen.ExerciseDetailView.route -> {
+                                        Row {
+                                            IconButton(onClick = { navController.popBackStack() }) {
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.ic_close),
+                                                    contentDescription = "Close",
+                                                    modifier = Modifier
+                                                        .size(36.dp)
+                                                        .align(Alignment.CenterVertically),
+                                                    tint = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    Screen.ExercisesView.route -> {
+                                        Row {
+                                            IconButton(onClick = { navController.navigate(Screen.SearchExercise.route) }) {
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.ic_search),
+                                                    contentDescription = "Search",
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                            },
+
+                            )
+                    }
+                }
+            },
+            floatingActionButton = {
+                screens.forEach { it ->
+                    if (it.route == currentRoute) {
+                        when (it.route) {
+
+                            Screen.ExercisesView.route -> {
+                                Row(
+                                    verticalAlignment = Alignment.Bottom,
+                                    modifier = Modifier.navigationBarsPadding()
+                                ) {
+                                    FloatingActionButton(
+                                        onClick = { navController.navigate(Screen.CreateExercise.route) },
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(64.dp)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_add),
+                                            contentDescription = "Add new exercise",
+                                            modifier = Modifier.size(36.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-        },
+            },
 //        bottomBar = {
 //            if (currentDestination?.route == Screen.ExercisesView.route) {
 //                ExercisesBottomBar(pagerState)
 //            }
 //        }
 
-    ) { paddingValue ->
+        ) { paddingValue ->
 
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -313,16 +313,16 @@ fun NavGraph(
                     composable(
                         Screen.TemplateDetailView.route + "/{templateId}",
                         arguments = listOf(navArgument("templateId") { type = NavType.StringType })
-                        ) { backStackEntry ->
-                            val templateId = backStackEntry.arguments?.getString("templateId")
-                            TemplateDetailScreen(
-                                templateId = templateId,
-                                viewModel = workoutViewModel,
-                                navController = navController,
-                                paddingTopValues = paddingValue.calculateTopPadding(),
-                                exerciseViewModel = exerciseViewModel,
-                            )
-                        }
+                    ) { backStackEntry ->
+                        val templateId = backStackEntry.arguments?.getString("templateId")
+                        TemplateDetailScreen(
+                            templateId = templateId,
+                            viewModel = workoutViewModel,
+                            navController = navController,
+                            paddingTopValues = paddingValue.calculateTopPadding(),
+                            exerciseViewModel = exerciseViewModel,
+                        )
+                    }
 
                     composable(Screen.Auth.route) {
                         AuthScreen(
@@ -355,7 +355,7 @@ fun NavGraph(
                             navController,
                             workoutViewModel = workoutViewModel,
                             paddingValues = paddingValue.calculateTopPadding()
-                            )
+                        )
                     }
 
                     composable(Screen.Settings.route) {

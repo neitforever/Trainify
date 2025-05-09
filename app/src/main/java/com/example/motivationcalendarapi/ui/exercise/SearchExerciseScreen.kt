@@ -104,7 +104,7 @@ fun SearchExerciseScreen(
                 items(searchResults) { exercise ->
 
                     ExerciseItem(exercise = exercise,
-                        onItemClick = { navController.navigate("exercises/exercise_detail/${exercise.id}") },
+                        onItemClick = { navController.navigate("exercise_detail/${exercise.id}") },
                         onFavoriteClick = { viewModel.toggleFavorite(exercise) },
                         isFavorite = favoriteExercises.any { it.id == exercise.id })
                 }

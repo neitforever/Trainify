@@ -12,6 +12,8 @@ data class Workout(
     val duration: Int,
     val timestamp: Long,
     val exercises: List<ExtendedExercise>,
-) {
+)
+
+{
     constructor() : this("", "", 0, 0, emptyList())
 }

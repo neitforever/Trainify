@@ -22,7 +22,8 @@ data class Exercise(
     @field:PropertyName("favorite")
     var favorite: Boolean,
     val note: String
-) {
+)
+{
     constructor() : this("","","","","",emptyList(),emptyList(),"", false,"")
 }
 

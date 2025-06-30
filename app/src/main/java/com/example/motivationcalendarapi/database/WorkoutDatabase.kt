@@ -23,12 +23,9 @@ abstract class WorkoutDatabase : RoomDatabase() {
     abstract fun exerciseDao(): ExerciseDao
     abstract fun bodyProgressDao(): BodyProgressDao
     abstract fun templateDao(): TemplateDao
-
-
     companion object {
         @Volatile
         private var INSTANCE: WorkoutDatabase? = null
-
         fun getDatabase(context: Context): WorkoutDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -40,8 +37,5 @@ abstract class WorkoutDatabase : RoomDatabase() {
                     .build()
                     .also { INSTANCE = it }
             }
-
-
-
     }
 }

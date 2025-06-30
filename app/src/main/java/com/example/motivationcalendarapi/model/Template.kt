@@ -11,7 +11,10 @@ data class Template(
     val name: String,
     val exercises: List<ExtendedExercise>,
     val timestamp: Long = System.currentTimeMillis()
-){
+)
+
+
+{
     constructor() : this(
         id = "",
         name = "",

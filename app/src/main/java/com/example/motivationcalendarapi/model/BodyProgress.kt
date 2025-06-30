@@ -12,6 +12,9 @@ data class BodyProgress(
     val photoPath: String? = null,
     val weight: Double = 0.0,
     val timestamp: Long = System.currentTimeMillis()
-) {
+)
+
+
+{
     constructor() : this("", null, 0.0, System.currentTimeMillis())
 }

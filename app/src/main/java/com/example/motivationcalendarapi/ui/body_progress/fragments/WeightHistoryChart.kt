@@ -33,7 +33,6 @@ fun WeightHistoryChart(
         val chartHeight = size.height - padding * 2
         val chartWidth = size.width - padding * 2
 
-        // Calculate min/max values
         val weights = sortedList.map { it.weight }
         val minWeight = weights.min() - 2.0
         val maxWeight = weights.max() + 2.0
@@ -41,14 +40,12 @@ fun WeightHistoryChart(
         val minDate = dates.min()
         val maxDate = dates.max()
 
-        // Draw grid background
         drawRect(
             color = rectColor,
             size = Size(chartWidth, chartHeight),
             topLeft = Offset(padding, padding)
         )
 
-        // Draw Y-axis
         drawLine(
             color = textColor,
             start = Offset(padding, padding),
@@ -56,7 +53,6 @@ fun WeightHistoryChart(
             strokeWidth = axisWidth
         )
 
-        // Draw X-axis
         drawLine(
             color = textColor,
             start = Offset(padding, padding + chartHeight),
@@ -64,13 +60,11 @@ fun WeightHistoryChart(
             strokeWidth = axisWidth
         )
 
-        // Draw grid lines and labels
         val yStep = (maxWeight - minWeight) / 5
         repeat(6) { i ->
             val yValue = minWeight + yStep * i
             val yPos = padding + chartHeight - (yValue - minWeight).toFloat() / (maxWeight - minWeight).toFloat() * chartHeight
 
-            // Horizontal grid line
             drawLine(
                 color = textColor.copy(alpha = 0.2f),
                 start = Offset(padding, yPos),
@@ -78,7 +72,6 @@ fun WeightHistoryChart(
                 strokeWidth = 1f
             )
 
-            // Y-axis labels
             drawContext.canvas.nativeCanvas.drawText(
                 "%.1f".format(yValue),
                 padding - 35f,
@@ -91,7 +84,6 @@ fun WeightHistoryChart(
             )
         }
 
-        // Draw data points and lines
         val pointRadius = 4f
         var lastX = 0f
         var lastY = 0f
@@ -100,7 +92,6 @@ fun WeightHistoryChart(
             val x = padding + (progress.timestamp - minDate) / (maxDate - minDate) * chartWidth
             val y = padding + chartHeight - (progress.weight - minWeight).toFloat() / (maxWeight - minWeight).toFloat() * chartHeight
 
-            // Draw connection line
             if (index > 0) {
                 drawLine(
                     color = lineColor,
@@ -110,7 +101,6 @@ fun WeightHistoryChart(
                 )
             }
 
-            // Draw data point
             drawCircle(
                 color = pointColor,
                 radius = pointRadius * 2,
@@ -127,7 +117,6 @@ fun WeightHistoryChart(
             lastY = y
         }
 
-        // Draw X-axis date labels
         val dateFormat = SimpleDateFormat("dd MMM")
         val firstDate = sortedList.first().timestamp
         val lastDate = sortedList.last().timestamp

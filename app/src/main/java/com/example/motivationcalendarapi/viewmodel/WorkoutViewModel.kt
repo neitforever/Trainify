@@ -136,11 +136,6 @@ class WorkoutViewModel(
         return workoutRepository.getTemplateById(id)
     }
 
-    fun addExercisesFromTemplate(template: Template) {
-        template.exercises.forEach { ex ->
-            addExercise(ex)
-        }
-    }
 
     fun updateWarmupTime(newTime: Int) {
         _warmupTime.value = newTime
@@ -148,7 +143,7 @@ class WorkoutViewModel(
             timerDataStore.saveWarmupTime(newTime)
         }
     }
-
+//
     val templates: Flow<List<Template>>
         get() = workoutRepository.getAllTemplates()
     fun loadTemplates() {
@@ -532,6 +527,7 @@ class WorkoutViewModel(
     }
 
 
+
     fun setWorkoutName(name: String) {
         _workoutName.value = name
     }
@@ -565,12 +561,17 @@ class WorkoutViewModel(
     }
 
 
+
     fun addExercise(exercise: ExtendedExercise) {
         val currentSize = _selectedExercises.value.size
         _selectedExercises.value = _selectedExercises.value + exercise
 
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
-        updatedMap[currentSize] = listOf(ExerciseSet(rep = 0, weight = 0f))
+        updatedMap[currentSize] = if (exercise.sets.isNotEmpty() && exercise.sets.all { it.rep >= 0 }) {
+            exercise.sets
+        } else {
+            listOf(ExerciseSet(rep = 0, weight = 0f))
+        }
         _exerciseSetsMap.value = updatedMap
     }
 
@@ -659,6 +660,38 @@ class WorkoutViewModel(
         }
     }
 
+    fun addExercisesFromTemplate(template: Template) {
+        viewModelScope.launch {
+            _selectedExercises.value = emptyList()
+            _exerciseSetsMap.value = emptyMap()
+
+            template.exercises.forEachIndexed { index, exercise ->
+                addExercise(exercise)
+
+                if (exercise.sets.isNotEmpty()) {
+                    val updatedMap = _exerciseSetsMap.value.toMutableMap()
+                    updatedMap[index] = exercise.sets
+                    _exerciseSetsMap.value = updatedMap
+                }
+            }
+        }
+    }
+
+    fun updateTemplateSet(templateId: String, exerciseIndex: Int, setIndex: Int, newSet: ExerciseSet) {
+        viewModelScope.launch {
+            workoutRepository.updateTemplateSet(templateId, exerciseIndex, setIndex, newSet)
+        }
+    }
+
+    fun addSetToTemplate(templateId: String, exerciseIndex: Int) {
+        viewModelScope.launch {
+            workoutRepository.addSetToTemplate(
+                templateId,
+                exerciseIndex,
+                ExerciseSet(rep = minRep.value, weight = minWeight.value, status = SetStatus.NONE)
+            )
+        }
+    }
     fun moveExerciseUp(index: Int) {
         if (index <= 0) return
         val exercises = _selectedExercises.value.toMutableList().apply {

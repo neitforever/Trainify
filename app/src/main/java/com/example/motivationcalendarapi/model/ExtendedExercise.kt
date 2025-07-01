@@ -1,10 +1,10 @@
 package com.example.motivationcalendarapi.model
 
 data class ExtendedExercise(
-    val exercise: Exercise = Exercise(),
-    val sets: List<ExerciseSet> = emptyList()
+    val exercise: Exercise,
+    val sets: List<ExerciseSet>
 ) {
-    constructor() : this(Exercise(), emptyList())
+    constructor() : this(Exercise(), listOf(ExerciseSet(rep = 0, weight = 0f, status = SetStatus.NONE)))
 }
 
 

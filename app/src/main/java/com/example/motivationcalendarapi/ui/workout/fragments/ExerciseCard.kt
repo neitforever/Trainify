@@ -69,6 +69,7 @@ fun ExerciseCard(
                 .padding(top = 8.dp, bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Верхняя
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -76,8 +77,7 @@ fun ExerciseCard(
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
                     .padding(horizontal = 16.dp),
-
-                ) {
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -205,6 +205,7 @@ fun ExerciseCard(
                 }
             }
 
+            // Set Rep Weight Status
             Column(verticalArrangement = Arrangement.Center) {
                 if (exerciseSets.isNotEmpty()) {
                     Row(
@@ -213,7 +214,6 @@ fun ExerciseCard(
                             .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
@@ -249,17 +249,18 @@ fun ExerciseCard(
                                 modifier = Modifier.padding(bottom = 12.dp)
                             )
                             exerciseSets.forEachIndexed { setIndex, set ->
-                                Box(modifier = Modifier
-                                    .padding(horizontal = 8.dp)
-                                    .padding(bottom = 8.dp)
-                                    .size(60.dp, 40.dp)
-                                    .fillMaxHeight()
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                        shape = MaterialTheme.shapes.small
-                                    )
-                                    .clickable { onRepClick(index, setIndex) }) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp)
+                                        .padding(bottom = 8.dp)
+                                        .size(60.dp, 40.dp)
+                                        .fillMaxHeight()
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                            shape = MaterialTheme.shapes.small
+                                        )
+                                        .clickable { onRepClick(index, setIndex) }) {
                                     Text(
                                         text = "${set.rep}",
                                         modifier = Modifier.align(Alignment.Center),
@@ -276,17 +277,18 @@ fun ExerciseCard(
                                 modifier = Modifier.padding(bottom = 12.dp)
                             )
                             exerciseSets.forEachIndexed { setIndex, set ->
-                                Box(modifier = Modifier
-                                    .padding(horizontal = 8.dp)
-                                    .padding(bottom = 8.dp)
-                                    .size(60.dp, 40.dp)
-                                    .fillMaxHeight()
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                        shape = MaterialTheme.shapes.small
-                                    )
-                                    .clickable { onWeightClick(index, setIndex) }) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp)
+                                        .padding(bottom = 8.dp)
+                                        .size(60.dp, 40.dp)
+                                        .fillMaxHeight()
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                            shape = MaterialTheme.shapes.small
+                                        )
+                                        .clickable { onWeightClick(index, setIndex) }) {
                                     Text(
                                         text = "%.1f".format(set.weight),
                                         modifier = Modifier.align(Alignment.Center),
@@ -431,10 +433,9 @@ fun ExerciseCard(
                     }
                 }
             }
-
-
         }
 
+        // Нижняя
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -461,7 +462,8 @@ fun ExerciseCard(
                     modifier = Modifier.clickable { onAddSetClick(index) },
                     textAlign = TextAlign.Center
                 )
-                Text(text = "Note",
+                Text(
+                    text = "Note",
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier

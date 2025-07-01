@@ -317,9 +317,9 @@ fun NavGraph(
                         val templateId = backStackEntry.arguments?.getString("templateId")
                         TemplateDetailScreen(
                             templateId = templateId,
-                            viewModel = workoutViewModel,
                             navController = navController,
                             paddingTopValues = paddingValue.calculateTopPadding(),
+                            workoutViewModel = workoutViewModel,
                             exerciseViewModel = exerciseViewModel,
                         )
                     }

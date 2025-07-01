@@ -1,7 +1,11 @@
 package com.example.motivationcalendarapi.repositories
 
+import com.example.motivationcalendarapi.model.ExerciseSet
+import com.example.motivationcalendarapi.model.ExtendedExercise
+import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Template
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -55,6 +59,7 @@ class TemplateFirestoreRepository {
             .delete()
             .await()
     }
+
 
     suspend fun update(template: Template) {
         val userId = auth.currentUser?.uid ?: return

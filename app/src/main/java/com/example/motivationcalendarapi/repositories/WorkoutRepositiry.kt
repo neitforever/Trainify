@@ -1,12 +1,17 @@
 package com.example.motivationcalendarapi.repositories
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.motivationcalendarapi.model.Exercise
+import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.Workout
 import com.google.firebase.auth.FirebaseAuth
 import com.motivationcalendar.data.WorkoutDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 
 class WorkoutRepository(
@@ -15,7 +20,7 @@ class WorkoutRepository(
     private val templateFirestoreRepo: TemplateFirestoreRepository,
     private val exerciseFirestoreRepo: ExerciseFirestoreRepository,
     private val auth: FirebaseAuth
-) {
+): ViewModel() {
 
     private val currentUser get() = auth.currentUser
 
@@ -50,6 +55,7 @@ class WorkoutRepository(
     fun getAllTemplates(): Flow<List<Template>> {
         return appDatabase.templateDao().getAllTemplates()
     }
+
 
     suspend fun syncTemplatesWithFirestore() {
         try {
@@ -107,6 +113,47 @@ class WorkoutRepository(
         return merged
     }
 
+    suspend fun updateTemplateSet(templateId: String, exerciseIndex: Int, setIndex: Int, newSet: ExerciseSet) {
+        val template = appDatabase.templateDao().getTemplateById(templateId).first()
+        template?.let {
+            val updatedExercises = it.exercises.toMutableList().apply {
+                if (exerciseIndex < size) {
+                    val exercise = this[exerciseIndex]
+                    val updatedSets = exercise.sets.toMutableList().apply {
+                        if (setIndex < size) {
+                            this[setIndex] = newSet
+                        }
+                    }
+                    this[exerciseIndex] = exercise.copy(sets = updatedSets)
+                }
+            }
+
+            appDatabase.templateDao().insert(it.copy(exercises = updatedExercises))
+
+            if (currentUser != null) {
+                templateFirestoreRepo.update(it.copy(exercises = updatedExercises))
+            }
+        }
+    }
+
+    suspend fun addSetToTemplate(templateId: String, exerciseIndex: Int, newSet: ExerciseSet) {
+        val template = appDatabase.templateDao().getTemplateById(templateId).first()
+        template?.let {
+            val updatedExercises = it.exercises.toMutableList().apply {
+                if (exerciseIndex < size) {
+                    val exercise = this[exerciseIndex]
+                    val updatedSets = exercise.sets.toMutableList() + newSet
+                    this[exerciseIndex] = exercise.copy(sets = updatedSets)
+                }
+            }
+
+            appDatabase.templateDao().insert(it.copy(exercises = updatedExercises))
+
+            if (currentUser != null) {
+                templateFirestoreRepo.update(it.copy(exercises = updatedExercises))
+            }
+        }
+    }
     suspend fun updateTemplateName(templateId: String, newName: String) {
         appDatabase.templateDao().updateTemplateName(templateId, newName)
     }

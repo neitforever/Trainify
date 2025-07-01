@@ -39,7 +39,7 @@ import com.example.motivationcalendarapi.model.Template
 @Composable
 fun TemplatesListSection(
     templates: List<Template>,
-    onTemplateSelected: (Template) -> Unit,
+    onTemplateSelected: (Template, String) -> Unit,
     onViewDetails: (Template) -> Unit
 ) {
     LazyColumn(
@@ -50,8 +50,8 @@ fun TemplatesListSection(
         items(templates) { template ->
             TemplateSelectionItem(
                 template = template,
-                onTemplateSelected = { onTemplateSelected(it) },
-                onViewDetails = { onViewDetails(it) },
+                onTemplateSelected = { onTemplateSelected(template, template.name) },
+                onViewDetails = onViewDetails
             )
         }
     }
@@ -60,7 +60,7 @@ fun TemplatesListSection(
 @Composable
 fun TemplateSelectionItem(
     template: Template,
-    onTemplateSelected: (Template) -> Unit,
+    onTemplateSelected: () -> Unit,
     onViewDetails: (Template) -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -84,8 +84,11 @@ fun TemplateSelectionItem(
                         color = MaterialTheme.colorScheme.primaryContainer,
                         shape = CircleShape
                     )
-                    .border(width = 1.dp, color = MaterialTheme.colorScheme.primary, shape = CircleShape),
-
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -102,7 +105,7 @@ fun TemplateSelectionItem(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { onTemplateSelected(template) }
+                    .clickable { onTemplateSelected() }
             ) {
                 Text(
                     text = template.name,

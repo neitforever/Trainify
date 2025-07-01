@@ -63,11 +63,9 @@ fun ExerciseSelectionBottomSheet(
             if (showTemplates) {
                 TemplatesListSection(
                     templates = templates,
-                    onTemplateSelected = { template ->
-                        template.exercises.forEach { ex ->
-                            workoutViewModel.addExercise(
-                                ExtendedExercise(ex.exercise, ex.sets))
-                        }
+                    onTemplateSelected = { template, templateName ->
+                        workoutViewModel.setWorkoutName(templateName)
+                        workoutViewModel.addExercisesFromTemplate(template)
                         isSheetOpen.value = false
                     },
                     onViewDetails = { template ->

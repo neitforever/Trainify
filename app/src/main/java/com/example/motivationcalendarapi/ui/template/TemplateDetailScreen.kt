@@ -35,29 +35,46 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
+import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.ui.dialogs.DeleteTemplateDialog
+import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
 import com.example.motivationcalendarapi.ui.template.fragments.AddExerciseTemplate
 import com.example.motivationcalendarapi.ui.template.fragments.ExerciseTemplateItem
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
+import com.motivationcalendar.ui.RepsDialog
 import java.util.Collections
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TemplateDetailScreen(
     templateId: String?,
-    viewModel: WorkoutViewModel,
     navController: NavController,
     paddingTopValues: Dp,
+    workoutViewModel: WorkoutViewModel,
     exerciseViewModel: ExerciseViewModel,
 ) {
-    val template by viewModel.getTemplateById(templateId ?: "").collectAsState(initial = null)
+    val template by workoutViewModel.getTemplateById(templateId ?: "").collectAsState(initial = null)
     var showDeleteTemplateDialog by remember { mutableStateOf(false) }
     var sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showRepDialog by remember { mutableStateOf(false) }
+    var showWeightDialog by remember { mutableStateOf(false) }
+
+    val exerciseSetsMap by workoutViewModel.exerciseSetsMap.collectAsState()
+    var currentExerciseIndex by remember { mutableStateOf(0) }
+    var currentSetIndex by remember { mutableStateOf(0) }
 
     val (showExerciseSheet, setShowExerciseSheet) = remember { mutableStateOf(false) }
 
+
+    val minRep by workoutViewModel.minRep.collectAsState()
+    val maxRep by workoutViewModel.maxRep.collectAsState()
+    val stepRep by workoutViewModel.stepRep.collectAsState()
+    val minWeight by workoutViewModel.minWeight.collectAsState()
+    val maxWeight by workoutViewModel.maxWeight.collectAsState()
+    val stepWeight by workoutViewModel.stepWeight.collectAsState()
 
     Scaffold(floatingActionButton = {
         Row(
@@ -149,7 +166,7 @@ fun TemplateDetailScreen(
                                 template?.let {
                                     val updatedExercises = it.exercises.toMutableList()
                                         .apply { removeAt(index) }
-                                    viewModel.updateTemplateExercises(it.id, updatedExercises)
+                                    workoutViewModel.updateTemplateExercises(it.id, updatedExercises)
                                 }
                             },
                             onMoveUp = {
@@ -157,7 +174,7 @@ fun TemplateDetailScreen(
                                     val updated = exercises.toMutableList().apply {
                                         Collections.swap(this, index, index - 1)
                                     }
-                                    viewModel.updateTemplateExercises(template!!.id, updated)
+                                    workoutViewModel.updateTemplateExercises(template!!.id, updated)
                                 }
                             },
                             onMoveDown = {
@@ -165,13 +182,36 @@ fun TemplateDetailScreen(
                                     val updated = exercises.toMutableList().apply {
                                         Collections.swap(this, index, index + 1)
                                     }
-                                    viewModel.updateTemplateExercises(template!!.id, updated)
+                                    workoutViewModel.updateTemplateExercises(template!!.id, updated)
+                                }
+                            },
+                            onAddSetClick = { exIndex ->
+                                template?.id?.let { id ->
+                                    workoutViewModel.addSetToTemplate(id, exIndex)
+                                }
+                            },
+                            onRepClick = { exIndex, setIndex ->
+                                showRepDialog = true
+                                currentExerciseIndex = exIndex
+                                currentSetIndex = setIndex
+                            },
+                            onWeightClick = { exIndex, setIndex ->
+                                showWeightDialog = true
+                                currentExerciseIndex = exIndex
+                                currentSetIndex = setIndex
+                            },
+                            onStatusClick = { exIndex, setIndex, newStatus ->
+                                template?.id?.let { id ->
+                                    val currentSet = exercise.sets[setIndex]
+                                    val updatedSet = currentSet.copy(status = newStatus)
+                                    workoutViewModel.updateTemplateSet(id, exIndex, setIndex, updatedSet)
                                 }
                             },
                             canMoveUp = index > 0,
                             canMoveDown = index < exercises.size - 1,
                             navController = navController,
-                            workoutViewModel = viewModel,
+                            exerciseSets = exercise.sets,
+                            workoutViewModel = workoutViewModel,
                         )
                     }
                 }
@@ -189,23 +229,58 @@ fun TemplateDetailScreen(
                     onExercisesSelected = { newExercises ->
                         template?.let {
                             val updated = it.exercises + newExercises.map { ex ->
-                                ExtendedExercise(ex, emptyList())
+                                ExtendedExercise(ex, listOf(ExerciseSet(0, 0f, SetStatus.NONE)))
                             }
-                            viewModel.updateTemplateExercises(it.id, updated)
+                            workoutViewModel.updateTemplateExercises(it.id, updated)
                         }
-                        setShowExerciseSheet(false)
                     }
                 )
             }
         }
     }
 
+    RepsDialog(
+        showDialog = showRepDialog,
+        initialRep = template?.exercises?.getOrNull(currentExerciseIndex)?.sets?.getOrNull(currentSetIndex)?.rep ?: minRep,
+        minRep = minRep,
+        maxRep = maxRep,
+        stepRep = stepRep,
+        onDismiss = { showRepDialog = false },
+        onSave = { newRep ->
+            template?.id?.let { id ->
+                template?.exercises?.getOrNull(currentExerciseIndex)?.sets?.getOrNull(currentSetIndex)?.let { currentSet ->
+                    val updatedSet = currentSet.copy(rep = newRep)
+                    workoutViewModel.updateTemplateSet(id, currentExerciseIndex, currentSetIndex, updatedSet)
+                }
+            }
+            showRepDialog = false
+        }
+    )
+
+    WeightDialog(
+        showDialog = showWeightDialog,
+        initialWeight = template?.exercises?.getOrNull(currentExerciseIndex)?.sets?.getOrNull(currentSetIndex)?.weight ?: minWeight,
+        minWeight = minWeight,
+        maxWeight = maxWeight,
+        stepWeight = stepWeight,
+        onDismiss = { showWeightDialog = false },
+        onSave = { newWeight ->
+            template?.id?.let { id ->
+                template?.exercises?.getOrNull(currentExerciseIndex)?.sets?.getOrNull(currentSetIndex)?.let { currentSet ->
+                    val updatedSet = currentSet.copy(weight = newWeight)
+                    workoutViewModel.updateTemplateSet(id, currentExerciseIndex, currentSetIndex, updatedSet)
+                }
+            }
+            showWeightDialog = false
+        }
+    )
+
     DeleteTemplateDialog(
         showDialog = showDeleteTemplateDialog,
         onDismiss = { showDeleteTemplateDialog = false },
         onConfirm = {
             template?.let {
-                viewModel.deleteTemplate(it)
+                workoutViewModel.deleteTemplate(it)
                 navController.popBackStack()
             }
             showDeleteTemplateDialog = false

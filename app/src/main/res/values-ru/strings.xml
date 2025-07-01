@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+
+
+    //body_progress
+    <string name="body_progress_not_enough_data">\"Недостаточно данных для отображения\\nДобавьте хотя бы 2 измерения\"</string>
+    <string name="body_progress_track_progress">Начните отслеживать прогресс</string>
+    <string name="body_progress_tracking_description">Для точного отслеживания:</string>
+    <string name="measure_at_the_same_time_daily">Измеряйтесь в одно и то же время</string>
+    <string name="use_a_calibrated_scale">Используйте откалиброванные весы\n</string>
+    <string name="wear_similar_clothing">Носите похожую одежду\n</string>
+    <string name="track_weekly_for_best_results">Делайте замеры еженедельно для лучших результатов\n</string>
+    <string name="add_weight">Добавить вес</string>
+    <string name="add_first_measurement">Добавить первое измерение</string>
+    <string name="current_weight">Текущий вес</string>
+    <string name="weight_with_unit_precise">%.1fкг</string>
+    <string name="weight_with_unit">%1$sкг</string>
+    <string name="edit_weight">Изменить вес</string>
+    <string name="update_weight">Обновить вес\n</string>
+    <string name="weight_history">История веса</string>
+    <string name="delete">Удалить</string>
+</resources>

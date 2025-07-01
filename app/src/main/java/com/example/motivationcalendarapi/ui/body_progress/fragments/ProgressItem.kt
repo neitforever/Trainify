@@ -20,8 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.BodyProgress
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -51,7 +53,7 @@ fun ProgressItem(
         ) {
             Column {
                 Text(
-                    text = "${progress.weight}kg",
+                    text = stringResource(R.string.weight_with_unit_precise,progress.weight),
                     style = MaterialTheme.typography.titleMedium,
                     color = colorScheme.primary,
                     maxLines = 1,
@@ -69,7 +71,7 @@ fun ProgressItem(
             IconButton(onClick = onDelete) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
+                    contentDescription = stringResource(R.string.delete),
                     tint = colorScheme.error,
                     modifier = Modifier.size(28.dp)
                 )

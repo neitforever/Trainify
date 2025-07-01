@@ -1,9 +1,7 @@
 package com.example.motivationcalendarapi.ui.body_progress
 
 import android.content.Context
-import android.graphics.Paint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -27,45 +24,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import java.io.File
-import java.util.Date
 import com.example.motivationcalendarapi.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import java.text.SimpleDateFormat
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.absolutePadding
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import com.example.motivationcalendarapi.model.BodyProgress
 import com.example.motivationcalendarapi.ui.body_progress.fragments.ProgressItem
@@ -113,7 +93,7 @@ fun BodyProgressScreen(
                 )
 
                 Text(
-                    text = "Start Tracking Your Progress",
+                    text = stringResource(R.string.body_progress_track_progress),
                     style = MaterialTheme.typography.headlineSmall,
                     color = colorScheme.primary,
                     textAlign = TextAlign.Center
@@ -128,7 +108,7 @@ fun BodyProgressScreen(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(
-                            text = "For accurate tracking:",
+                            text = stringResource(R.string.body_progress_tracking_description),
                             style = MaterialTheme.typography.labelMedium.copy(
                                 color = colorScheme.primary,
                                 fontWeight = FontWeight.Medium
@@ -136,10 +116,10 @@ fun BodyProgressScreen(
                         )
 
                         val guidelines = listOf(
-                            "Measure at the same time daily",
-                            "Use a calibrated scale",
-                            "Wear similar clothing",
-                            "Track weekly for best results"
+                            stringResource(R.string.measure_at_the_same_time_daily),
+                            stringResource(R.string.use_a_calibrated_scale),
+                            stringResource(R.string.wear_similar_clothing),
+                            stringResource(R.string.track_weekly_for_best_results)
                         )
 
                         guidelines.forEach { guideline ->
@@ -183,11 +163,11 @@ fun BodyProgressScreen(
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_add),
-                            contentDescription = "Add weight",
+                            contentDescription = stringResource(R.string.add_weight),
                             modifier = Modifier.size(24.dp)
                         )
                         Text(
-                            text = "Add First Measurement",
+                            text = stringResource(R.string.add_first_measurement),
                             style = MaterialTheme.typography.headlineSmall,
                         )
                     }
@@ -218,7 +198,7 @@ fun BodyProgressScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Not enough data to display\nAdd at least 2 measurements",
+                            text = stringResource(R.string.body_progress_not_enough_data),
                             style = MaterialTheme.typography.bodyLarge,
                             color = colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
@@ -263,14 +243,14 @@ fun BodyProgressScreen(
                 ) {
                     val lastWeight = progressList.firstOrNull()?.weight ?: 0.0
                     Text(
-                        text = "Current weight",
+                        text = stringResource(R.string.current_weight),
                         style = MaterialTheme.typography.headlineMedium,
                         color = colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "${lastWeight}kg",
+                        text = stringResource(R.string.weight_with_unit_precise, lastWeight),
                         style = MaterialTheme.typography.headlineSmall,
                         color = colorScheme.primary
                     )
@@ -294,14 +274,13 @@ fun BodyProgressScreen(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_edit),
-                                contentDescription = "Edit weight",
+                                contentDescription = stringResource(R.string.edit_weight),
                                 modifier = Modifier.size(24.dp)
                             )
                             Text(
-                                text = "Update weight",
+                                text = stringResource(R.string.update_weight),
                                 style = MaterialTheme.typography.headlineSmall,
                             )
-
                         }
                     }
                 }
@@ -309,7 +288,7 @@ fun BodyProgressScreen(
 
             item {
                 Text(
-                    text = "Weight History",
+                    text = stringResource(R.string.weight_history),
                     style = MaterialTheme.typography.titleLarge,
                     color = colorScheme.onSurface,
                     modifier = Modifier.padding(start = 8.dp, top = 12.dp, bottom = 4.dp)

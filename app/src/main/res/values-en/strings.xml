@@ -1,8 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Trainify</string>
-    <string name="default_web_client_id" translatable="false">311399588202-k718ga4og8iahofenhd9pbr4k8oo4lj2.apps.googleusercontent.com</string>
 
-    // body_progress
+
+    //body_progress
     <string name="body_progress_not_enough_data">\"Not enough data to display\\nAdd at least 2 measurements\"</string>
     <string name="body_progress_track_progress">Start Tracking Your Progress</string>
     <string name="body_progress_tracking_description">For accurate tracking:</string>

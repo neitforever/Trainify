@@ -233,7 +233,9 @@ fun TemplateDetailScreen(
                     onExercisesSelected = { newExercises ->
                         template?.let {
                             val updated = it.exercises + newExercises.map { ex ->
-                                ExtendedExercise(ex, listOf(ExerciseSet(0, 0f, SetStatus.NONE)))
+                                ExtendedExercise(
+                                    ex,
+                                    listOf(ExerciseSet(rep = 0, weight = 0f, status = SetStatus.NONE)))
                             }
                             workoutViewModel.updateTemplateExercises(it.id, updated)
                         }

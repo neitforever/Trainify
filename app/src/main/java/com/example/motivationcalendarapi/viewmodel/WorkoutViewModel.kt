@@ -691,11 +691,22 @@ class WorkoutViewModel(
 
     fun addSetToTemplate(templateId: String, exerciseIndex: Int) {
         viewModelScope.launch {
-            workoutRepository.addSetToTemplate(
-                templateId,
-                exerciseIndex,
-                ExerciseSet(rep = minRep.value, weight = minWeight.value, status = SetStatus.NONE)
-            )
+            val template = workoutRepository.getTemplateById(templateId).first()
+            template?.exercises?.getOrNull(exerciseIndex)?.let { exercise ->
+                val lastSet = exercise.sets.lastOrNull()
+                val newRep = lastSet?.rep ?: 0
+                val newWeight = lastSet?.weight ?: 0f
+
+                workoutRepository.addSetToTemplate(
+                    templateId,
+                    exerciseIndex,
+                    ExerciseSet(
+                        rep = newRep,
+                        weight = newWeight,
+                        status = SetStatus.NONE
+                    )
+                )
+            }
         }
     }
     fun moveExerciseUp(index: Int) {

@@ -391,28 +391,33 @@ fun ExerciseTemplateItem(
                                             onStatusClick(index, setIndex, SetStatus.COMPLETED)
                                             showStatusMenu = false
                                         })
-                                        DropdownMenuItem(
-                                            text = {
-                                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.ic_delete),
-                                                        contentDescription = "Delete Set",
-                                                        modifier = Modifier.size(24.dp),
-                                                        tint = MaterialTheme.colorScheme.primary
-                                                    )
-                                                    Spacer(modifier = Modifier.width(8.dp))
-                                                    Text(
-                                                        text = "Delete Set",
-                                                        style = MaterialTheme.typography.titleLarge,
-                                                        color = MaterialTheme.colorScheme.onSurface
-                                                    )
+                                        if (exerciseSets.size > 1) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Row(
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    ) {
+                                                        Icon(
+                                                            painter = painterResource(R.drawable.ic_delete),
+                                                            contentDescription = "Delete Set",
+                                                            modifier = Modifier.size(24.dp),
+                                                            tint = MaterialTheme.colorScheme.primary
+                                                        )
+                                                        Spacer(modifier = Modifier.width(8.dp))
+                                                        Text(
+                                                            text = "Delete Set",
+                                                            style = MaterialTheme.typography.titleLarge,
+                                                            color = MaterialTheme.colorScheme.onSurface
+                                                        )
+                                                    }
+                                                },
+                                                onClick = {
+                                                    onDeleteSet(templateId, index, setIndex)
+                                                    showStatusMenu = false
                                                 }
-                                            },
-                                            onClick = {
-                                                onDeleteSet(templateId, index, setIndex)
-                                                showStatusMenu = false
-                                            }
-                                        )
+                                            )
+                                        }
                                     }
                                 }
 

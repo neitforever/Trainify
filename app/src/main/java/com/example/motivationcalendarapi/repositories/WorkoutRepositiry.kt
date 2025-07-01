@@ -136,13 +136,16 @@ class WorkoutRepository(
         }
     }
 
+
     suspend fun addSetToTemplate(templateId: String, exerciseIndex: Int, newSet: ExerciseSet) {
         val template = appDatabase.templateDao().getTemplateById(templateId).first()
         template?.let {
             val updatedExercises = it.exercises.toMutableList().apply {
                 if (exerciseIndex < size) {
                     val exercise = this[exerciseIndex]
-                    val updatedSets = exercise.sets.toMutableList() + newSet
+                    val updatedSets = exercise.sets.toMutableList().apply {
+                        add(newSet)
+                    }
                     this[exerciseIndex] = exercise.copy(sets = updatedSets)
                 }
             }
@@ -154,6 +157,7 @@ class WorkoutRepository(
             }
         }
     }
+
     suspend fun removeTemplateSet(templateId: String, exerciseIndex: Int, setIndex: Int) {
         val template = appDatabase.templateDao().getTemplateById(templateId).first()
         template?.let {

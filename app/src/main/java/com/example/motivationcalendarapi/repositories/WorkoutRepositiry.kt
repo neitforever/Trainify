@@ -154,6 +154,22 @@ class WorkoutRepository(
             }
         }
     }
+    suspend fun removeTemplateSet(templateId: String, exerciseIndex: Int, setIndex: Int) {
+        val template = appDatabase.templateDao().getTemplateById(templateId).first()
+        template?.let {
+            val updatedExercises = it.exercises.toMutableList()
+            if (exerciseIndex < updatedExercises.size) {
+                val exercise = updatedExercises[exerciseIndex]
+                val updatedSets = exercise.sets.toMutableList().apply {
+                    removeAt(setIndex)
+                }
+                updatedExercises[exerciseIndex] = exercise.copy(sets = updatedSets)
+
+                updateTemplate(it.copy(exercises = updatedExercises))
+            }
+        }
+    }
+
     suspend fun updateTemplateName(templateId: String, newName: String) {
         appDatabase.templateDao().updateTemplateName(templateId, newName)
     }

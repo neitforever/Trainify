@@ -57,6 +57,8 @@ fun ExerciseTemplateItem(
     onWeightClick: (Int, Int) -> Unit,
     onStatusClick: (Int, Int, SetStatus) -> Unit,
     navController: NavController,
+    templateId: String,
+    onDeleteSet: (String, Int, Int) -> Unit,
     exerciseSets: List<ExerciseSet>,
     workoutViewModel: WorkoutViewModel
 ) {
@@ -389,28 +391,28 @@ fun ExerciseTemplateItem(
                                             onStatusClick(index, setIndex, SetStatus.COMPLETED)
                                             showStatusMenu = false
                                         })
-                                        DropdownMenuItem(text = {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier.fillMaxWidth()
-                                            ) {
-                                                Icon(
-                                                    painter = painterResource(R.drawable.ic_delete),
-                                                    contentDescription = "Delete Set",
-                                                    modifier = Modifier.size(24.dp),
-                                                    tint = MaterialTheme.colorScheme.primary
-                                                )
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                Text(
-                                                    text = "Deleted",
-                                                    style = MaterialTheme.typography.titleLarge,
-                                                    color = MaterialTheme.colorScheme.onSurface
-                                                )
+                                        DropdownMenuItem(
+                                            text = {
+                                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                                    Icon(
+                                                        painter = painterResource(R.drawable.ic_delete),
+                                                        contentDescription = "Delete Set",
+                                                        modifier = Modifier.size(24.dp),
+                                                        tint = MaterialTheme.colorScheme.primary
+                                                    )
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Text(
+                                                        text = "Delete Set",
+                                                        style = MaterialTheme.typography.titleLarge,
+                                                        color = MaterialTheme.colorScheme.onSurface
+                                                    )
+                                                }
+                                            },
+                                            onClick = {
+                                                onDeleteSet(templateId, index, setIndex)
+                                                showStatusMenu = false
                                             }
-                                        }, onClick = {
-                                            workoutViewModel.removeExerciseSet(index, setIndex)
-                                            showStatusMenu = false
-                                        })
+                                        )
                                     }
                                 }
 

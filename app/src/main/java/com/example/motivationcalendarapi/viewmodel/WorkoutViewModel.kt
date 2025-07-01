@@ -88,6 +88,12 @@ class WorkoutViewModel(
         _exerciseSetsMap.value = updatedMap
     }
 
+    fun removeTemplateSet(templateId: String, exerciseIndex: Int, setIndex: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.removeTemplateSet(templateId, exerciseIndex, setIndex)
+        }
+    }
+
     private val _warmupTime = MutableStateFlow(60)
     val warmupTime: StateFlow<Int> = _warmupTime.asStateFlow()
 

@@ -162,6 +162,7 @@ fun TemplateDetailScreen(
                         ExerciseTemplateItem(
                             index = index,
                             exercise = exercise,
+                            templateId = template?.id ?: "",
                             onDelete = {
                                 template?.let {
                                     val updatedExercises = it.exercises.toMutableList()
@@ -189,6 +190,9 @@ fun TemplateDetailScreen(
                                 template?.id?.let { id ->
                                     workoutViewModel.addSetToTemplate(id, exIndex)
                                 }
+                            },
+                            onDeleteSet = { templateId, exIndex, setIndex ->
+                                workoutViewModel.removeTemplateSet(templateId, exIndex, setIndex)
                             },
                             onRepClick = { exIndex, setIndex ->
                                 showRepDialog = true

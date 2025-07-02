@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -94,7 +95,7 @@ fun AuthScreen(
             )
 
             Text(
-                text = "Welcome to Trainify",
+                text = stringResource(R.string.welcome_to_trainify),
                 style = MaterialTheme.typography.displaySmall,
                 color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
@@ -125,12 +126,12 @@ fun AuthScreen(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_google_logo),
-                        contentDescription = "Google",
+                        contentDescription = stringResource(R.string.google),
                         tint = Color.Unspecified,
                         modifier = Modifier.size(24.dp)
                     )
                     Text(
-                        text = "Continue with Google",
+                        text = stringResource(R.string.continue_with_google),
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
@@ -147,7 +148,7 @@ fun AuthScreen(
             }
 
             Text(
-                text = "By continuing, you agree to our Terms of Service and Privacy Policy",
+                text = stringResource(R.string.by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -172,7 +173,7 @@ fun AuthScreen(
                         strokeWidth = 4.dp
                     )
                     Text(
-                        text = "Signing in...",
+                        text = stringResource(R.string.signing_in),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimary
                     )

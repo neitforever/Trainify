@@ -165,4 +165,10 @@
     <string name="include_training_type">• Указывайте тип тренировки (например, «Сплит на толчок/тягу»)</string>
     <string name="keep_it_short_and_recognizable">• Делайте название коротким и узнаваемым</string>
     <string name="add_exercise">Добавить упражнение</string>
+    //Auth
+    <string name="welcome_to_trainify">Добро пожаловать в Trainify\n</string>
+    <string name="google">Google</string>
+    <string name="continue_with_google">Продолжить с Google</string>
+    <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">Продолжая, вы соглашаетесь с нашими Условиями обслуживания и Политикой конфиденциальности\n</string>
+    <string name="signing_in">Вход в систему...\n</string>
 </resources>

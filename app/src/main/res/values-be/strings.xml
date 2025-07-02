@@ -162,4 +162,10 @@
     <string name="include_training_type">• Пазначайце тып трэніроўкі (напрыклад, «Спліт на штуршок/цягу»)</string>
     <string name="keep_it_short_and_recognizable">• Рабіце назву кароткай і пазнавальнай</string>
     <string name="add_exercise">Дадаць практыкаванне</string>
+    //Auth
+    <string name="welcome_to_trainify">Сардэчна запрашаем у Trainify\n</string>
+    <string name="google">Google</string>
+    <string name="continue_with_google">Працягнуць з Google</string>
+    <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">Працягваючы, вы згаджаецеся з нашымі Умовамі абслугоўвання і Палітыкай прыватнасці\n</string>
+    <string name="signing_in">Уваход у сістэму...\n</string>
 </resources>

@@ -161,4 +161,10 @@
     <string name="include_training_type">• Include training type (e.g. \'Push/Pull Split\')</string>
     <string name="keep_it_short_and_recognizable">• Keep it short and recognizable</string>
     <string name="add_exercise">Add exercise</string>
+    //Auth
+    <string name="welcome_to_trainify">Welcome to Trainify\n</string>
+    <string name="google">Google</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">By continuing, you agree to our Terms of Service and Privacy Policy\n</string>
+    <string name="signing_in">Signing in...\n</string>
 </resources>

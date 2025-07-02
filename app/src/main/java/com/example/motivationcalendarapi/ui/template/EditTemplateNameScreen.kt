@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,7 +76,7 @@ fun EditTemplateNameScreen(
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_arrow_back),
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.back),
                         tint = colorScheme.onPrimaryContainer
                     )
                 }
@@ -90,7 +91,7 @@ fun EditTemplateNameScreen(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_save),
-                        contentDescription = "Save",
+                        contentDescription = stringResource(R.string.save),
                         tint = if (newName.isNotEmpty()) colorScheme.primary
                         else colorScheme.onSurface.copy(alpha = 0.38f),
                         modifier = Modifier.size(32.dp)
@@ -124,7 +125,7 @@ fun EditTemplateNameScreen(
                     ),
                     placeholder = {
                         Text(
-                            text = "Workout Template, Split...",
+                            text = stringResource(R.string.workout_template_split),
                             maxLines = 1,
                             style = MaterialTheme.typography.bodyLarge,
                             color = colorScheme.onSurfaceVariant
@@ -144,7 +145,7 @@ fun EditTemplateNameScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Template Name Guidelines:",
+                    text = stringResource(R.string.template_name_guidelines),
                     style = MaterialTheme.typography.labelLarge.copy(
                         color = colorScheme.primary,
                         fontWeight = FontWeight.SemiBold
@@ -154,9 +155,9 @@ fun EditTemplateNameScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 val examples = listOf(
-                    "• Use descriptive names (e.g. 'Full Body Workout')",
-                    "• Include training type (e.g. 'Push/Pull Split')",
-                    "• Keep it short and recognizable"
+                    stringResource(R.string.use_descriptive_names_template),
+                    stringResource(R.string.include_training_type),
+                    stringResource(R.string.keep_it_short_and_recognizable)
                 )
 
                 examples.forEach { example ->

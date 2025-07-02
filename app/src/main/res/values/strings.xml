@@ -142,5 +142,25 @@
     <string name="maximum_weight_kg">Maximum Weight (kg)</string>
     <string name="step_size_kg">Step Size (kg)</string>
     <string name="navigate">Navigate</string>
+    //Template
     <string name="menu">Menu</string>
+    <string name="info">Info</string>
+    <string name="exercise_info">Exercise Info</string>
+    <string name="set">Set</string>
+    <string name="rep">Rep</string>
+    <string name="status">Status</string>
+    <string name="warm_up">Warm-up</string>
+    <string name="failed">Failed</string>
+    <string name="completed">Completed</string>
+    <string name="delete_set">Delete Set</string>
+    <string name="move_up">Move Up</string>
+    <string name="add_set">Add Set</string>
+    <string name="note">Note</string>
+    <string name="move_down">Move Down</string>
+    <string name="workout_template_split">Workout Template, Split...</string>
+    <string name="template_name_guidelines">Template Name Guidelines:</string>
+    <string name="use_descriptive_names_template">• Use descriptive names (e.g. \'Full Body Workout\')</string>
+    <string name="include_training_type">• Include training type (e.g. \'Push/Pull Split\')</string>
+    <string name="keep_it_short_and_recognizable">• Keep it short and recognizable</string>
+    <string name="add_exercise">Add exercise</string>
 </resources>

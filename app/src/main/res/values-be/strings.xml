@@ -141,4 +141,25 @@
     <string name="maximum_weight_kg">Максімальная вага (кг)</string>
     <string name="step_size_kg">Крок змянення (кг)</string>
     <string name="navigate">Навігацыя</string>
+    //Template
+    <string name="menu">Меню</string>
+    <string name="info">Інфо</string>
+    <string name="exercise_info">Інфармацыя пра практыкаванне</string>
+    <string name="set">Падыход</string>
+    <string name="rep">Паўтор</string>
+    <string name="status">Статус</string>
+    <string name="warm_up">Разминка</string>
+    <string name="failed">Не атрымалася</string>
+    <string name="completed">Завершана</string>
+    <string name="delete_set">Выдаліць падыход</string>
+    <string name="move_up">Падняць вышэй</string>
+    <string name="add_set">Дадаць падыход</string>
+    <string name="note">Заўвага</string>
+    <string name="move_down">Апусьціць ніжэй</string>
+    <string name="workout_template_split">Шаблон трэніроўкі, Спліт...</string>
+    <string name="template_name_guidelines">Правілы назваў шаблонаў:</string>
+    <string name="use_descriptive_names_template">• Выкарыстоўвайце апісальныя назвы (напрыклад, «Трэніроўка ўсяго цела»)</string>
+    <string name="include_training_type">• Пазначайце тып трэніроўкі (напрыклад, «Спліт на штуршок/цягу»)</string>
+    <string name="keep_it_short_and_recognizable">• Рабіце назву кароткай і пазнавальнай</string>
+    <string name="add_exercise">Дадаць практыкаванне</string>
 </resources>

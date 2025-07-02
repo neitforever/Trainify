@@ -144,4 +144,25 @@
     <string name="maximum_weight_kg">Максимальный вес (кг)</string>
     <string name="step_size_kg">Шаг изменения (кг)</string>
     <string name="navigate">Навигация</string>
+    //Template
+    <string name="menu">Меню</string>
+    <string name="info">Инфо</string>
+    <string name="exercise_info">Инфо об упражнении</string>
+    <string name="set">Подход</string>
+    <string name="rep">Повтор</string>
+    <string name="status">Статус</string>
+    <string name="warm_up">Разминка</string>
+    <string name="failed">Не удалось</string>
+    <string name="completed">Завершено</string>
+    <string name="delete_set">Удалить подход</string>
+    <string name="move_up">Поднять выше</string>
+    <string name="add_set">Добавить подход</string>
+    <string name="note">Заметка</string>
+    <string name="move_down">Опустить ниже</string>
+    <string name="workout_template_split">Шаблон тренировки, Сплит...</string>
+    <string name="template_name_guidelines">Правила названий шаблонов:</string>
+    <string name="use_descriptive_names_template">• Используйте описательные названия (например, «Тренировка всего тела»)</string>
+    <string name="include_training_type">• Указывайте тип тренировки (например, «Сплит на толчок/тягу»)</string>
+    <string name="keep_it_short_and_recognizable">• Делайте название коротким и узнаваемым</string>
+    <string name="add_exercise">Добавить упражнение</string>
 </resources>

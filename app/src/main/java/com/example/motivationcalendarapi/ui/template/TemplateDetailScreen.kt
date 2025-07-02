@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -90,7 +91,7 @@ fun TemplateDetailScreen(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "Add exercise",
+                    contentDescription = stringResource(R.string.add_exercise),
                     modifier = Modifier.size(36.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -103,7 +104,7 @@ fun TemplateDetailScreen(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_delete),
-                    contentDescription = "Delete template",
+                    contentDescription = stringResource(R.string.delete_template),
                     modifier = Modifier.size(36.dp)
                 )
             }
@@ -142,7 +143,7 @@ fun TemplateDetailScreen(
 
                         Icon(
                             painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = "Edit",
+                            contentDescription = stringResource(R.string.edit),
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
                                 .size(28.dp)

@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
@@ -76,7 +77,7 @@ fun WorkoutItem(
                             DifficultyLevel.HARD -> R.drawable.ic_smile_hard
                         }
                     ),
-                    contentDescription = "Difficulty Level",
+                    contentDescription = stringResource(R.string.difficulty_level),
                     tint = iconColor,
                     modifier = Modifier.size(32.dp)
                 )
@@ -115,7 +116,7 @@ fun WorkoutItem(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_right),
-                    contentDescription = "Navigate",
+                    contentDescription = stringResource(R.string.navigate),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(32.dp)
                 )

@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 
@@ -54,7 +55,7 @@ fun TimerBottomSheet(
                     IconButton(onClick = onRestartClick) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_restart),
-                            contentDescription = "Restart",
+                            contentDescription = stringResource(R.string.restart),
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -82,7 +83,7 @@ fun TimerBottomSheet(
                     IconButton(onClick = onToggleTimer) {
                         Icon(
                             painter = painterResource(id = if (isTimerRunning) R.drawable.ic_pause else R.drawable.ic_play_arrow),
-                            contentDescription = if (isTimerRunning) "Pause" else "Start",
+                            contentDescription = if (isTimerRunning) stringResource(R.string.pause) else stringResource(R.string.start),
                             modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )

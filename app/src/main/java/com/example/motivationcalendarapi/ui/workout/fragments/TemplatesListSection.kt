@@ -32,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.model.Template
@@ -113,7 +115,11 @@ fun TemplateSelectionItem(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${template.exercises.size} exercises",
+                    text = pluralStringResource(
+                        R.plurals.exercises_count,
+                        template.exercises.size,
+                        template.exercises.size
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -122,7 +128,7 @@ fun TemplateSelectionItem(
             Box {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_dots),
-                    contentDescription = "Template Menu",
+                    contentDescription = stringResource(R.string.template_menu),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .size(24.dp)
@@ -144,13 +150,13 @@ fun TemplateSelectionItem(
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_info),
-                                    contentDescription = "View Exercises",
+                                    contentDescription = stringResource(R.string.view_exercises),
                                     modifier = Modifier.size(24.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "View Exercises",
+                                    text = stringResource(R.string.view_exercises),
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )

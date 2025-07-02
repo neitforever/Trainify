@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.example.motivationcalendarapi.R
 
 @Composable
@@ -27,7 +28,7 @@ fun TotalWeightAndTimeRow(
         Row(verticalAlignment = Alignment.CenterVertically){
             Icon(
                 painter = painterResource(R.drawable.ic_equipment_body_weight),
-                contentDescription = "weight",
+                contentDescription = stringResource(R.string.Weight),
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(24.dp).padding(end = 4.dp))
             Text(
@@ -36,7 +37,7 @@ fun TotalWeightAndTimeRow(
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = "kg",
+                text = stringResource(R.string.kg),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -49,7 +50,7 @@ fun TotalWeightAndTimeRow(
                 modifier = Modifier.padding(end = 4.dp))
             Icon(
                 painter = painterResource(R.drawable.ic_time),
-                contentDescription = "time",
+                contentDescription = stringResource(R.string.time),
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(24.dp))
 

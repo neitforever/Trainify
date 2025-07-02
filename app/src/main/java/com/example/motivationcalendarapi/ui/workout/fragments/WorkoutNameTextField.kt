@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.example.motivationcalendarapi.R
 
 @Composable
@@ -61,7 +62,7 @@ fun WorkoutNameTextField(
                 ) {
                     if (workoutName.isEmpty()) {
                         Text(
-                            text = "Workout name...",
+                            text = stringResource(R.string.workout_name),
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )

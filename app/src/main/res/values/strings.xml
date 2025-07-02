@@ -169,4 +169,45 @@
     <string name="continue_with_google">Continue with Google</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">By continuing, you agree to our Terms of Service and Privacy Policy\n</string>
     <string name="signing_in">Signing in...\n</string>
+    //Workout
+    <string name="previous_month">Previous month</string>
+    <string name="next_month">Next month</string>
+    <string name="save_template">Save template</string>
+    <string name="workout_difficulty">Workout difficulty</string>
+    <string name="exercises_performed">Exercises Performed</string>
+    <string name="max_set">Max Set</string>
+    <string name="max_set_format">Max Set: %.1fkg × %d</string>
+    <string name="kg">kg</string>
+    <string name="time">time\n</string>
+    <string name="add_all_with_count">Add All (%d)</string>
+    <string name="max_set_format">Max Set: %.1fkg × %d</string>
+    <string name="deleted">Deleted</string>
+    <string name="add_your_notes_here">Add your notes here...</string>
+    <string name="select_content_type">Select Content Type</string>
+    <string name="exercises">Exercises</string>
+    <string name="pause">Pause</string>
+    <string name="start">Start</string>
+    <string name="workout_name">Workout name...</string>
+    <string name="open_menu">Open Menu</string>
+    <string name="warmup">Warmup\n</string>
+    <string name="repeat">Repeat\n</string>
+    <string name="end">End</string>
+    <string name="add_exercise_or_template">Add exercise or template</string>
+    <string name="workout_name_cannot_be_empty">Workout name cannot be empty.\\n</string>
+    <string name="all_sets_must_have_reps">All sets must have reps</string>
+    <string name="empty_history">Empty history</string>
+    <string name="workout_history_is_empty">Workout history is empty</string>
+    <string name="your_completed_workouts_will_appear_here">Your completed workouts will appear here</string>
+    <string name="difficulty_level">Difficulty Level</string>
+    <plurals name="exercises_count">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
+    <plurals name="workouts_per_week">
+        <item quantity="one">%d workout/week</item>
+        <item quantity="other">%d workouts/week</item>
+    </plurals>
+    <plurals name="week_number">
+        <item quantity="one">Week %d</item>
+    </plurals>
 </resources>

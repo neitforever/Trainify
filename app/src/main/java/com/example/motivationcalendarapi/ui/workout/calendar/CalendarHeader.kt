@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
@@ -34,7 +35,7 @@ fun CalendarHeader(
         IconButton(onClick = { calendarState.prevMonth() }) {
             Icon(
                 painter = painterResource(R.drawable.ic_arrow_back),
-                contentDescription = "Previous month",
+                contentDescription = stringResource(R.string.previous_month),
                 modifier = Modifier.size(28.dp)
             )
         }
@@ -48,7 +49,7 @@ fun CalendarHeader(
         IconButton(onClick = { calendarState.nextMonth() }) {
             Icon(
                 painter = painterResource(R.drawable.ic_arrow_forward),
-                contentDescription = "Next month",
+                contentDescription = stringResource(R.string.next_month),
                 modifier = Modifier.size(28.dp)
             )
         }

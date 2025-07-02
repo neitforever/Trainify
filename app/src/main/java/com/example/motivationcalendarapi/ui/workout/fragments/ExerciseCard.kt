@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -118,7 +119,7 @@ fun ExerciseCard(
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_dots),
-                            contentDescription = "Menu",
+                            contentDescription = stringResource(R.string.menu),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -138,13 +139,13 @@ fun ExerciseCard(
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_delete),
-                                    contentDescription = "Delete",
+                                    contentDescription = stringResource(R.string.delete),
                                     modifier = Modifier.size(24.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Delete Exercise",
+                                    text = stringResource(R.string.delete_exercise),
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
@@ -160,13 +161,13 @@ fun ExerciseCard(
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_info),
-                                    contentDescription = "Info",
+                                    contentDescription = stringResource(R.string.info),
                                     modifier = Modifier.size(24.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Exercise Info",
+                                    text = stringResource(R.string.exercise_info),
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
@@ -185,13 +186,17 @@ fun ExerciseCard(
                                     ) {
                                         Icon(
                                             painter = painterResource(R.drawable.ic_equipment_body_weight),
-                                            contentDescription = "Max Set",
+                                            contentDescription = stringResource(R.string.max_set),
                                             modifier = Modifier.size(24.dp),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
-                                            text = "Max Set: ${"%.1f".format(maxSet.weight)}kg × ${maxSet.rep}",
+                                            text = stringResource(
+                                                R.string.max_set_format,
+                                                maxSet.weight,
+                                                maxSet.rep
+                                            ),
                                             style = MaterialTheme.typography.titleLarge,
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
@@ -218,7 +223,7 @@ fun ExerciseCard(
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
-                                text = "Set",
+                                text = stringResource(R.string.set),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(bottom = 12.dp)
@@ -243,7 +248,7 @@ fun ExerciseCard(
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
-                                text = "Rep",
+                                text = stringResource(R.string.rep),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(bottom = 12.dp)
@@ -271,7 +276,7 @@ fun ExerciseCard(
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Weight",
+                                text = stringResource(R.string.Weight),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(bottom = 12.dp)
@@ -299,7 +304,7 @@ fun ExerciseCard(
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Status",
+                                text = stringResource(R.string.status),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(bottom = 12.dp)
@@ -337,13 +342,13 @@ fun ExerciseCard(
                                             ) {
                                                 Icon(
                                                     painter = painterResource(R.drawable.ic_warm_up),
-                                                    contentDescription = "Warm-up",
+                                                    contentDescription = stringResource(R.string.warm_up),
                                                     modifier = Modifier.size(24.dp),
                                                     tint = MaterialTheme.colorScheme.primary
                                                 )
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Text(
-                                                    text = "Warm-up",
+                                                    text = stringResource(R.string.warm_up),
                                                     style = MaterialTheme.typography.titleLarge,
                                                     color = MaterialTheme.colorScheme.onSurface,
                                                 )
@@ -361,13 +366,13 @@ fun ExerciseCard(
                                             ) {
                                                 Icon(
                                                     painter = painterResource(R.drawable.ic_close),
-                                                    contentDescription = "Failed",
+                                                    contentDescription = stringResource(R.string.failed),
                                                     modifier = Modifier.size(24.dp),
                                                     tint = MaterialTheme.colorScheme.primary
                                                 )
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Text(
-                                                    text = "Failed",
+                                                    text = stringResource(R.string.failed),
                                                     style = MaterialTheme.typography.titleLarge,
                                                     color = MaterialTheme.colorScheme.onSurface,
                                                 )
@@ -385,13 +390,13 @@ fun ExerciseCard(
                                             ) {
                                                 Icon(
                                                     painter = painterResource(R.drawable.ic_complete),
-                                                    contentDescription = "Completed",
+                                                    contentDescription = stringResource(R.string.completed),
                                                     modifier = Modifier.size(24.dp),
                                                     tint = MaterialTheme.colorScheme.primary
                                                 )
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Text(
-                                                    text = "Completed",
+                                                    text = stringResource(R.string.completed),
                                                     style = MaterialTheme.typography.titleLarge,
                                                     color = MaterialTheme.colorScheme.onSurface,
                                                 )
@@ -409,13 +414,13 @@ fun ExerciseCard(
                                             ) {
                                                 Icon(
                                                     painter = painterResource(R.drawable.ic_delete),
-                                                    contentDescription = "Delete Set",
+                                                    contentDescription = stringResource(R.string.delete_set),
                                                     modifier = Modifier.size(24.dp),
                                                     tint = MaterialTheme.colorScheme.primary
                                                 )
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Text(
-                                                    text = "Deleted",
+                                                    text = stringResource(R.string.deleted),
                                                     style = MaterialTheme.typography.titleLarge,
                                                     color = MaterialTheme.colorScheme.onSurface
                                                 )
@@ -448,7 +453,7 @@ fun ExerciseCard(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_up),
-                    contentDescription = "Move Up",
+                    contentDescription = stringResource(R.string.move_up),
                     tint = if (canMoveUp) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                 )
@@ -456,14 +461,14 @@ fun ExerciseCard(
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "Add Set",
+                    text = stringResource(R.string.add_set),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.clickable { onAddSetClick(index) },
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = "Note",
+                    text = stringResource(R.string.note),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
@@ -476,7 +481,7 @@ fun ExerciseCard(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_down),
-                    contentDescription = "Move Down",
+                    contentDescription = stringResource(R.string.move_down),
                     tint = if (canMoveDown) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                 )

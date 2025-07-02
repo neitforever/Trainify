@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
@@ -31,20 +32,20 @@ fun EmptyHistoryView() {
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_search_empty),
-                contentDescription = "Empty history",
+                contentDescription = stringResource(R.string.empty_history),
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Workout history is empty",
+                text = stringResource(R.string.workout_history_is_empty),
                 style = MaterialTheme.typography.displayLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "Your completed workouts will appear here",
+                text = stringResource(R.string.your_completed_workouts_will_appear_here),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center

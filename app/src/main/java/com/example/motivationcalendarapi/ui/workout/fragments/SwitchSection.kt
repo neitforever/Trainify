@@ -17,7 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 
 @Composable
 fun SwitchSection(
@@ -32,7 +34,7 @@ fun SwitchSection(
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             Text(
-                text = "Select Content Type",
+                text = stringResource(R.string.select_content_type),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -42,13 +44,13 @@ fun SwitchSection(
             horizontalArrangement = Arrangement.Center
         ) {
             ContentTypeCard(
-                title = "Exercises",
+                title = stringResource(R.string.exercises),
                 isSelected = !showTemplates,
                 onClick = { onSwitchChange(false) }
             )
             Spacer(modifier = Modifier.width(32.dp))
             ContentTypeCard(
-                title = "Templates",
+                title = stringResource(R.string.templates),
                 isSelected = showTemplates,
                 onClick = { onSwitchChange(true) }
             )

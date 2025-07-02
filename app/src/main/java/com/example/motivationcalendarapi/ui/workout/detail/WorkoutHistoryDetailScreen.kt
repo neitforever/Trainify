@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -144,7 +145,7 @@ fun WorkoutHistoryDetailScreen(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_save),
-                        contentDescription = "Save template",
+                        contentDescription = stringResource(R.string.save_template),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(36.dp)
                     )
@@ -157,7 +158,7 @@ fun WorkoutHistoryDetailScreen(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = "Delete workout",
+                        contentDescription = stringResource(R.string.delete_workout),
                         modifier = Modifier.size(36.dp)
                     )
                 }
@@ -198,7 +199,7 @@ fun WorkoutHistoryDetailScreen(
                                         DifficultyLevel.HARD -> R.drawable.ic_smile_hard
                                     }
                                 ),
-                                contentDescription = "Workout difficulty",
+                                contentDescription = stringResource(R.string.workout_difficulty),
                                 tint = iconColor,
                                 modifier = Modifier
                                     .size(32.dp)
@@ -233,7 +234,7 @@ fun WorkoutHistoryDetailScreen(
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                     Text(
-                        text = "Exercises Performed",
+                        text = stringResource(R.string.exercises_performed),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier

@@ -42,6 +42,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.dialogs.EndWorkoutDialog
 import com.example.motivationcalendarapi.ui.workout.fragments.ExerciseSelectionBottomSheet
@@ -173,7 +175,7 @@ fun AddWorkoutScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Menu,
-                        contentDescription = "Open Menu",
+                        contentDescription = stringResource(R.string.open_menu),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(36.dp)
                     )
@@ -185,7 +187,11 @@ fun AddWorkoutScreen(
                         .padding(start = 4.dp)
                 ) {
                     Text(
-                        text = "$workoutNumberInWeek workout/week",
+                        text = pluralStringResource(
+                            R.plurals.workouts_per_week,
+                            workoutNumberInWeek,
+                            workoutNumberInWeek
+                        ),
                         style = MaterialTheme.typography.headlineLarge,
                         maxLines = 1,
                         modifier = Modifier.align(Alignment.CenterStart)
@@ -228,7 +234,7 @@ fun AddWorkoutScreen(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_time),
-                                contentDescription = "Warmup",
+                                contentDescription = stringResource(R.string.warmup),
                                 modifier = Modifier.size(36.dp)
                             )
                         }
@@ -262,7 +268,7 @@ fun AddWorkoutScreen(
                                 Icon(
                                     painter = if (timerRunning) painterResource(id = R.drawable.ic_pause)
                                     else painterResource(id = R.drawable.ic_play_arrow),
-                                    contentDescription = if (timerRunning) "Pause" else "Repeat",
+                                    contentDescription = if (timerRunning) stringResource(R.string.pause) else stringResource(R.string.repeat),
                                     modifier = Modifier.size(36.dp)
                                 )
                             }
@@ -278,7 +284,7 @@ fun AddWorkoutScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_stop),
-                                    contentDescription = "End",
+                                    contentDescription = stringResource(R.string.end),
                                     modifier = Modifier.size(36.dp)
                                 )
                             }
@@ -296,7 +302,7 @@ fun AddWorkoutScreen(
                             painter = painterResource(
                                 id = if (isMenuExpanded) R.drawable.ic_close
                                 else R.drawable.ic_menu
-                            ), contentDescription = "Menu", modifier = Modifier.size(36.dp)
+                            ), contentDescription = stringResource(R.string.menu), modifier = Modifier.size(36.dp)
                         )
                     }
                 }
@@ -316,7 +322,7 @@ fun AddWorkoutScreen(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_play_arrow),
-                        contentDescription = "Start",
+                        contentDescription = stringResource(R.string.start),
                         modifier = Modifier.size(48.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -427,8 +433,8 @@ fun AddWorkoutScreen(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = if (selectedExercises.isEmpty()) "Add exercise or template"
-                                else "Add exercise ",
+                                text = if (selectedExercises.isEmpty()) stringResource(R.string.add_exercise_or_template)
+                                else stringResource(R.string.add_exercise),
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.bodyLarge,
                             )
@@ -487,8 +493,8 @@ fun AddWorkoutScreen(
 
                     if (isNameEmpty || hasInvalidSets) {
                         validationMessage = buildString {
-                            if (isNameEmpty) append("Workout name cannot be empty.\n")
-                            if (hasInvalidSets) append("All sets must have reps")
+                            if (isNameEmpty) append(stringResource(R.string.workout_name_cannot_be_empty))
+                            if (hasInvalidSets) append(stringResource(R.string.all_sets_must_have_reps))
                         }
                         showValidationDialog = true
                     } else {

@@ -168,4 +168,55 @@
     <string name="continue_with_google">Працягнуць з Google</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">Працягваючы, вы згаджаецеся з нашымі Умовамі абслугоўвання і Палітыкай прыватнасці\n</string>
     <string name="signing_in">Уваход у сістэму...\n</string>
+
+
+    <string name="previous_month">Папярэдні месяц</string>
+    <string name="next_month">Наступны месяц</string>
+    <string name="save_template">Захаваць шаблон</string>
+    <string name="workout_difficulty">Складанасць трэніроўкі</string>
+    <string name="exercises_performed">Выкананыя практыкаванні</string>
+    <string name="max_set">Макс. падыход</string>
+    <string name="max_set_format">Макс. падыход: %.1fкг × %d</string>
+    <string name="kg">кг</string>
+    <string name="time">Час\n</string>
+    <string name="add_all_with_count">Дадаць усе (%d)</string>
+    <string name="deleted">Выдалена</string>
+    <string name="add_your_notes_here">Дадайце заўвагі тут...</string>
+    <string name="select_content_type">Выберыце тып кантэнту</string>
+    <string name="exercises">Практыкаванні</string>
+    <string name="pause">Паўза</string>
+    <string name="start">Старт</string>
+    <string name="workout_name">Назва трэніроўкі...</string>
+    <string name="open_menu">Адкрыць меню</string>
+    <string name="warmup">Разминка\n</string>
+    <string name="repeat">Паўтарыць\n</string>
+    <string name="end">Скончыць</string>
+    <string name="add_exercise_or_template">Дадаць практыкаванне ці шаблон</string>
+    <string name="workout_name_cannot_be_empty">Назва трэніроўкі не можа быць пустой.\n</string>
+    <string name="all_sets_must_have_reps">Усе падыходы павінны мець паўторы</string>
+    <string name="empty_history">Пустая гісторыя</string>
+    <string name="workout_history_is_empty">Гісторыя трэніровак пустая</string>
+    <string name="your_completed_workouts_will_appear_here">Вашы завершаныя трэніроўкі з'явяцца тут</string>
+    <string name="difficulty_level">Узровень складанасці</string>
+
+    <plurals name="exercises_count">
+        <item quantity="one">%d практыкаванне</item>
+        <item quantity="few">%d практыкаванні</item>
+        <item quantity="many">%d практыкаванняў</item>
+        <item quantity="other">%d практыкаванняў</item>
+    </plurals>
+
+    <plurals name="workouts_per_week">
+        <item quantity="one">%d трэніроўка/тыдзень</item>
+        <item quantity="few">%d трэніроўкі/тыдзень</item>
+        <item quantity="many">%d трэніровак/тыдзень</item>
+        <item quantity="other">%d трэніровак/тыдзень</item>
+    </plurals>
+
+    <plurals name="week_number">
+        <item quantity="one">%d-ы тыдзень</item>
+        <item quantity="few">%d-я тыдні</item>
+        <item quantity="many">%d-ы тыдняў</item>
+        <item quantity="other">%d-ы тыдняў</item>
+    </plurals>
 </resources>

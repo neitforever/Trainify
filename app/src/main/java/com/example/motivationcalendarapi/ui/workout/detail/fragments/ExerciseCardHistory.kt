@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -105,7 +106,7 @@ fun ExerciseCardHistory(
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_dots),
-                            contentDescription = "Info",
+                            contentDescription = stringResource(R.string.info),
                             modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
@@ -126,13 +127,13 @@ fun ExerciseCardHistory(
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_info),
-                                        contentDescription = "Exercise Info",
+                                        contentDescription = stringResource(R.string.exercise_info),
                                         modifier = Modifier.size(24.dp),
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "Exercise Info",
+                                        text = stringResource(R.string.exercise_info),
                                         style = MaterialTheme.typography.titleLarge,
                                         color = MaterialTheme.colorScheme.onSurface,
                                     )
@@ -153,13 +154,13 @@ fun ExerciseCardHistory(
                                     ) {
                                         Icon(
                                             painter = painterResource(R.drawable.ic_equipment_body_weight),
-                                            contentDescription = "Max Set",
+                                            contentDescription = stringResource(R.string.max_set),
                                             modifier = Modifier.size(24.dp),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
-                                            text = "Max Set: ${"%.1f".format(maxSet.weight)}kg × ${maxSet.rep}",
+                                            text = stringResource(R.string.max_set_format, maxSet.weight, maxSet.rep),
                                             style = MaterialTheme.typography.titleLarge,
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
@@ -182,7 +183,7 @@ fun ExerciseCardHistory(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Set",
+                                text = stringResource(R.string.set),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(bottom = 12.dp)
@@ -205,7 +206,7 @@ fun ExerciseCardHistory(
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Rep",
+                                text = stringResource(R.string.rep),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(bottom = 12.dp)
@@ -234,7 +235,7 @@ fun ExerciseCardHistory(
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Weight",
+                                text = stringResource(R.string.Weight),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(bottom = 12.dp)
@@ -263,7 +264,7 @@ fun ExerciseCardHistory(
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Status",
+                                text = stringResource(R.string.status),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(bottom = 12.dp)
@@ -295,7 +296,7 @@ fun ExerciseCardHistory(
                     .padding(horizontal = 8.dp)
             ) {
                 Text(
-                    text = "Note",
+                    text = stringResource(R.string.note),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier

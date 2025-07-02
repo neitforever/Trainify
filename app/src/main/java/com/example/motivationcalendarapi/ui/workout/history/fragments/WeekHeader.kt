@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 
@@ -50,7 +51,11 @@ fun WeekHeader(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "Week $weekNumber",
+            text = pluralStringResource(
+                R.plurals.week_number,
+                weekNumber,
+                weekNumber
+            ),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

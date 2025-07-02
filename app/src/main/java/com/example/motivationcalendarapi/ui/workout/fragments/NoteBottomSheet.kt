@@ -15,9 +15,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import com.example.motivationcalendarapi.model.ExtendedExercise
+import com.example.motivationcalendarapi.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +50,7 @@ fun NoteBottomSheet(
                     .padding(start = 16.dp,end = 16.dp, bottom = 8.dp)
             ) {
                 Text(
-                    text = "Note",
+                    text = stringResource(R.string.note),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxWidth(),
@@ -78,7 +80,7 @@ fun NoteBottomSheet(
                         keyboardType = KeyboardType.Text
                     ),
                     placeholder = {
-                        Text("Add your notes here...")
+                        stringResource(R.string.add_your_notes_here)
                     },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,

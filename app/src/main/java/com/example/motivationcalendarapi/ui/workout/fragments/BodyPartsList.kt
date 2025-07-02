@@ -22,9 +22,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.ui.exercise.fragments.CollapsibleBodyPartItem
 import java.util.Locale
+import com.example.motivationcalendarapi.R
 
 @Composable
 fun BodyPartsList(
@@ -133,9 +135,11 @@ fun BodyPartsList(
                         .padding(16.dp)
                         .align(Alignment.BottomCenter)
                 ) {
-                    Text(text = "Add All (${selectedExercises.size})",
+                    Text(
+                        text = stringResource(R.string.add_all_with_count, selectedExercises.size),
                         color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.headlineMedium,)
+                        style = MaterialTheme.typography.headlineMedium
+                    )
                 }
             }
         }

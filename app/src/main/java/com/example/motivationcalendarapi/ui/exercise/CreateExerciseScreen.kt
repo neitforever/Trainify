@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -89,7 +90,7 @@ fun CreateExerciseScreen(
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_save),
-                    contentDescription = "Save",
+                    contentDescription = stringResource(R.string.save),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -120,14 +121,14 @@ fun CreateExerciseScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Name",
+                            text = stringResource(R.string.name),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = "Edit",
+                            contentDescription = stringResource(R.string.edit),
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
                                 .size(28.dp)
@@ -135,7 +136,7 @@ fun CreateExerciseScreen(
                         )
                     }
                     Text(
-                        text = exercise.name.ifBlank { "Not set" },
+                        text = exercise.name.ifBlank { stringResource(R.string.not_set) },
                         style = MaterialTheme.typography.titleLarge,
                         color = if (exercise.name.isBlank()) MaterialTheme.colorScheme.outline
                         else MaterialTheme.colorScheme.onSurface,
@@ -156,14 +157,14 @@ fun CreateExerciseScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Equipment",
+                            text = stringResource(R.string.equipment),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = "Edit",
+                            contentDescription = stringResource(R.string.edit),
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
                                 .size(28.dp)
@@ -172,7 +173,7 @@ fun CreateExerciseScreen(
                     }
                     if (exercise.equipment.isEmpty()) {
                         Text(
-                            text = "Not set",
+                            text = stringResource(R.string.not_set),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.outline,
                             modifier = Modifier.padding(top = 8.dp)
@@ -190,7 +191,7 @@ fun CreateExerciseScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = getIconForEquipment(exercise.equipment)),
-                                    contentDescription = "Equipment",
+                                    contentDescription = stringResource(R.string.equipment),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier
                                         .size(24.dp)
@@ -219,14 +220,14 @@ fun CreateExerciseScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Body Part",
+                            text = stringResource(R.string.body_part),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = "Edit",
+                            contentDescription = stringResource(R.string.edit),
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
                                 .size(28.dp)
@@ -235,7 +236,7 @@ fun CreateExerciseScreen(
                     }
                     if (exercise.bodyPart.isEmpty()) {
                         Text(
-                            text = "Not set",
+                            text = stringResource(R.string.not_set),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.outline,
                             modifier = Modifier.padding(top = 8.dp)
@@ -253,7 +254,7 @@ fun CreateExerciseScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = getIconForBodyPart(exercise.bodyPart)),
-                                    contentDescription = "Body Part",
+                                    contentDescription = stringResource(R.string.body_part),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier
                                         .size(24.dp)
@@ -352,14 +353,14 @@ fun CreateExerciseScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Instructions",
+                            text = stringResource(R.string.instructions),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = "Edit",
+                            contentDescription = stringResource(R.string.edit),
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
                                 .size(28.dp)
@@ -369,7 +370,7 @@ fun CreateExerciseScreen(
                     Column(modifier = Modifier.padding(top = 8.dp)) {
                         if (exercise.instructions.isEmpty()) {
                             Text(
-                                text = "Not set",
+                                text = stringResource(R.string.not_set),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.outline,
                                 modifier = Modifier.padding(top = 8.dp)

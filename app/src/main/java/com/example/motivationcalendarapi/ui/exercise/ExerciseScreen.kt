@@ -36,6 +36,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import com.example.motivationcalendarapi.ui.exercise.fragments.CollapsibleBodyPartItem
@@ -122,7 +123,7 @@ fun ExerciseScreen(
                     Column {
                         if (templates.isEmpty()) {
                             Text(
-                                "No templates found",
+                                text = stringResource(R.string.no_templates_found),
                                 modifier = Modifier.padding(16.dp))
                         } else {
                         templates.forEach { template ->

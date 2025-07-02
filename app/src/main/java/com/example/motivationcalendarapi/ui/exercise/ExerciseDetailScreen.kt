@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -65,7 +66,7 @@ fun ExerciseDetailScreen(
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_arrow_back),
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.back),
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
@@ -90,7 +91,7 @@ fun ExerciseDetailScreen(
                             painter = painterResource(
                                 id = if (isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
                             ),
-                            contentDescription = "Favorite",
+                            contentDescription = stringResource(R.string.favorite),
                             tint = if (isFavorite) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onBackground
                         )
@@ -115,7 +116,7 @@ fun ExerciseDetailScreen(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = "Delete exercise",
+                        contentDescription = stringResource(R.string.delete_exercise),
                         modifier = Modifier.size(36.dp)
                     )
                 }
@@ -146,7 +147,7 @@ fun ExerciseDetailScreen(
 
                     Icon(
                         painter = painterResource(id = R.drawable.ic_edit),
-                        contentDescription = "Edit",
+                        contentDescription = stringResource(R.string.edit),
                         tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier
                             .size(28.dp)
@@ -169,14 +170,14 @@ fun ExerciseDetailScreen(
                     ) {
 
                         Text(
-                            text = "Equipment",
+                            text = stringResource(R.string.equipment),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(end = 8.dp).weight(1f)
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = "Edit",
+                            contentDescription = stringResource(R.string.edit),
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
                                 .size(28.dp)
@@ -199,7 +200,7 @@ fun ExerciseDetailScreen(
                         ) {
                             Icon(
                                 painter = painterResource(id = getIconForEquipment(exercise.equipment)),
-                                contentDescription = "Equipment",
+                                contentDescription = stringResource(R.string.equipment),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .size(24.dp)
@@ -239,7 +240,7 @@ fun ExerciseDetailScreen(
                     ) {
 
                         Text(
-                            text = "Body Part",
+                            text = stringResource(R.string.body_part),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
@@ -248,7 +249,7 @@ fun ExerciseDetailScreen(
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = "Edit",
+                            contentDescription = stringResource(R.string.edit),
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
                                 .size(28.dp)
@@ -271,7 +272,7 @@ fun ExerciseDetailScreen(
                         ) {
                             Icon(
                                 painter = painterResource(id = getIconForBodyPart(exercise.bodyPart)),
-                                contentDescription = "Body Part",
+                                contentDescription = stringResource(R.string.body_part),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .size(24.dp)
@@ -381,7 +382,7 @@ fun ExerciseDetailScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Instructions",
+                            text = stringResource(R.string.instructions),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
@@ -390,7 +391,7 @@ fun ExerciseDetailScreen(
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = "Edit",
+                            contentDescription = stringResource(R.string.edit),
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
                                 .size(28.dp)

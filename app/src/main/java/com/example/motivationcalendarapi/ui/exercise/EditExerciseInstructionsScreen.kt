@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,7 +72,7 @@ fun EditExerciseInstructionsScreen(
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_back),
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
@@ -93,7 +94,7 @@ fun EditExerciseInstructionsScreen(
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_save),
-                            contentDescription = "Save",
+                            contentDescription = stringResource(R.string.save),
                             tint = if (newInstructions.isNotEmpty()) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                             modifier = Modifier.size(32.dp)
@@ -139,7 +140,7 @@ fun EditExerciseInstructionsScreen(
                     ) {
                         if (newInstructions.isEmpty()) {
                             Text(
-                                text = "Enter instructions (one per line)...",
+                                text = stringResource(R.string.enter_instructions),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -152,7 +153,7 @@ fun EditExerciseInstructionsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Guidelines:",
+                text = stringResource(R.string.guidelines),
                 style = MaterialTheme.typography.labelLarge.copy(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold
@@ -162,10 +163,10 @@ fun EditExerciseInstructionsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             val tips = listOf(
-                "• Start each instruction with a verb (e.g. 'Hold', 'Bend', 'Lift')",
-                "• Keep instructions concise and clear",
-                "• Use one line per step",
-                "• Numbering will be added automatically"
+                stringResource(R.string.start_each_instruction_with_a_verb),
+                stringResource(R.string.keep_instructions_concise_and_clear),
+                stringResource(R.string.use_one_line_per_step),
+                stringResource(R.string.numbering_will_be_added_automatically)
             )
 
             tips.forEach { tip ->

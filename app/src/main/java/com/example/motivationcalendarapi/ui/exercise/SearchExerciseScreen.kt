@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.exercise.fragments.ExerciseItem
 import com.example.motivationcalendarapi.ui.exercise.fragments.NotFoundExerciseView
@@ -60,7 +61,7 @@ fun SearchExerciseScreen(
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_back),
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = MaterialTheme.colorScheme.onBackground
                 )
             }
@@ -85,7 +86,7 @@ fun SearchExerciseScreen(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_up),
-                    contentDescription = "Scroll to top",
+                    contentDescription = stringResource(R.string.scroll_to_top),
                     modifier = Modifier.size(32.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )

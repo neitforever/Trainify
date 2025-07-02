@@ -13,6 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.example.motivationcalendarapi.R
+
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,7 +70,7 @@ fun BodyPartSelectionScreen(
             ),
             placeholder = {
                 Text(
-                    text = "Chest, Back, Legs...",
+                    text = stringResource(R.string.chest_back_legs),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -108,7 +111,7 @@ fun BodyPartSelectionScreen(
             )
         ) {
             Text(
-                text = "Save Body Part",
+                text = stringResource(R.string.save_body_part),
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -116,7 +119,7 @@ fun BodyPartSelectionScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Available Body Parts",
+            text = stringResource(R.string.available_body_parts),
             style = MaterialTheme.typography.titleMedium.copy(
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold

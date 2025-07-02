@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -24,6 +25,7 @@ import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import com.example.motivationcalendarapi.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +68,7 @@ fun EquipmentSelectionScreen(
             ),
             placeholder = {
                 Text(
-                    text = "Barbell, Dumbbells...",
+                    text = stringResource(R.string.barbell_dumbbells),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -107,7 +109,7 @@ fun EquipmentSelectionScreen(
             )
         ) {
             Text(
-                text = "Save Equipment",
+                text = stringResource(R.string.save_equipment),
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -115,7 +117,7 @@ fun EquipmentSelectionScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Available Equipment",
+            text = stringResource(R.string.available_equipment),
             style = MaterialTheme.typography.titleMedium.copy(
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold

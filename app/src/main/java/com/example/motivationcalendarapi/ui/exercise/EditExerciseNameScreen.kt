@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,7 +76,7 @@ fun EditExerciseNameScreen(
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_back),
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = colorScheme.onPrimaryContainer
                 )
             }
@@ -92,7 +93,7 @@ fun EditExerciseNameScreen(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_save),
-                    contentDescription = "Save",
+                    contentDescription = stringResource(R.string.save),
                     tint = if (newName.isNotEmpty()) colorScheme.primary
                     else colorScheme.onSurface.copy(alpha = 0.38f),
                     modifier = Modifier.size(32.dp)
@@ -121,7 +122,7 @@ fun EditExerciseNameScreen(
                 ),
                 placeholder = {
                     Text(
-                        text = "Bench press, Squats...",
+                        text = stringResource(R.string.bench_press_squats),
                         maxLines = 1,
                         style = MaterialTheme.typography.bodyLarge,
                         color = colorScheme.onSurfaceVariant
@@ -142,7 +143,7 @@ fun EditExerciseNameScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Exercise Name Guidelines:",
+                text = stringResource(R.string.exercise_name_guidelines),
                 style = MaterialTheme.typography.labelLarge.copy(
                     color = colorScheme.primary, fontWeight = FontWeight.SemiBold
                 )
@@ -151,9 +152,9 @@ fun EditExerciseNameScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             val examples = listOf(
-                "• Use descriptive names (e.g. 'Incline Dumbbell Press')",
-                "• Include equipment when relevant (e.g. 'Barbell Squats')",
-                "• Keep it short but informative"
+                stringResource(R.string.use_descriptive_names),
+                stringResource(R.string.include_equipment_when_relevant),
+                stringResource(R.string.keep_it_short_but_informative)
             )
 
             examples.forEach { example ->

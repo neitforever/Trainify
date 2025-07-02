@@ -60,4 +60,21 @@
     <string name="restart">Перазапусціць</string>
     <string name="Weight">Вага</string>
 
+
+    //Exercise
+    <string name="drop_down_list">Выпадальны спіс</string>
+    <string name="template_header_animation">Анімацыя загалоўка шаблону</string>
+    <string name="templates">Шаблоны</string>
+    <string name="expand_collapse">Разгарнуць/Згарнуць</string>
+    <string name="favorite">Абранае</string>
+    <string name="no_results">Няма вынікаў</string>
+    <string name="no_results_for_query">Няма вынікаў для \"%s\"</string>
+    <string name="no_exercises_found">Практыкаванні не знойдзены</string>
+    <string name="search">Пошук</string>
+    <string name="search_exercises">Пошук практыкаванняў...</string>
+    <string name="clear_search">Ачысціць пошук</string>
+    <string name="add_all_with_count">Дадаць усе (%d)</string>
+    <string name="exercises_count">%d практыкаванняў</string>
+    <string name="template_menu">Меню шаблону</string>
+    <string name="view_exercises">Прагляд практыкаванняў</string>
 </resources>

@@ -61,13 +61,23 @@
     <string name="set_rest_time">Set Rest Time</string>
     <string name="restart">Restart</string>
     <string name="Weight">Weight</string>
+
+
+
+    //Exercise
     <string name="drop_down_list">drop down list</string>
     <string name="template_header_animation">Template Header Animation</string>
     <string name="templates">Templates</string>
     <string name="expand_collapse">Expand/Collapse</string>
     <string name="favorite">Favorite</string>
     <string name="no_results">No results</string>
-
-
-    //Exercise
+    <string name="no_results_for_query">No results for \"%s\"</string>
+    <string name="no_exercises_found">No exercises found</string>
+    <string name="search">Search</string>
+    <string name="search_exercises">Search exercises...</string>
+    <string name="clear_search">Clear search</string>
+    <string name="add_all_with_count">Add All (%d)</string>
+    <string name="exercises_count">%d exercises</string>
+    <string name="template_menu">Template Menu</string>
+    <string name="view_exercises">View Exercises</string>
 </resources>

@@ -11,8 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.ui.workout.fragments.ExerciseSelectionItem
+import com.example.motivationcalendarapi.R
 
 @Composable
 fun SearchResultsList(
@@ -59,7 +61,7 @@ fun SearchResultsList(
                     .align(Alignment.BottomCenter)
             ) {
                 Text(
-                    text = "Add All (${selectedExercises.size})",
+                    text = stringResource(R.string.add_all_with_count, selectedExercises.size),
                     color = MaterialTheme.colorScheme.onPrimary,
                     style = MaterialTheme.typography.headlineMedium,
                 )

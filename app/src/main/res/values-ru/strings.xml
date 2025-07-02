@@ -62,4 +62,21 @@
     <string name="set_rest_time">Установить время отдыха</string>
     <string name="restart">Перезапустить</string>
     <string name="Weight">Вес</string>
+
+    //Exercise
+    <string name="drop_down_list">Выпадающий список</string>
+    <string name="template_header_animation">Анимация заголовка шаблона</string>
+    <string name="templates">Шаблоны</string>
+    <string name="expand_collapse">Развернуть/Свернуть</string>
+    <string name="favorite">Избранное</string>
+    <string name="no_results">Нет результатов</string>
+    <string name="no_results_for_query">Нет результатов для \"%s\"</string>
+    <string name="no_exercises_found">Упражнения не найдены</string>
+    <string name="search">Поиск</string>
+    <string name="search_exercises">Поиск упражнений...</string>
+    <string name="clear_search">Очистить поиск</string>
+    <string name="add_all_with_count">Добавить все (%d)</string>
+    <string name="exercises_count">%d упражнений</string>
+    <string name="template_menu">Меню шаблона</string>
+    <string name="view_exercises">Просмотр упражнений</string>
 </resources>

@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 
@@ -29,7 +30,7 @@ fun CollapsibleTemplateHeader(
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
         animationSpec = tween(durationMillis = 210),
-        label = "Template Header Animation"
+        label = stringResource(R.string.template_header_animation)
     )
 
     Row(
@@ -41,7 +42,7 @@ fun CollapsibleTemplateHeader(
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_template),
-            contentDescription = "Templates",
+            contentDescription = stringResource(R.string.templates),
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp)
         )
@@ -57,7 +58,7 @@ fun CollapsibleTemplateHeader(
 
         Icon(
             painter = painterResource(id = R.drawable.ic_arrow_drop_down),
-            contentDescription = "Expand/Collapse",
+            contentDescription = stringResource(R.string.expand_collapse),
             tint = MaterialTheme.colorScheme.secondary,
             modifier = Modifier
                 .graphicsLayer { rotationZ = rotation }

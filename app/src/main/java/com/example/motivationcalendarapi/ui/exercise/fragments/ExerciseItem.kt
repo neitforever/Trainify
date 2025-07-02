@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -84,7 +85,7 @@ fun ExerciseItem(
             painter = painterResource(
                 id = if (isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
             ),
-            contentDescription = "Favorite",
+            contentDescription = stringResource(R.string.favorite),
             modifier = Modifier
                 .clickable { onFavoriteClick() }
                 .size(iconSize),

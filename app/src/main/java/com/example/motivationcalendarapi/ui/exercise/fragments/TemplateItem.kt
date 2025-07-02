@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -80,7 +81,7 @@ fun TemplateItem(
             )
 
             Text(
-                text = "${template.exercises.size} exercises",
+                text = stringResource(R.string.exercises_count, template.exercises.size),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -89,7 +90,7 @@ fun TemplateItem(
         Box {
             Icon(
                 painter = painterResource(id = R.drawable.ic_dots),
-                contentDescription = "Template Menu",
+                contentDescription = stringResource(R.string.template_menu),
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .size(24.dp)
@@ -111,13 +112,13 @@ fun TemplateItem(
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_info),
-                                contentDescription = "View Exercises",
+                                contentDescription = stringResource(R.string.view_exercises),
                                 modifier = Modifier.size(24.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "View Exercises",
+                                text = stringResource(R.string.view_exercises),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -137,13 +138,13 @@ fun TemplateItem(
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_delete),
-                                contentDescription = "Delete Template",
+                                contentDescription = stringResource(R.string.delete_template),
                                 modifier = Modifier.size(24.dp),
                                 tint = MaterialTheme.colorScheme.error
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Delete Template",
+                                text = stringResource(R.string.delete_template),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.error
                             )

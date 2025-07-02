@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 
@@ -52,7 +53,7 @@ fun SearchBar(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = "Search",
+                    contentDescription = stringResource(R.string.search),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(24.dp)
                 )
@@ -62,7 +63,7 @@ fun SearchBar(
                 ) {
                     if (query.isEmpty()) {
                         Text(
-                            text = "Search exercises...",
+                            text = stringResource(R.string.search_exercises),
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )
@@ -72,7 +73,7 @@ fun SearchBar(
                 if (query.isNotEmpty()) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(painter = painterResource(id = R.drawable.ic_clear),
-                        contentDescription = "Clear search",
+                        contentDescription = stringResource(R.string.clear_search),
                         tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .size(24.dp)

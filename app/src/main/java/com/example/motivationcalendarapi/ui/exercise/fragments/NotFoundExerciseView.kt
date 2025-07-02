@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
@@ -30,16 +31,16 @@ fun NotFoundExerciseView(searchQuery: String) {
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_search_empty),
-                contentDescription = "No results",
+                contentDescription = stringResource(R.string.no_results),
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = if (searchQuery.isNotEmpty()) {
-                    "No results for \"$searchQuery\""
+                    stringResource(R.string.no_results_for_query, searchQuery)
                 } else {
-                    "No exercises found"
+                    stringResource(R.string.no_exercises_found)
                 },
                 style = MaterialTheme.typography.displayLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),

@@ -197,6 +197,9 @@
     </plurals>
     <plurals name="week_number">
         <item quantity="one">Week %d</item>
+        <item quantity="few">Week %d</item>
+        <item quantity="many">Week %d</item>
+        <item quantity="other">Week %d</item>
     </plurals>
     <!--    Screen-->
     <string name="auth">Auth</string>

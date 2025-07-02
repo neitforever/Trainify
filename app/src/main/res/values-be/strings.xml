@@ -204,6 +204,7 @@
         <item quantity="many">%d-ы тыдняў</item>
         <item quantity="other">%d-ы тыдняў</item>
     </plurals>
+
 <!--    Screen-->
     <string name="auth">Аўтарызацыя</string>
     <string name="profile">Профіль</string>

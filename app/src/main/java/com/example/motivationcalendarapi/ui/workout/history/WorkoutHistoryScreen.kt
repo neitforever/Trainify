@@ -37,7 +37,9 @@ import com.example.motivationcalendarapi.ui.workout.history.fragments.YearHeader
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import formatDate
 import java.time.LocalDate
+import java.time.Month
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Calendar
 import java.util.Locale
 
@@ -45,27 +47,29 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkoutHistoryScreen(
-    viewModel: WorkoutViewModel, navController: NavController, paddingValues: Dp
+    viewModel: WorkoutViewModel,
+    navController: NavController,
+    paddingValues: Dp
 ) {
     val groupedWorkouts by viewModel.workoutsByYearMonthAndWeek()
         .collectAsState(initial = emptyMap())
 
     var expandedYears by remember { mutableStateOf(setOf<Int>()) }
-    var expandedMonths by remember { mutableStateOf(setOf<Pair<Int, String>>()) }
-    var expandedWeeks by remember { mutableStateOf(setOf<Triple<Int, String, Int>>()) }
+    var expandedMonths by remember { mutableStateOf(setOf<Pair<Int, Month>>()) } // Изменено на Month
+    var expandedWeeks by remember { mutableStateOf(setOf<Triple<Int, Month, Int>>()) } // Изменено на Month
 
     val currentYear = LocalDate.now().year
-    val currentMonth = DateTimeFormatter.ofPattern("MMMM").format(LocalDate.now())
+    val currentMonth = LocalDate.now().month // Получаем текущий месяц как Month
     val currentWeek = Calendar.getInstance().get(Calendar.WEEK_OF_MONTH)
 
     LaunchedEffect(groupedWorkouts) {
         if (expandedYears.isEmpty() && groupedWorkouts.isNotEmpty()) {
-
             expandedYears = setOf(currentYear)
             expandedMonths = setOf(currentYear to currentMonth)
             expandedWeeks = setOf(Triple(currentYear, currentMonth, currentWeek))
         }
     }
+
     if (groupedWorkouts.isEmpty()) {
         EmptyHistoryView()
     } else {
@@ -75,17 +79,19 @@ fun WorkoutHistoryScreen(
                 .padding(top = paddingValues)
                 .padding(horizontal = 12.dp),
         ) {
-
-            groupedWorkouts.forEach { (year, months) ->
+            groupedWorkouts.forEach { (year, monthsMap) ->
                 item {
                     YearHeader(
-                        year = year, isExpanded = expandedYears.contains(year), onToggle = {
+                        year = year,
+                        isExpanded = expandedYears.contains(year),
+                        onToggle = {
                             expandedYears = if (expandedYears.contains(year)) {
                                 expandedYears - year
                             } else {
                                 expandedYears + year
                             }
-                        })
+                        }
+                    )
                 }
 
                 item {
@@ -95,44 +101,53 @@ fun WorkoutHistoryScreen(
                         exit = fadeOut() + shrinkVertically()
                     ) {
                         Column {
-                            months.forEach { (monthName, weeks) ->
+                            monthsMap.forEach { (month, weeksMap) ->
+                                val monthName =
+                                    month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                                        .replaceFirstChar {
+                                            if (it.isLowerCase()) it.titlecase(Locale.getDefault())
+                                            else it.toString()
+                                        }
+
                                 MonthHeader(
                                     monthName = monthName,
-                                    isExpanded = expandedMonths.contains(year to monthName),
+                                    isExpanded = expandedMonths.contains(year to month),
                                     onToggle = {
-                                        val key = year to monthName
+                                        val key = year to month
                                         expandedMonths = if (expandedMonths.contains(key)) {
                                             expandedMonths - key
                                         } else {
                                             expandedMonths + key
                                         }
-                                    })
+                                    }
+                                )
 
                                 AnimatedVisibility(
-                                    visible = expandedMonths.contains(year to monthName),
+                                    visible = expandedMonths.contains(year to month),
                                     enter = fadeIn() + expandVertically(),
                                     exit = fadeOut() + shrinkVertically()
                                 ) {
                                     Column {
-                                        weeks.forEach { (weekNumber, workouts) ->
+                                        weeksMap.forEach { (weekNumber, workouts) ->
                                             WeekHeader(
                                                 weekNumber = weekNumber,
                                                 isExpanded = expandedWeeks.contains(
-                                                    Triple(year, monthName, weekNumber)
+                                                    Triple(year, month, weekNumber)
                                                 ),
                                                 onToggle = {
-                                                    val key = Triple(year, monthName, weekNumber)
+                                                    val key = Triple(year, month, weekNumber)
                                                     expandedWeeks =
                                                         if (expandedWeeks.contains(key)) {
                                                             expandedWeeks - key
                                                         } else {
                                                             expandedWeeks + key
                                                         }
-                                                })
+                                                }
+                                            )
 
                                             AnimatedVisibility(
                                                 visible = expandedWeeks.contains(
-                                                    Triple(year, monthName, weekNumber)
+                                                    Triple(year, month, weekNumber)
                                                 ),
                                                 enter = fadeIn() + expandVertically(),
                                                 exit = fadeOut() + shrinkVertically()
@@ -162,10 +177,8 @@ fun WorkoutHistoryScreen(
                 Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp))
             }
         }
-
     }
 }
-
 
 
 

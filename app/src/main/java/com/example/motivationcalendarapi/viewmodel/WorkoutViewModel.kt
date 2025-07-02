@@ -458,31 +458,21 @@ class WorkoutViewModel(
 //        ),
 //    )
 
-    fun workoutsByYearMonthAndWeek(): Flow<Map<Int, Map<String, Map<Int, List<Workout>>>>> {
+    fun workoutsByYearMonthAndWeek(): Flow<Map<Int, Map<Month, Map<Int, List<Workout>>>>> {
         return allWorkouts.map { workouts ->
             workouts.sortedBy { it.timestamp }.groupBy { workout ->
                 Instant.ofEpochMilli(workout.timestamp)
                     .atZone(ZoneId.systemDefault()).year
             }.mapValues { yearEntry ->
                 yearEntry.value.groupBy { workout ->
-                    DateTimeFormatter.ofPattern("MMMM")
-                        .withZone(ZoneId.systemDefault())
-                        .format(Instant.ofEpochMilli(workout.timestamp))
+                    Instant.ofEpochMilli(workout.timestamp)
+                        .atZone(ZoneId.systemDefault()).month
                 }.mapValues { monthEntry ->
                     monthEntry.value.groupBy { workout ->
                         calculateWeekOfMonth(workout.timestamp)
-                    }
-                }
-            }
-                .toSortedMap(compareBy { it })
-                .mapValues { yearEntry ->
-                    yearEntry.value.toSortedMap(Comparator { m1, m2 ->
-                        Month.valueOf(m1.uppercase()).compareTo(Month.valueOf(m2.uppercase()))
-                    })
-                        .mapValues { monthEntry ->
-                            monthEntry.value.toSortedMap(compareBy { it })
-                        }
-                }
+                    }.toSortedMap()
+                }.toSortedMap()
+            }.toSortedMap()
         }
     }
 

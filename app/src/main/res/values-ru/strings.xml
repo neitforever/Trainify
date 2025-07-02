@@ -199,9 +199,9 @@
     </plurals>
     <plurals name="week_number">
         <item quantity="one">%d-я неделя</item>
-        <item quantity="few">%d-я недели</item>
-        <item quantity="many">%d-я недель</item>
-        <item quantity="other">%d-я недель</item>
+        <item quantity="few">%d-я неделя</item>
+        <item quantity="many">%d-я неделя</item>
+        <item quantity="other">%d-я неделя</item>
     </plurals>
 <!--    Screen-->
     <string name="auth">Авторизация</string>

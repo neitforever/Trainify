@@ -15,8 +15,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.settings.workout_settings.dialogs.ErrorWorkoutSettingsDialog
 import kotlinx.coroutines.flow.StateFlow
 
@@ -65,11 +67,11 @@ fun NumberSettingItem(
                             onSave(newValue)
                         }
                     } ?: run {
-                        errorMessage = "Invalid number format"
+                        errorMessage = R.string.invalid_number_format.toString()
                         showError = true
                     }
                 }) {
-                    Icon(Icons.Default.Check, contentDescription = "Save")
+                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save))
                 }
             }
         )

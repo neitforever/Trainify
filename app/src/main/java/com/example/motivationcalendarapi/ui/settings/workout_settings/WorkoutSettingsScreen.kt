@@ -26,11 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.settings.workout_settings.dialogs.ErrorWorkoutSettingsDialog
 import com.example.motivationcalendarapi.ui.settings.workout_settings.fragments.FloatNumberSettingItem
 import com.example.motivationcalendarapi.ui.settings.workout_settings.fragments.NumberSettingItem
@@ -54,9 +56,9 @@ fun WorkoutSettingsScreen(
             .padding(horizontal = 16.dp, vertical = 16.dp)
             .padding(top = paddingValues)
     ) {
-        SettingsSection(title = "Repetitions Configuration") {
+        SettingsSection(title = stringResource(R.string.repetitions_configuration)) {
             NumberSettingItem(
-                title = "Minimum Reps",
+                title = stringResource(R.string.minimum_reps),
                 valueState = viewModel.minRep,
                 onSave = { newMin ->
                     viewModel.saveRepSettings(
@@ -76,7 +78,7 @@ fun WorkoutSettingsScreen(
             )
 
             NumberSettingItem(
-                title = "Maximum Reps",
+                title = stringResource(R.string.maximum_reps),
                 valueState = viewModel.maxRep,
                 onSave = { newMax ->
                     viewModel.saveRepSettings(
@@ -95,7 +97,7 @@ fun WorkoutSettingsScreen(
             )
 
             NumberSettingItem(
-                title = "Step Size",
+                title = stringResource(R.string.step_size),
                 valueState = viewModel.stepRep,
                 onSave = { newStep ->
                     viewModel.saveRepSettings(
@@ -113,9 +115,9 @@ fun WorkoutSettingsScreen(
             )
         }
 
-        SettingsSection(title = "Weight Configuration") {
+        SettingsSection(title = stringResource(R.string.weight_configuration)) {
             FloatNumberSettingItem(
-                title = "Minimum Weight (kg)",
+                title = stringResource(R.string.minimum_weight_kg),
                 valueState = viewModel.minWeight,
                 onSave = { newMin ->
                     viewModel.saveWeightSettings(
@@ -135,7 +137,7 @@ fun WorkoutSettingsScreen(
             )
 
             FloatNumberSettingItem(
-                title = "Maximum Weight (kg)",
+                title = stringResource(R.string.maximum_weight_kg),
                 valueState = viewModel.maxWeight,
                 onSave = { newMax ->
                     viewModel.saveWeightSettings(
@@ -154,7 +156,7 @@ fun WorkoutSettingsScreen(
             )
 
             FloatNumberSettingItem(
-                title = "Step Size (kg)",
+                title = stringResource(R.string.step_size_kg),
                 valueState = viewModel.stepWeight,
                 onSave = { newStep ->
                     viewModel.saveWeightSettings(

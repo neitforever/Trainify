@@ -103,4 +103,41 @@
     <string name="available_equipment">Available Equipment</string>
     <string name="no_templates_found">No templates found</string>
     <string name="scroll_to_top">Scroll to top</string>
+    // Profile
+    <string name="easy">Easy</string>
+    <string name="medium">Medium</string>
+    <string name="hard">Hard</string>
+    <string name="log_out">Log Out</string>
+    <string name="monday">M</string>
+    <string name="tuesday">T</string>
+    <string name="wednesday">W</string>
+    <string name="thursday">T</string>
+    <string name="friday">F</string>
+    <string name="saturday">S</string>
+    <string name="sunday">S</string>
+    <string name="workouts">Workouts</string>
+    <string name="training_activity">Training Activity</string>
+    //Settings
+    <string name="primary">Primary</string>
+    <string name="secondary">Secondary</string>
+    <string name="tertiary">Tertiary</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="current_theme">Current Theme: %s</string>
+    <string name="dark_theme_reduces_eye_strain_in_low_light_conditions">Dark theme reduces eye strain in low-light conditions</string>
+    <string name="light_theme_provides_better_readability_in_bright_environments">Light theme provides better readability in bright environments</string>
+    <string name="invalid_number_format">Invalid number format</string>
+    <string name="repetitions_configuration">Repetitions Configuration</string>
+    <string name="minimum_reps">Minimum Reps</string>
+    <string name="minimum_reps_cannot_be_negative">Minimum reps cannot be negative</string>
+    <string name="min_reps_exceeds_max">Min reps cannot exceed max (%d)</string>
+    <string name="max_reps_less_than_min">Max reps cannot be less than min (%d)</string>
+    <string name="max_weight_less_than_min">Max weight cannot be less than min (%.1f kg)</string>
+    <string name="maximum_reps">Maximum Reps</string>
+    <string name="step_size">Step Size</string>
+    <string name="weight_configuration">Weight Configuration</string>
+    <string name="minimum_weight_kg">Minimum Weight (kg)</string>
+    <string name="maximum_weight_kg">Maximum Weight (kg)</string>
+    <string name="step_size_kg">Step Size (kg)</string>
+    <string name="navigate">Navigate</string>
 </resources>

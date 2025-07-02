@@ -105,4 +105,43 @@
     <string name="available_equipment">Доступный инвентарь</string>
     <string name="no_templates_found">Шаблоны не найдены</string>
     <string name="scroll_to_top">Прокрутить вверх</string>
+
+    // Profile
+    <string name="easy">Лёгкий</string>
+    <string name="medium">Средний</string>
+    <string name="hard">Тяжёлый</string>
+    <string name="log_out">Выйти</string>
+    <string name="monday">П</string>  <!-- Понедельник -->
+    <string name="tuesday">В</string>  <!-- Вторник -->
+    <string name="wednesday">С</string>  <!-- Среда -->
+    <string name="thursday">Ч</string>  <!-- Четверг -->
+    <string name="friday">П</string>  <!-- Пятница -->
+    <string name="saturday">С</string>  <!-- Суббота -->
+    <string name="sunday">В</string>  <!-- Воскресенье -->
+    <string name="workouts">Тренировки</string>
+    <string name="training_activity">Активность</string>
+
+    //Settings
+    <string name="primary">Основной</string>
+    <string name="secondary">Вторичный</string>
+    <string name="tertiary">Третичный</string>
+    <string name="light">Светлая</string>
+    <string name="dark">Тёмная</string>
+    <string name="current_theme">Текущая тема: %s</string>
+    <string name="dark_theme_reduces_eye_strain_in_low_light_conditions">Тёмная тема снижает нагрузку на глаза при слабом освещении</string>
+    <string name="light_theme_provides_better_readability_in_bright_environments">Светлая тема обеспечивает лучшую читаемость при ярком освещении</string>
+    <string name="invalid_number_format">Некорректный числовой формат</string>
+    <string name="repetitions_configuration">Настройка повторений</string>
+    <string name="minimum_reps">Минимальное кол-во</string>
+    <string name="minimum_reps_cannot_be_negative">Минимальное кол-во не может быть отрицательным</string>
+    <string name="min_reps_exceeds_max">Мин. кол-во не может превышать макс. (%d)</string>
+    <string name="max_reps_less_than_min">Макс. кол-во не может быть меньше мин. (%d)</string>
+    <string name="max_weight_less_than_min">Макс. вес не может быть меньше мин. (%.1f кг)</string>
+    <string name="maximum_reps">Максимальное кол-во</string>
+    <string name="step_size">Шаг изменения</string>
+    <string name="weight_configuration">Настройка веса</string>
+    <string name="minimum_weight_kg">Минимальный вес (кг)</string>
+    <string name="maximum_weight_kg">Максимальный вес (кг)</string>
+    <string name="step_size_kg">Шаг изменения (кг)</string>
+    <string name="navigate">Навигация</string>
 </resources>

@@ -103,5 +103,42 @@
     <string name="available_equipment">Даступны інвентар</string>
     <string name="no_templates_found">Шаблоны не знойдзены</string>
     <string name="scroll_to_top">Пракруціць уверх</string>
-
+    // Profile
+    <!-- Профіль -->
+    <string name="easy">Лёгкі</string>
+    <string name="medium">Сярэдні</string>
+    <string name="hard">Цяжкі</string>
+    <string name="log_out">Выйсці</string>
+    <string name="monday">П</string>  <!-- Панядзелак -->
+    <string name="tuesday">А</string>  <!-- Аўторак -->
+    <string name="wednesday">С</string>  <!-- Серада -->
+    <string name="thursday">Ч</string>  <!-- Чацвер -->
+    <string name="friday">П</string>  <!-- Пятніца -->
+    <string name="saturday">С</string>  <!-- Субота -->
+    <string name="sunday">Н</string>  <!-- Нядзеля -->
+    <string name="workouts">Трэніроўкі</string>
+    <string name="training_activity">Актыўнасць</string>
+    //Settings
+    <string name="primary">Асноўны</string>
+    <string name="secondary">Другасны</string>
+    <string name="tertiary">Трацічны</string>
+    <string name="light">Светлая</string>
+    <string name="dark">Цёмная</string>
+    <string name="current_theme">Бягущая тэма: %s</string>
+    <string name="dark_theme_reduces_eye_strain_in_low_light_conditions">Цёмная тэма памяншае нагрузку на вочы пры слабым асвятленні</string>
+    <string name="light_theme_provides_better_readability_in_bright_environments">Светлая тэма забяспечвае лепшую чытальнасць пры яркім асвятленні</string>
+    <string name="invalid_number_format">Некарэктны лікавы фармат</string>
+    <string name="repetitions_configuration">Налады паўтораў</string>
+    <string name="minimum_reps">Мінімальная колькасць</string>
+    <string name="minimum_reps_cannot_be_negative">Мінімальная колькасць не можа быць адмоўнай</string>
+    <string name="min_reps_exceeds_max">Мін. колькасць не можа перавышаць макс. (%d)</string>
+    <string name="max_reps_less_than_min">Макс. колькасць не можа быць менш за мін. (%d)</string>
+    <string name="max_weight_less_than_min">Макс. вага не можа быць менш за мін. (%.1f кг)</string>
+    <string name="maximum_reps">Максімальная колькасць</string>
+    <string name="step_size">Крок змянення</string>
+    <string name="weight_configuration">Налады вагі</string>
+    <string name="minimum_weight_kg">Мінімальная вага (кг)</string>
+    <string name="maximum_weight_kg">Максімальная вага (кг)</string>
+    <string name="step_size_kg">Крок змянення (кг)</string>
+    <string name="navigate">Навігацыя</string>
 </resources>

@@ -35,10 +35,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.settings.theme_settings.fragments.ColorPalettePreview
 import com.example.motivationcalendarapi.ui.settings.theme_settings.fragments.ThemeCard
 import com.example.motivationcalendarapi.ui.theme.DarkColorScheme
@@ -69,7 +71,7 @@ fun ThemeSettingsScreen(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             ThemeCard(
-                title = "Light",
+                title = stringResource(R.string.light),
                 colors = LightColorScheme,
                 onClick = { mainViewModel.setTheme(false) }
             )
@@ -77,7 +79,7 @@ fun ThemeSettingsScreen(
             Spacer(modifier = Modifier.width(16.dp))
 
             ThemeCard(
-                title = "Dark",
+                title = stringResource(R.string.dark),
                 colors = DarkColorScheme,
                 onClick = { mainViewModel.setTheme(true) }
             )
@@ -90,11 +92,13 @@ fun ThemeSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Current Theme: ${if (isDarkTheme) "Dark" else "Light"}",
+                text = stringResource(
+                    R.string.current_theme,
+                    stringResource(if (isDarkTheme) R.string.dark else R.string.light)
+                ),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary
             )
-
             ColorPalettePreview(
                 colors = if (isDarkTheme) DarkColorScheme else LightColorScheme,
                 modifier = Modifier.fillMaxWidth()
@@ -108,13 +112,13 @@ fun ThemeSettingsScreen(
             ) { isDark ->
                 if (isDark) {
                     Text(
-                        text = "Dark theme reduces eye strain in low-light conditions",
+                        text = stringResource(R.string.dark_theme_reduces_eye_strain_in_low_light_conditions),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
                     Text(
-                        text = "Light theme provides better readability in bright environments",
+                        text = stringResource(R.string.light_theme_provides_better_readability_in_bright_environments),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

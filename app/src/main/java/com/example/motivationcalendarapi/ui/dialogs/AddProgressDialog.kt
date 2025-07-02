@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -82,7 +83,7 @@ fun AddProgressDialog(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Add Progress",
+                        text = stringResource(R.string.add_progress),
                         style = MaterialTheme.typography.headlineSmall,
                         color = colorScheme.onBackground
                     )
@@ -128,7 +129,7 @@ fun AddProgressDialog(
                                         }
                                         .build()
                                 ),
-                                contentDescription = "Progress photo",
+                                contentDescription = stringResource(R.string.progress_photo),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -149,7 +150,7 @@ fun AddProgressDialog(
                         )
                     ) {
                         Text(
-                            text = if (photoUri != null) "Change Photo" else "Choose from Gallery",
+                            text = if (photoUri != null) stringResource(R.string.change_photo) else stringResource(R.string.choose_from_gallery),
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
@@ -164,7 +165,7 @@ fun AddProgressDialog(
                     enabled = isValid,
                 ) {
                     Text(
-                        text = "Save",
+                        text = stringResource(R.string.save),
                         style = MaterialTheme.typography.titleLarge,
                         color = if (photoUri != null && weight > 0) colorScheme.primary else colorScheme.secondary
                     )
@@ -175,7 +176,7 @@ fun AddProgressDialog(
                     onClick = onDismiss,
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel),
                         style = MaterialTheme.typography.titleLarge,
                         color = colorScheme.secondary
                     )
@@ -203,7 +204,7 @@ private fun WeightRow(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_minus),
-                contentDescription = "Decrease weight",
+                contentDescription = stringResource(R.string.decrease_weight),
                 tint = colorScheme.primary,
                 modifier = Modifier.size(32.dp)
             )
@@ -217,7 +218,7 @@ private fun WeightRow(
             },
             label = {
                 Text(
-                    "Weight (kg)",
+                    text = stringResource(R.string.weight_kg),
                     style = MaterialTheme.typography.titleMedium,
                     color = colorScheme.onSurfaceVariant
                 )
@@ -251,7 +252,7 @@ private fun WeightRow(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_plus),
-                contentDescription = "Increase weight",
+                contentDescription = stringResource(R.string.increase_weight),
                 tint = colorScheme.primary,
                 modifier = Modifier.size(32.dp)
             )

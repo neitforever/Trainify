@@ -8,8 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 
 @Composable
 fun ExistWorkoutDialog(
@@ -18,7 +20,7 @@ fun ExistWorkoutDialog(
     if (showDialog) {
         AlertDialog(onDismissRequest = onDismiss, title = {
             Text(
-                text = "Workout already exists",
+                text = stringResource(R.string.workout_already_exists),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.headlineMedium,
@@ -26,7 +28,7 @@ fun ExistWorkoutDialog(
             )
         }, text = {
             Text(
-                text = "Do you want to overwrite today’s training?",
+                text = stringResource(R.string.do_you_want_to_overwrite_training),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
@@ -35,7 +37,7 @@ fun ExistWorkoutDialog(
         }, confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text(
-                    text = "Overwrite",
+                    text = stringResource(R.string.overwrite),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -43,7 +45,7 @@ fun ExistWorkoutDialog(
         }, dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(R.string.cancel),
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.bodyLarge
                 )

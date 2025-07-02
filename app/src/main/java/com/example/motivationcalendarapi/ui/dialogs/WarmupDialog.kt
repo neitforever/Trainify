@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
@@ -48,7 +49,7 @@ fun WarmupDialog(
 
         AlertDialog(onDismissRequest = onDismiss, title = {
             Text(
-                text = "Set Rest Time",
+                text = stringResource(R.string.set_rest_time),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -71,7 +72,7 @@ fun WarmupDialog(
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_minus),
-                            contentDescription = "Restart",
+                            contentDescription = stringResource(R.string.restart),
                             modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -99,7 +100,7 @@ fun WarmupDialog(
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_plus),
-                            contentDescription = "Restart",
+                            contentDescription = stringResource(R.string.restart),
                             modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -119,7 +120,7 @@ fun WarmupDialog(
                 onDismiss()
             }) {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.titleMedium,
                 )
@@ -127,7 +128,7 @@ fun WarmupDialog(
         }, dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(R.string.cancel),
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.titleMedium,
                 )

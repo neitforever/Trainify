@@ -25,8 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.BodyProgress
 import java.io.File
 import java.text.SimpleDateFormat
@@ -47,7 +49,7 @@ fun ProgressDetailDialog(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Progress Details",
+                    text = stringResource(R.string.progress_details),
                     style = MaterialTheme.typography.headlineSmall,
                     color = colorScheme.onBackground
                 )
@@ -80,7 +82,7 @@ fun ProgressDetailDialog(
                     ) {
                         AsyncImage(
                             model = File(path),
-                            contentDescription = "Progress photo",
+                            contentDescription = stringResource(R.string.progress_photo),
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -95,13 +97,14 @@ fun ProgressDetailDialog(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "Weight:",
+                            text = stringResource(R.string.weight),
                             style = MaterialTheme.typography.headlineMedium,
                             color = colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(end = 8.dp)
                         )
                         Text(
-                            text = "%.1fkg".format(progress.weight),
+                            text = stringResource(R.string.weight_with_unit_precise,progress.weight),
+//                            text = "%.1fkg".format(progress.weight),
                             style = MaterialTheme.typography.headlineMedium,
                             color = colorScheme.onBackground
                         )
@@ -120,7 +123,7 @@ fun ProgressDetailDialog(
                 onClick = onDismiss
             ) {
                 Text(
-                    text = "Close",
+                    text = stringResource(R.string.close),
                     style = MaterialTheme.typography.titleLarge,
                     color = colorScheme.primary
                 )

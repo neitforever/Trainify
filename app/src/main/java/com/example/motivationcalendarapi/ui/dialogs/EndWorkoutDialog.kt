@@ -9,8 +9,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 
 @Composable
 fun EndWorkoutDialog(
@@ -23,7 +25,7 @@ fun EndWorkoutDialog(
             onDismissRequest = onDismiss,
             title = {
                 Text(
-                    text = "End workout",
+                    text = stringResource(R.string.end_workout),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineMedium,
@@ -32,7 +34,7 @@ fun EndWorkoutDialog(
             },
             text = {
                 Text(
-                    text = "Are you sure you want to finish the current training?",
+                    text = stringResource(R.string.are_you_sure_you_want_to_finish_the_current_training),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
@@ -42,7 +44,7 @@ fun EndWorkoutDialog(
             confirmButton = {
                 TextButton(onClick = onConfirm) {
                     Text(
-                        text = "Yes, complete",
+                        text = stringResource(R.string.yes_complete),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.titleMedium
                     )
@@ -51,7 +53,7 @@ fun EndWorkoutDialog(
             dismissButton = {
                 TextButton(onClick = onDismiss) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel),
                         color = MaterialTheme.colorScheme.secondary,
                         style = MaterialTheme.typography.titleMedium
                     )

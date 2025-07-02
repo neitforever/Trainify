@@ -8,8 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 
 @Composable
 fun DeleteWorkoutDialog(
@@ -22,7 +24,7 @@ fun DeleteWorkoutDialog(
             onDismissRequest = onDismiss,
             title = {
                 Text(
-                    text = "Delete workout",
+                    text = stringResource(R.string.delete_workout),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineMedium,
@@ -31,7 +33,7 @@ fun DeleteWorkoutDialog(
             },
             text = {
                 Text(
-                    text = "Are you sure you want to delete this workout? This action cannot be undone.",
+                    text = stringResource(R.string.are_you_sure_you_want_to_delete_this_workout_this_action_cannot_be_undone),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
@@ -41,7 +43,7 @@ fun DeleteWorkoutDialog(
             confirmButton = {
                 TextButton(onClick = onConfirm) {
                     Text(
-                        text = "Delete",
+                        text = stringResource(R.string.delete),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.titleMedium
                     )
@@ -50,7 +52,7 @@ fun DeleteWorkoutDialog(
             dismissButton = {
                 TextButton(onClick = onDismiss) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel),
                         color = MaterialTheme.colorScheme.secondary,
                         style = MaterialTheme.typography.titleMedium
                     )

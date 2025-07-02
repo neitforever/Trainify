@@ -1,5 +1,6 @@
 package com.example.motivationcalendarapi.ui.dialogs
 
+import com.example.motivationcalendarapi.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -10,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,7 +31,7 @@ fun WeightDialog(
 
         AlertDialog(onDismissRequest = onDismiss, title = {
             Text(
-                text = "Edit Weight",
+                text = stringResource(R.string.edit_weight),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -51,7 +53,7 @@ fun WeightDialog(
         }, confirmButton = {
             TextButton(onClick = { onSave(weight) }) {
                 Text(
-                    text = "Save",
+                    text = stringResource(R.string.save),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.titleMedium,
                 )
@@ -59,7 +61,7 @@ fun WeightDialog(
         }, dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(R.string.cancel),
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.titleMedium,
                 )
@@ -91,7 +93,7 @@ private fun WeightRow(
                 val weight = input.toFloatOrNull() ?: min
                 onValueChange(weight.coerceIn(min, max))
             },
-            label = { Text("Weight", style = MaterialTheme.typography.titleMedium) },
+            label = { Text(text = stringResource(R.string.Weight), style = MaterialTheme.typography.titleMedium) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.width(100.dp)
         )

@@ -8,8 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -28,7 +30,7 @@ fun TemplateSavedDialog(
             onDismissRequest = onDismiss,
             title = {
                 Text(
-                    text = "Template Saved",
+                    text = stringResource(R.string.template_saved),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineMedium,
@@ -37,7 +39,7 @@ fun TemplateSavedDialog(
             },
             text = {
                 Text(
-                    text = "Template '$templateName' was successfully saved!",
+                    text = stringResource(R.string.template_saved_success, templateName),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,

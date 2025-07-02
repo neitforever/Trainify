@@ -15,8 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 
 @Composable
 fun SaveTemplateDialog(
@@ -31,7 +33,7 @@ fun SaveTemplateDialog(
             onDismissRequest = onDismiss,
             title = {
                 Text(
-                    text = "Save as Template",
+                    text = stringResource(R.string.save_as_template),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineMedium,
@@ -44,7 +46,7 @@ fun SaveTemplateDialog(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Enter template name",
+                        text = stringResource(R.string.enter_template_name),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center,
@@ -53,7 +55,7 @@ fun SaveTemplateDialog(
                     TextField(
                         value = templateName,
                         onValueChange = { templateName = it },
-                        label = { Text("Template name") },
+                        label = { Text(text = stringResource(R.string.template_name)) },
                         modifier = Modifier
                             .padding(top = 16.dp)
                             .fillMaxWidth()
@@ -70,7 +72,7 @@ fun SaveTemplateDialog(
                     },
                 ) {
                     Text(
-                        text = "Save",
+                        text = stringResource(R.string.save),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -81,7 +83,7 @@ fun SaveTemplateDialog(
                     onClick = onDismiss,
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel),
                         color = MaterialTheme.colorScheme.secondary,
                         style = MaterialTheme.typography.bodyLarge
                     )

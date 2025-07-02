@@ -19,4 +19,47 @@
     <string name="update_weight">Update weight\n</string>
     <string name="weight_history">Weight History</string>
     <string name="delete">Delete</string>
+
+
+    //Dialogs
+    <string name="add_progress">Add Progress</string>
+    <string name="progress_photo">Progress photo</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="choose_from_gallery">Choose from Gallery</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="decrease_weight">Decrease weight</string>
+    <string name="weight_kg">Weight (kg)</string>
+    <string name="increase_weight">Increase weight</string>
+    <string name="delete_exercise">Delete Exercise</string>
+    <string name="are_you_sure_you_want_to_delete_this_exercise">Are you sure you want to delete this exercise?</string>
+    <string name="delete_template">Delete Template</string>
+    <string name="are_you_sure_you_want_to_delete_this_template">Are you sure you want to delete this template?</string>
+    <string name="delete_workout">Delete workout</string>
+    <string name="are_you_sure_you_want_to_delete_this_workout_this_action_cannot_be_undone">Are you sure you want to delete this workout? This action cannot be undone.</string>
+    <string name="end_workout">End workout</string>
+    <string name="are_you_sure_you_want_to_finish_the_current_training">Are you sure you want to finish the current training?</string>
+    <string name="yes_complete">Yes, complete</string>
+    <string name="please_fill_all_required_fields">Please fill all required fields!</string>
+    <string name="workout_already_exists">Workout already exists</string>
+    <string name="do_you_want_to_overwrite_training">Do you want to overwrite today’s training?</string>
+    <string name="overwrite">Overwrite</string>
+    <string name="workout_paused">Workout Paused</string>
+    <string name="workout_resumed">Workout Resumed</string>
+    <string name="progress_details">Progress Details</string>
+    <string name="close">Close</string>
+    <string name="weight">Weight:</string>
+    <string name="edit_reps">Edit Reps</string>
+    <string name="reps">Reps</string>
+    <string name="save_as_template">Save as Template</string>
+    <string name="enter_template_name">Enter template name</string>
+    <string name="template_name">Template name</string>
+    <string name="template_saved">Template Saved</string>
+    <string name="template_saved_success">Template \'%s\' was successfully saved!</string>
+    <string name="warmup_completed">Warmup Completed!</string>
+    <string name="set_rest_time">Set Rest Time</string>
+    <string name="restart">Restart</string>
+    <string name="Weight">Weight</string>
+
+    //Exercise
 </resources>

@@ -18,4 +18,46 @@
     <string name= "update_weight">Абнавіць вагу\n</string>
     <string name= "weight_history">Гісторыя вагі</string>
     <string name= "delete">Выдаліць</string>
+
+
+    //Dialogs
+    <string name="add_progress">Дадаць прагрэс</string>
+    <string name="progress_photo">Фота прагрэсу</string>
+    <string name="change_photo">Змяніць фота</string>
+    <string name="choose_from_gallery">Абраць з галерэі</string>
+    <string name="save">Захаваць</string>
+    <string name="cancel">Адмена</string>
+    <string name="decrease_weight">Паменшыць вагу</string>
+    <string name="weight_kg">Вага (кг)</string>
+    <string name="increase_weight">Павялічыць вагу</string>
+    <string name="delete_exercise">Выдаліць практыкаванне</string>
+    <string name="are_you_sure_you_want_to_delete_this_exercise">Вы ўпэўнены, што хочаце выдаліць гэта практыкаванне?</string>
+    <string name="delete_template">Выдаліць шаблон</string>
+    <string name="are_you_sure_you_want_to_delete_this_template">Вы ўпэўнены, што хочаце выдаліць гэты шаблон?</string>
+    <string name="delete_workout">Выдаліць трэніроўку</string>
+    <string name="are_you_sure_you_want_to_delete_this_workout_this_action_cannot_be_undone">Вы ўпэўнены, што хочаце выдаліць гэту трэніроўку? Гэта дзеянне немагчыма адмяніць.</string>
+    <string name="end_workout">Скончыць трэніроўку</string>
+    <string name="are_you_sure_you_want_to_finish_the_current_training">Вы ўпэўнены, што хочаце скончыць бягучую трэніроўку?</string>
+    <string name="yes_complete">Так, скончыць</string>
+    <string name="please_fill_all_required_fields">Калі ласка, запоўніце ўсе абавязковыя палі!</string>
+    <string name="workout_already_exists">Трэніроўка ўжо існуе</string>
+    <string name="do_you_want_to_overwrite_training">Хочаце перазапісаць сённяшнюю трэніроўку?</string>
+    <string name="overwrite">Перазапісаць</string>
+    <string name="workout_paused">Трэніроўка прыпынена</string>
+    <string name="workout_resumed">Трэніроўка адноўлена</string>
+    <string name="progress_details">Падрабязнасці прагрэсу</string>
+    <string name="close">Зачыніць</string>
+    <string name="weight">Вага:</string>
+    <string name="edit_reps">Рэдагаваць паўторы</string>
+    <string name="reps">Паўторы</string>
+    <string name="save_as_template">Захаваць як шаблон</string>
+    <string name="enter_template_name">Увядзіце назву шаблону</string>
+    <string name="template_name">Назва шаблону</string>
+    <string name="template_saved">Шаблон захаваны</string>
+    <string name="template_saved_success">Шаблон \'%s\' паспяхова захаваны!</string>
+    <string name="warmup_completed">Разминка скончана!</string>
+    <string name="set_rest_time">Усталяваць час адпачынку</string>
+    <string name="restart">Перазапусціць</string>
+    <string name="Weight">Вага</string>
+
 </resources>

@@ -8,8 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 
 @Composable
 fun DeleteExerciseDialog(
@@ -18,7 +20,7 @@ fun DeleteExerciseDialog(
     if (showDialog) {
         AlertDialog(onDismissRequest = onDismiss, title = {
             Text(
-                text = "Delete Exercise",
+                text = stringResource(R.string.delete_exercise),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.headlineMedium,
@@ -26,7 +28,7 @@ fun DeleteExerciseDialog(
             )
         }, text = {
             Text(
-                text = "Are you sure you want to delete this exercise?",
+                text = stringResource(R.string.are_you_sure_you_want_to_delete_this_exercise),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
@@ -37,7 +39,7 @@ fun DeleteExerciseDialog(
                 onClick = onConfirm
             ) {
                 Text(
-                    text = "Delete",
+                    text = stringResource(R.string.delete),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -47,7 +49,7 @@ fun DeleteExerciseDialog(
                 onClick = onDismiss
             ) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(R.string.cancel),
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.bodyLarge
                 )

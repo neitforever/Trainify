@@ -17,8 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
@@ -35,7 +37,7 @@ fun ProfileMonthCalendar(
     val currentDate = LocalDate.now()
     val daysInMonth = month.lengthOfMonth()
     val firstDayOfMonth = month.atDay(1)
-    val startOffset = (firstDayOfMonth.dayOfWeek.value - 1 )% 7
+    val startOffset = (firstDayOfMonth.dayOfWeek.value - 1) % 7
     val days = List(6 * 7) { index ->
         if (index >= startOffset && index < startOffset + daysInMonth) {
             index - startOffset + 1
@@ -57,7 +59,15 @@ fun ProfileMonthCalendar(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            listOf("M", "T", "W", "T", "F", "S", "S").forEach { day ->
+            listOf(
+                stringResource(R.string.monday),
+                stringResource(R.string.tuesday),
+                stringResource(R.string.wednesday),
+                stringResource(R.string.thursday),
+                stringResource(R.string.friday),
+                stringResource(R.string.saturday),
+                stringResource(R.string.sunday)
+            ).forEach { day ->
                 Text(
                     text = day,
                     style = MaterialTheme.typography.labelSmall,

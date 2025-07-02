@@ -106,4 +106,18 @@
     <string name="available_equipment">Available Equipment</string>
     <string name="no_templates_found">No templates found</string>
     <string name="scroll_to_top">Scroll to top</string>
+    // Profile
+    <string name="easy">Easy</string>
+    <string name="medium">Medium</string>
+    <string name="hard">Hard</string>
+    <string name="log_out">Log Out</string>
+    <string name="monday">M</string>
+    <string name="tuesday">T</string>
+    <string name="wednesday">W</string>
+    <string name="thursday">T</string>
+    <string name="friday">F</string>
+    <string name="saturday">S</string>
+    <string name="sunday">S</string>
+    <string name="workouts">Workouts</string>
+    <string name="training_activity">Training Activity</string>
 </resources>

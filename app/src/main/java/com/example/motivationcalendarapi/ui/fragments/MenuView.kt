@@ -46,6 +46,9 @@ fun NavigationMenuView(
         Screen.WorkoutHistory, Screen.ExercisesView, Screen.Settings,
     )
 
+    val context = LocalContext.current
+
+
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentRoute = navBackStackEntry?.destination?.route?.split("/")?.get(0)
 
@@ -132,7 +135,7 @@ fun NavigationMenuView(
                 iconResId?.let {
                     Icon(
                         painter = painterResource(id = it),
-                        contentDescription = "${screen.title} Icon",
+                        contentDescription = "${screen.getTitle(context)} Icon",
                         modifier = Modifier.size(28.dp),
                         tint = if (isSelected) MaterialTheme.colorScheme.primary
                         else MaterialTheme.colorScheme.onSurface
@@ -140,7 +143,7 @@ fun NavigationMenuView(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(
-                    text = screen.title,
+                    text = screen.getTitle(context),
                     color = if (isSelected) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge

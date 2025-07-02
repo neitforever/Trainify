@@ -493,8 +493,8 @@ fun AddWorkoutScreen(
 
                     if (isNameEmpty || hasInvalidSets) {
                         validationMessage = buildString {
-                            if (isNameEmpty) append(stringResource(R.string.workout_name_cannot_be_empty))
-                            if (hasInvalidSets) append(stringResource(R.string.all_sets_must_have_reps))
+                            if (isNameEmpty) append(R.string.workout_name_cannot_be_empty.toString())
+                            if (hasInvalidSets) append(R.string.all_sets_must_have_reps.toString())
                         }
                         showValidationDialog = true
                     } else {

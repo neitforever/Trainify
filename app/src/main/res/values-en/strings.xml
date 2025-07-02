@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
-    //body_progress
+<!--    body_progress-->
     <string name="body_progress_not_enough_data">\"Not enough data to display\\nAdd at least 2 measurements\"</string>
     <string name="body_progress_track_progress">Start Tracking Your Progress</string>
     <string name="body_progress_tracking_description">For accurate tracking:</string>
@@ -19,9 +18,7 @@
     <string name="update_weight">Update weight\n</string>
     <string name="weight_history">Weight History</string>
     <string name="delete">Delete</string>
-
-
-    //Dialogs
+<!--    Dialogs-->
     <string name="add_progress">Add Progress</string>
     <string name="progress_photo">Progress photo</string>
     <string name="change_photo">Change Photo</string>
@@ -29,7 +26,7 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="decrease_weight">Decrease weight</string>
-    <string name="weight_kg">Weight (kg)</string>
+    <string name="weight_kg">Weight(kg)</string>
     <string name="increase_weight">Increase weight</string>
     <string name="delete_exercise">Delete Exercise</string>
     <string name="are_you_sure_you_want_to_delete_this_exercise">Are you sure you want to delete this exercise?</string>
@@ -60,8 +57,7 @@
     <string name="set_rest_time">Set Rest Time</string>
     <string name="restart">Restart</string>
     <string name="Weight">Weight</string>
-
-    //Exercise
+<!--Exercise-->
     <string name="drop_down_list">drop down list</string>
     <string name="template_header_animation">Template Header Animation</string>
     <string name="templates">Templates</string>
@@ -103,7 +99,7 @@
     <string name="available_equipment">Available Equipment</string>
     <string name="no_templates_found">No templates found</string>
     <string name="scroll_to_top">Scroll to top</string>
-    // Profile
+<!--Profile-->
     <string name="easy">Easy</string>
     <string name="medium">Medium</string>
     <string name="hard">Hard</string>
@@ -117,7 +113,7 @@
     <string name="sunday">S</string>
     <string name="workouts">Workouts</string>
     <string name="training_activity">Training Activity</string>
-    //Settings
+<!--    //Settings-->
     <string name="primary">Primary</string>
     <string name="secondary">Secondary</string>
     <string name="tertiary">Tertiary</string>
@@ -132,15 +128,15 @@
     <string name="minimum_reps_cannot_be_negative">Minimum reps cannot be negative</string>
     <string name="min_reps_exceeds_max">Min reps cannot exceed max (%d)</string>
     <string name="max_reps_less_than_min">Max reps cannot be less than min (%d)</string>
-    <string name="max_weight_less_than_min">Max weight cannot be less than min (%.1f kg)</string>
+    <string name="max_weight_less_than_min">Max weight cannot be less than min (%.1fkg)</string>
     <string name="maximum_reps">Maximum Reps</string>
     <string name="step_size">Step Size</string>
     <string name="weight_configuration">Weight Configuration</string>
-    <string name="minimum_weight_kg">Minimum Weight (kg)</string>
-    <string name="maximum_weight_kg">Maximum Weight (kg)</string>
-    <string name="step_size_kg">Step Size (kg)</string>
+    <string name="minimum_weight_kg">Minimum Weight(kg)</string>
+    <string name="maximum_weight_kg">Maximum Weight(kg)</string>
+    <string name="step_size_kg">Step Size(kg)</string>
     <string name="navigate">Navigate</string>
-    //Template
+<!--    //Template-->
     <string name="menu">Menu</string>
     <string name="info">Info</string>
     <string name="exercise_info">Exercise Info</string>
@@ -161,25 +157,21 @@
     <string name="include_training_type">• Include training type (e.g. \'Push/Pull Split\')</string>
     <string name="keep_it_short_and_recognizable">• Keep it short and recognizable</string>
     <string name="add_exercise">Add exercise</string>
-    //Auth
+<!--    //Auth-->
     <string name="welcome_to_trainify">Welcome to Trainify\n</string>
     <string name="google">Google</string>
     <string name="continue_with_google">Continue with Google</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">By continuing, you agree to our Terms of Service and Privacy Policy\n</string>
     <string name="signing_in">Signing in...\n</string>
-
-
-    //Workout
+    <!--    //Workout-->
     <string name="previous_month">Previous month</string>
     <string name="next_month">Next month</string>
     <string name="save_template">Save template</string>
     <string name="workout_difficulty">Workout difficulty</string>
     <string name="exercises_performed">Exercises Performed</string>
     <string name="max_set">Max Set</string>
-    <string name="max_set_format">Max Set: %.1fkg × %d</string>
     <string name="kg">kg</string>
     <string name="time">time\n</string>
-    <string name="add_all_with_count">Add All (%d)</string>
     <string name="max_set_format">Max Set: %.1fkg × %d</string>
     <string name="deleted">Deleted</string>
     <string name="add_your_notes_here">Add your notes here...</string>
@@ -199,10 +191,6 @@
     <string name="workout_history_is_empty">Workout history is empty</string>
     <string name="your_completed_workouts_will_appear_here">Your completed workouts will appear here</string>
     <string name="difficulty_level">Difficulty Level</string>
-    <plurals name="exercises_count">
-        <item quantity="one">%d exercise</item>
-        <item quantity="other">%d exercises</item>
-    </plurals>
     <plurals name="workouts_per_week">
         <item quantity="one">%d workout/week</item>
         <item quantity="other">%d workouts/week</item>
@@ -210,4 +198,21 @@
     <plurals name="week_number">
         <item quantity="one">Week %d</item>
     </plurals>
+    <!--    Screen-->
+    <string name="auth">Auth</string>
+    <string name="profile">Profile</string>
+    <string name="weight_progress">Weight progress</string>
+    <string name="workout">Workout</string>
+    <string name="history">History</string>
+    <string name="template">Template</string>
+    <string name="edit_template_name">Edit Template Name</string>
+    <string name="exercise">Exercise</string>
+    <string name="new_exercise">New Exercise</string>
+    <string name="edit_name">Edit Name</string>
+    <string name="select_equipment">Select Equipment</string>
+    <string name="select_body_part">Select Body Part</string>
+    <string name="edit_instructions">Edit Instructions</string>
+    <string name="settings">Settings</string>
+    <string name="theme_settings">Theme Settings</string>
+    <string name="workout_settings">Workout Settings</string>
 </resources>

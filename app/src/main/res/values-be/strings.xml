@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    //body_progress
+<!--    body_progress-->
     <string name= "body_progress_not_enough_data">\"Недастаткова дадзеных для адлюстравання\\nпрынамсі 2 вымярэнняў\"</string>
     <string name= "body_progress_track_progress">Пачніце адсочваць свой прагрэс</string>
     <string name= "body_progress_tracking_description">Для дакладнага адсочвання:</string>
@@ -18,9 +18,7 @@
     <string name= "update_weight">Абнавіць вагу\n</string>
     <string name= "weight_history">Гісторыя вагі</string>
     <string name= "delete">Выдаліць</string>
-
-
-    //Dialogs
+<!--Dialogs-->
     <string name="add_progress">Дадаць прагрэс</string>
     <string name="progress_photo">Фота прагрэсу</string>
     <string name="change_photo">Змяніць фота</string>
@@ -28,7 +26,7 @@
     <string name="save">Захаваць</string>
     <string name="cancel">Адмена</string>
     <string name="decrease_weight">Паменшыць вагу</string>
-    <string name="weight_kg">Вага (кг)</string>
+    <string name="weight_kg">Вага(кг)</string>
     <string name="increase_weight">Павялічыць вагу</string>
     <string name="delete_exercise">Выдаліць практыкаванне</string>
     <string name="are_you_sure_you_want_to_delete_this_exercise">Вы ўпэўнены, што хочаце выдаліць гэта практыкаванне?</string>
@@ -59,9 +57,7 @@
     <string name="set_rest_time">Усталяваць час адпачынку</string>
     <string name="restart">Перазапусціць</string>
     <string name="Weight">Вага</string>
-
-
-    //Exercise
+<!--Exercise-->
     <string name="drop_down_list">Выпадальны спіс</string>
     <string name="template_header_animation">Анімацыя загалоўка шаблону</string>
     <string name="templates">Шаблоны</string>
@@ -103,8 +99,7 @@
     <string name="available_equipment">Даступны інвентар</string>
     <string name="no_templates_found">Шаблоны не знойдзены</string>
     <string name="scroll_to_top">Пракруціць уверх</string>
-    // Profile
-    <!-- Профіль -->
+<!--Profile-->
     <string name="easy">Лёгкі</string>
     <string name="medium">Сярэдні</string>
     <string name="hard">Цяжкі</string>
@@ -118,7 +113,7 @@
     <string name="sunday">Н</string>  <!-- Нядзеля -->
     <string name="workouts">Трэніроўкі</string>
     <string name="training_activity">Актыўнасць</string>
-    //Settings
+<!--    //Settings-->
     <string name="primary">Асноўны</string>
     <string name="secondary">Другасны</string>
     <string name="tertiary">Трацічны</string>
@@ -133,15 +128,15 @@
     <string name="minimum_reps_cannot_be_negative">Мінімальная колькасць не можа быць адмоўнай</string>
     <string name="min_reps_exceeds_max">Мін. колькасць не можа перавышаць макс. (%d)</string>
     <string name="max_reps_less_than_min">Макс. колькасць не можа быць менш за мін. (%d)</string>
-    <string name="max_weight_less_than_min">Макс. вага не можа быць менш за мін. (%.1f кг)</string>
+    <string name="max_weight_less_than_min">Макс. вага не можа быць менш за мін. (%.1fкг)</string>
     <string name="maximum_reps">Максімальная колькасць</string>
     <string name="step_size">Крок змянення</string>
     <string name="weight_configuration">Налады вагі</string>
-    <string name="minimum_weight_kg">Мінімальная вага (кг)</string>
-    <string name="maximum_weight_kg">Максімальная вага (кг)</string>
-    <string name="step_size_kg">Крок змянення (кг)</string>
+    <string name="minimum_weight_kg">Мінімальная вага(кг)</string>
+    <string name="maximum_weight_kg">Максімальная вага(кг)</string>
+    <string name="step_size_kg">Крок змянення(кг)</string>
     <string name="navigate">Навігацыя</string>
-    //Template
+<!--    //Template-->
     <string name="menu">Меню</string>
     <string name="info">Інфо</string>
     <string name="exercise_info">Інфармацыя пра практыкаванне</string>
@@ -162,14 +157,13 @@
     <string name="include_training_type">• Пазначайце тып трэніроўкі (напрыклад, «Спліт на штуршок/цягу»)</string>
     <string name="keep_it_short_and_recognizable">• Рабіце назву кароткай і пазнавальнай</string>
     <string name="add_exercise">Дадаць практыкаванне</string>
-    //Auth
+<!--    //Auth-->
     <string name="welcome_to_trainify">Сардэчна запрашаем у Trainify\n</string>
     <string name="google">Google</string>
     <string name="continue_with_google">Працягнуць з Google</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">Працягваючы, вы згаджаецеся з нашымі Умовамі абслугоўвання і Палітыкай прыватнасці\n</string>
     <string name="signing_in">Уваход у сістэму...\n</string>
-
-
+    <!--    //Workout-->
     <string name="previous_month">Папярэдні месяц</string>
     <string name="next_month">Наступны месяц</string>
     <string name="save_template">Захаваць шаблон</string>
@@ -179,7 +173,6 @@
     <string name="max_set_format">Макс. падыход: %.1fкг × %d</string>
     <string name="kg">кг</string>
     <string name="time">Час\n</string>
-    <string name="add_all_with_count">Дадаць усе (%d)</string>
     <string name="deleted">Выдалена</string>
     <string name="add_your_notes_here">Дадайце заўвагі тут...</string>
     <string name="select_content_type">Выберыце тып кантэнту</string>
@@ -196,15 +189,8 @@
     <string name="all_sets_must_have_reps">Усе падыходы павінны мець паўторы</string>
     <string name="empty_history">Пустая гісторыя</string>
     <string name="workout_history_is_empty">Гісторыя трэніровак пустая</string>
-    <string name="your_completed_workouts_will_appear_here">Вашы завершаныя трэніроўкі з'явяцца тут</string>
+    <string name="your_completed_workouts_will_appear_here">Вашы завершаныя трэніроўкі з\'явяцца тут</string>
     <string name="difficulty_level">Узровень складанасці</string>
-
-    <plurals name="exercises_count">
-        <item quantity="one">%d практыкаванне</item>
-        <item quantity="few">%d практыкаванні</item>
-        <item quantity="many">%d практыкаванняў</item>
-        <item quantity="other">%d практыкаванняў</item>
-    </plurals>
 
     <plurals name="workouts_per_week">
         <item quantity="one">%d трэніроўка/тыдзень</item>
@@ -212,11 +198,27 @@
         <item quantity="many">%d трэніровак/тыдзень</item>
         <item quantity="other">%d трэніровак/тыдзень</item>
     </plurals>
-
     <plurals name="week_number">
         <item quantity="one">%d-ы тыдзень</item>
         <item quantity="few">%d-я тыдні</item>
         <item quantity="many">%d-ы тыдняў</item>
         <item quantity="other">%d-ы тыдняў</item>
     </plurals>
+<!--    Screen-->
+    <string name="auth">Аўтарызацыя</string>
+    <string name="profile">Профіль</string>
+    <string name="weight_progress">Прагрэс вагі</string>
+    <string name="workout">Трэніроўка</string>
+    <string name="history">Гісторыя</string>
+    <string name="template">Шаблон</string>
+    <string name="edit_template_name">Змяніць назву шаблону</string>
+    <string name="exercise">Практыкаванне</string>
+    <string name="new_exercise">Новае практыкаванне</string>
+    <string name="edit_name">Змяніць назву</string>
+    <string name="select_equipment">Выбраць абсталяванне</string>
+    <string name="select_body_part">Выбраць частку цела</string>
+    <string name="edit_instructions">Рэдагаваць інструкцыі</string>
+    <string name="settings">Налады</string>
+    <string name="theme_settings">Налады тэмы</string>
+    <string name="workout_settings">Налады трэніроўкі</string>
 </resources>

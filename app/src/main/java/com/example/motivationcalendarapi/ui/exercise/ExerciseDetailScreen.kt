@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,6 +46,8 @@ fun ExerciseDetailScreen(
     val showDeleteDialog = remember { mutableStateOf(false) }
     val selectedExercise = remember { mutableStateOf<Exercise?>(null) }
     val favoriteExercises by viewModel.getFavoriteExercises().collectAsState(initial = emptyList())
+
+    val context = LocalContext.current
     LaunchedEffect(exerciseId) {
         coroutineScope {
             launch(Dispatchers.IO) {
@@ -77,7 +80,7 @@ fun ExerciseDetailScreen(
                         .padding(start = 4.dp)
                 ) {
                     Text(
-                        text = Screen.ExerciseDetailView.title,
+                        text = Screen.ExerciseDetailView.getTitle(context),
                         style = MaterialTheme.typography.displaySmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis

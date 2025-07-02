@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +39,7 @@ fun EditExerciseInstructionsScreen(
 ) {
     val tempExercise by viewModel.tempExercise.collectAsState()
     var newInstructions by remember { mutableStateOf("") }
-
+    val context = LocalContext.current
     LaunchedEffect(exerciseId) {
         coroutineScope {
             launch(Dispatchers.IO) {
@@ -62,7 +63,7 @@ fun EditExerciseInstructionsScreen(
                 title = {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = Screen.EditExerciseInstructions.title,
+                            text = Screen.EditExerciseInstructions.getTitle(context),
                             style = MaterialTheme.typography.displaySmall,
                             maxLines = 1
                         )

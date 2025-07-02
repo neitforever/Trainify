@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -57,13 +58,15 @@ fun CreateExerciseScreen(
         return
     }
 
+    val context = LocalContext.current
+
     Scaffold(topBar = {
         TopAppBar(colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             titleContentColor = MaterialTheme.colorScheme.primary,
         ), title = {
             Text(
-                text = Screen.CreateExercise.title,
+                text = Screen.CreateExercise.getTitle(context),
                 style = MaterialTheme.typography.displaySmall,
                 maxLines = 1,
             )

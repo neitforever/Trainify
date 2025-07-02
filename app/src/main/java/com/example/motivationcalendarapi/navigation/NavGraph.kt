@@ -190,7 +190,7 @@ fun NavGraph(
                                         .padding(start = 4.dp)
                                 ) {
                                     Text(
-                                        text = it.title,
+                                        text = it.getTitle(context),
                                         style = MaterialTheme.typography.displaySmall,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis

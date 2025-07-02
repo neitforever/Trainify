@@ -115,8 +115,8 @@ fun TemplateSelectionItem(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = pluralStringResource(
-                        R.plurals.exercises_count,
+                    text = stringResource(
+                        R.string.exercises_count,
                         template.exercises.size,
                         template.exercises.size
                     ),

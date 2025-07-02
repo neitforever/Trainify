@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +40,7 @@ fun EditExerciseNameScreen(
 
     val tempExercise by viewModel.tempExercise.collectAsState()
     var newName by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     LaunchedEffect(exerciseId) {
         coroutineScope {
@@ -67,7 +69,7 @@ fun EditExerciseNameScreen(
                     .padding(start = 4.dp)
             ) {
                 Text(
-                    text = Screen.EditExerciseName.title,
+                    text = Screen.EditExerciseName.getTitle(context),
                     style = MaterialTheme.typography.displaySmall,
                     maxLines = 1,
                 )

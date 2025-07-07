@@ -15,8 +15,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -27,6 +29,8 @@ import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun ProfileMonthCalendar(
@@ -34,7 +38,6 @@ fun ProfileMonthCalendar(
     workoutDifficulties: Map<LocalDate, DifficultyLevel>,
     modifier: Modifier = Modifier
 ) {
-    val currentDate = LocalDate.now()
     val daysInMonth = month.lengthOfMonth()
     val firstDayOfMonth = month.atDay(1)
     val startOffset = (firstDayOfMonth.dayOfWeek.value - 1) % 7
@@ -46,14 +49,26 @@ fun ProfileMonthCalendar(
         }
     }
 
+
+    val context = LocalContext.current
+    val currentLocale = context.resources.configuration.locales[0] ?: Locale.getDefault()
+
+    val monthName = remember(month, currentLocale) {
+        month.month.getDisplayName(TextStyle.SHORT, currentLocale)
+    }
+    val formattedYear = remember(month) {
+        (month.year % 100).toString().padStart(2, '0')
+    }
+
     Column(modifier = modifier.padding(4.dp)) {
         Text(
-            text = "${month.month.name.take(3).uppercase()} ${month.year.toString().takeLast(2)}",
+            text = "${monthName.uppercase(currentLocale)} $formattedYear",
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(bottom = 8.dp)
         )
+
 
         Row(
             modifier = Modifier.fillMaxWidth(),

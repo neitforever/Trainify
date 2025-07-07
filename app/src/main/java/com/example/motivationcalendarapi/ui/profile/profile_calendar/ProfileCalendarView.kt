@@ -29,11 +29,13 @@ fun ProfileCalendarView(
     modifier: Modifier
 ) {
     val currentDate = LocalDate.now()
+
     val months = listOf(
         currentDate.minusMonths(2).withDayOfMonth(1),
         currentDate.minusMonths(1).withDayOfMonth(1),
         currentDate.withDayOfMonth(1)
     )
+
 
     val workoutDifficulties = remember(workouts) {
         workouts.associate { workout ->

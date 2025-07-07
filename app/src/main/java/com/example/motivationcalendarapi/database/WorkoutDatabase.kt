@@ -1,13 +1,10 @@
-package com.motivationcalendar.data
+package com.example.motivationcalendarapi.database
 
 import android.content.Context
 import androidx.room.*
-import com.example.motivationcalendarapi.database.ExerciseDao
 import com.example.motivationcalendarapi.model.Converters
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.Workout
-import com.example.motivationcalendarapi.database.BodyProgressDao
-import com.example.motivationcalendarapi.database.TemplateDao
 import com.example.motivationcalendarapi.model.BodyProgress
 import com.example.motivationcalendarapi.model.Template
 

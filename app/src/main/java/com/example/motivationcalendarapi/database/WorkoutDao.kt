@@ -1,4 +1,4 @@
-package com.motivationcalendar.data
+package com.example.motivationcalendarapi.database
 
 import androidx.room.*
 import com.example.motivationcalendarapi.model.Workout

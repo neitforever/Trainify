@@ -39,7 +39,7 @@ import com.example.motivationcalendarapi.viewmodel.WorkoutViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.motivationcalendar.data.WorkoutDatabase
+import com.example.motivationcalendarapi.database.WorkoutDatabase
 
 class MainActivity : ComponentActivity() {
     // private lateinit var auth: FirebaseAuth
@@ -123,7 +123,6 @@ class MainActivity : ComponentActivity() {
                         mainViewModel,
                         exerciseViewModel,
                         drawerState,
-                        googleAuthClient,
                         authViewModel,
                         bodyProgressViewModel = bodyProgressViewModel,
                         workoutSettingsViewModel = workoutSettingsViewModel,

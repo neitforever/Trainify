@@ -17,9 +17,9 @@ fun NetworkExercise.toDatabaseModel(): NetworkExercise {
     )
 }
 
-fun List<NetworkExercise>.toDatabaseModels(): List<NetworkExercise> {
-    return this.map { it.toDatabaseModel() }
-}
+//fun List<NetworkExercise>.toDatabaseModels(): List<NetworkExercise> {
+//    return this.map { it.toDatabaseModel() }
+//}
 
 
 //fun Workout.toDatabaseModel():  {

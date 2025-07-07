@@ -1,17 +1,14 @@
 package com.example.motivationcalendarapi.repositories
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.Workout
 import com.google.firebase.auth.FirebaseAuth
-import com.motivationcalendar.data.WorkoutDatabase
-import kotlinx.coroutines.Dispatchers
+import com.example.motivationcalendarapi.database.WorkoutDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 
 class WorkoutRepository(

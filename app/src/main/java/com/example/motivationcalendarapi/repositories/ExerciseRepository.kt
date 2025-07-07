@@ -5,7 +5,7 @@ import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.network.ApiClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
-import com.motivationcalendar.data.WorkoutDatabase
+import com.example.motivationcalendarapi.database.WorkoutDatabase
 import kotlinx.coroutines.flow.Flow
 
 class ExerciseRepository(

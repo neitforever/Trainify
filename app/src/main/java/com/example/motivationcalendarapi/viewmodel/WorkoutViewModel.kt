@@ -6,25 +6,32 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
+import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
-import com.example.motivationcalendarapi.model.DifficultyLevel
-import com.example.motivationcalendarapi.model.Template
-import com.example.motivationcalendarapi.repositories.MainRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.Month
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Collections
 
@@ -32,7 +39,7 @@ class WorkoutViewModel(
     val workoutRepository: WorkoutRepository,
     private val savedStateHandle: SavedStateHandle,
     private val timerDataStore: TimerDataStore,
-    private val mainRepository: MainRepository,
+    mainRepository: MainRepository,
 ) : ViewModel() {
 
 
@@ -53,15 +60,15 @@ class WorkoutViewModel(
     }
 
 
-    fun addExercisesToTemplate(templateId: String, newExercises: List<ExtendedExercise>) {
-        viewModelScope.launch {
-            val template = workoutRepository.getTemplateById(templateId).first()
-            template?.let {
-                val updatedExercises = it.exercises + newExercises
-                workoutRepository.updateTemplate(it.copy(exercises = updatedExercises))
-            }
-        }
-    }
+//    fun addExercisesToTemplate(templateId: String, newExercises: List<ExtendedExercise>) {
+//        viewModelScope.launch {
+//            val template = workoutRepository.getTemplateById(templateId).first()
+//            template?.let {
+//                val updatedExercises = it.exercises + newExercises
+//                workoutRepository.updateTemplate(it.copy(exercises = updatedExercises))
+//            }
+//        }
+//    }
 
     fun syncAllData() {
         viewModelScope.launch {
@@ -123,9 +130,9 @@ class WorkoutViewModel(
         }
     }
 
-    suspend fun updateTemplate(template: Template) {
-        workoutRepository.updateTemplate(template)
-    }
+//    suspend fun updateTemplate(template: Template) {
+//        workoutRepository.updateTemplate(template)
+//    }
 
     fun deleteTemplate(template: Template) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -325,10 +332,10 @@ class WorkoutViewModel(
     val isWorkoutStarted: StateFlow<Boolean> = _isWorkoutStarted.asStateFlow()
 
     private val _currentWorkout = MutableStateFlow<Workout?>(null)
-    val currentWorkout: StateFlow<Workout?> get() = _currentWorkout
+//    val currentWorkout: StateFlow<Workout?> get() = _currentWorkout
 
-    private val _isLoadingWorkout = MutableStateFlow(false)
-    val isLoadingWorkout: StateFlow<Boolean> = _isLoadingWorkout.asStateFlow()
+//    private val _isLoadingWorkout = MutableStateFlow(false)
+//    val isLoadingWorkout: StateFlow<Boolean> = _isLoadingWorkout.asStateFlow()
 
     private val _selectedExercises = MutableStateFlow<List<ExtendedExercise>>(emptyList())
     val selectedExercises: StateFlow<List<ExtendedExercise>> = _selectedExercises.asStateFlow()
@@ -490,23 +497,23 @@ class WorkoutViewModel(
 
 
 
-    fun getWorkoutOrderInMonth(workout: Workout, workouts: List<Workout>): Int {
-        val allInMonth = workouts.filter { other ->
-            val workoutDate =
-                Instant.ofEpochMilli(workout.timestamp).atZone(ZoneId.systemDefault()).toLocalDate()
-            val otherDate =
-                Instant.ofEpochMilli(other.timestamp).atZone(ZoneId.systemDefault()).toLocalDate()
-            workoutDate.year == otherDate.year && workoutDate.month == otherDate.month
-        }
-        return allInMonth.indexOf(workout) + 1
-    }
+//    fun getWorkoutOrderInMonth(workout: Workout, workouts: List<Workout>): Int {
+//        val allInMonth = workouts.filter { other ->
+//            val workoutDate =
+//                Instant.ofEpochMilli(workout.timestamp).atZone(ZoneId.systemDefault()).toLocalDate()
+//            val otherDate =
+//                Instant.ofEpochMilli(other.timestamp).atZone(ZoneId.systemDefault()).toLocalDate()
+//            workoutDate.year == otherDate.year && workoutDate.month == otherDate.month
+//        }
+//        return allInMonth.indexOf(workout) + 1
+//    }
 
 
-    fun updateWorkout(workout: Workout) {
-        viewModelScope.launch(Dispatchers.IO) {
-            workoutRepository.updateWorkout(workout)
-        }
-    }
+//    fun updateWorkout(workout: Workout) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            workoutRepository.updateWorkout(workout)
+//        }
+//    }
 
     fun loadWorkouts() {
         viewModelScope.launch {
@@ -517,10 +524,10 @@ class WorkoutViewModel(
     }
 
 
-    fun finishWorkout() {
-        _timerRunning.value = false
-        _isWorkoutStarted.value = false
-    }
+//    fun finishWorkout() {
+//        _timerRunning.value = false
+//        _isWorkoutStarted.value = false
+//    }
 
 
 
@@ -543,9 +550,9 @@ class WorkoutViewModel(
     }
 
 
-    fun formatWorkoutName(name: String): String {
-        return if (name.isBlank()) "Blank" else name
-    }
+//    fun formatWorkoutName(name: String): String {
+//        return if (name.isBlank()) "Blank" else name
+//    }
 
     fun deleteWorkout(workout: Workout) {
         viewModelScope.launch {

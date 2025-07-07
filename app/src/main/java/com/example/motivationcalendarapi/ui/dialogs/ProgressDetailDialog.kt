@@ -20,25 +20,38 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.BodyProgress
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun ProgressDetailDialog(
     progress: BodyProgress,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
+    val formattedDateTime = remember(progress.timestamp) {
+        val locale = context.resources.configuration.locales[0] ?: Locale.getDefault()
+        val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm", locale)
+        Instant.ofEpochMilli(progress.timestamp)
+            .atZone(ZoneId.systemDefault())
+            .format(formatter)
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier
@@ -111,7 +124,7 @@ fun ProgressDetailDialog(
                     }
 
                     Text(
-                        text = SimpleDateFormat("dd MMM yyyy 'at' HH:mm").format(Date(progress.timestamp)),
+                        text = formattedDateTime,
                         style = MaterialTheme.typography.titleMedium,
                         color = colorScheme.onSurfaceVariant
                     )

@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,13 +34,14 @@ import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
-import formatDate
+import com.example.motivationcalendarapi.utils.formatDate
 import java.util.Locale
 
 @Composable
 fun WorkoutItem(
     workout: Workout, onClick: () -> Unit, viewModel: WorkoutViewModel
 ) {
+    val context = LocalContext.current
     val difficulty by remember(workout) {
         derivedStateOf { viewModel.calculateWorkoutDifficulty(workout) }
     }
@@ -103,7 +105,7 @@ fun WorkoutItem(
                 )
 
                 Text(
-                    text = formatDate(workout.timestamp),
+                    text = formatDate(context,workout.timestamp),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -1,6 +1,7 @@
 package com.example.motivationcalendarapi.ui.template
 
 import LoadingView
+import Screen
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box

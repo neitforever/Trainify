@@ -4,21 +4,30 @@ import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import com.example.motivationcalendarapi.model.BodyProgress
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 @Composable
 fun WeightHistoryChart(
     progressList: List<BodyProgress>,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val currentLocale = context.resources.configuration.locales[0] ?: Locale.getDefault()
+    val dateFormatter = remember(currentLocale) {
+        SimpleDateFormat("dd MMM", currentLocale)
+    }
+
     val sortedList = progressList.sortedBy { it.timestamp }
     if (sortedList.isEmpty()) return
 
@@ -117,7 +126,6 @@ fun WeightHistoryChart(
             lastY = y
         }
 
-        val dateFormat = SimpleDateFormat("dd MMM")
         val firstDate = sortedList.first().timestamp
         val lastDate = sortedList.last().timestamp
         val middleDate = (firstDate + lastDate) / 2
@@ -125,7 +133,7 @@ fun WeightHistoryChart(
         listOf(firstDate, middleDate, lastDate).forEach { date ->
             val x = padding + (date - minDate) / (maxDate - minDate) * chartWidth
             drawContext.canvas.nativeCanvas.drawText(
-                dateFormat.format(Date(date.toLong())),
+                dateFormatter.format(Date(date.toLong())),
                 x,
                 padding + chartHeight + 30f,
                 Paint().apply {

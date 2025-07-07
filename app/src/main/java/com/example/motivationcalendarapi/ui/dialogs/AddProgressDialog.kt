@@ -1,6 +1,5 @@
 package com.example.motivationcalendarapi.ui.dialogs
 
-import com.example.motivationcalendarapi.R
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,6 +35,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.example.motivationcalendarapi.R
 
 @Composable
 fun AddProgressDialog(
@@ -62,9 +63,8 @@ fun AddProgressDialog(
     onSave: (Double, Uri) -> Unit
 ) {
     if (showDialog) {
-        var weight by remember { mutableStateOf(initialWeight) }
+        var weight by remember { mutableDoubleStateOf(initialWeight) }
         var photoUri by remember { mutableStateOf<Uri?>(null) }
-        val context = LocalContext.current
         val isValid = photoUri != null && weight > 0.0
 
         val galleryLauncher = rememberLauncherForActivityResult(
@@ -229,7 +229,7 @@ private fun WeightRow(
             ),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
-                autoCorrect = false
+                autoCorrectEnabled  = false
             ),
             modifier = Modifier
                 .width(160.dp)

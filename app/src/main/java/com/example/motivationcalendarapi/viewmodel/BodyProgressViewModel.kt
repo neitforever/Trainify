@@ -5,9 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.motivationcalendarapi.model.BodyProgress
 import com.example.motivationcalendarapi.repositories.BodyProgressRepository
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 class BodyProgressViewModel(
     private val repository: BodyProgressRepository
@@ -60,6 +58,7 @@ class BodyProgressViewModel(
 class BodyProgressViewModelFactory(
     private val repository: BodyProgressRepository
 ) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return BodyProgressViewModel(repository) as T
     }

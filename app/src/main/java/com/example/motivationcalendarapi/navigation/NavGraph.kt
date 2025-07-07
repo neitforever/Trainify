@@ -41,10 +41,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.ui.body_progress.BodyProgressScreen
-import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.ui.AuthScreen
-import com.example.motivationcalendarapi.ui.profile.ProfileScreen
+import com.example.motivationcalendarapi.ui.body_progress.BodyProgressScreen
 import com.example.motivationcalendarapi.ui.exercise.BodyPartSelectionScreen
 import com.example.motivationcalendarapi.ui.exercise.CreateExerciseScreen
 import com.example.motivationcalendarapi.ui.exercise.EditExerciseInstructionsScreen
@@ -53,19 +51,20 @@ import com.example.motivationcalendarapi.ui.exercise.EquipmentSelectionScreen
 import com.example.motivationcalendarapi.ui.exercise.ExerciseDetailScreen
 import com.example.motivationcalendarapi.ui.exercise.ExerciseScreen
 import com.example.motivationcalendarapi.ui.exercise.SearchExerciseScreen
+import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
+import com.example.motivationcalendarapi.ui.profile.ProfileScreen
 import com.example.motivationcalendarapi.ui.settings.SettingsScreen
 import com.example.motivationcalendarapi.ui.settings.theme_settings.ThemeSettingsScreen
-import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
 import com.example.motivationcalendarapi.ui.settings.workout_settings.WorkoutSettingsScreen
 import com.example.motivationcalendarapi.ui.template.EditTemplateNameScreen
 import com.example.motivationcalendarapi.ui.template.TemplateDetailScreen
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
+import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
-import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
-import com.motivationcalendar.ui.AddWorkoutScreen
-import com.motivationcalendar.ui.WorkoutHistoryDetailScreen
+import com.example.motivationcalendarapi.ui.workout.AddWorkoutScreen
+import com.example.motivationcalendarapi.ui.workout.detail.WorkoutHistoryDetailScreen
 import com.motivationcalendar.ui.WorkoutHistoryScreen
 import kotlinx.coroutines.launch
 
@@ -76,7 +75,6 @@ fun NavGraph(
     navHostController: NavHostController,
     navController: NavController,
     workoutViewModel: WorkoutViewModel,
-    mainViewModel: MainViewModel,
     exerciseViewModel: ExerciseViewModel,
     drawerState: MutableState<DrawerState>,
     authViewModel: AuthViewModel,
@@ -118,7 +116,7 @@ fun NavGraph(
                     .fillMaxHeight()
                     .fillMaxWidth(0.8f)
             ) {
-                NavigationMenuView(    mainViewModel = mainViewModel,
+                NavigationMenuView(
                     authViewModel = authViewModel,navController = navController, onItemClick = {
                         coroutineScope.launch {
                             drawerState.value.close()
@@ -358,7 +356,6 @@ fun NavGraph(
 
                     composable(Screen.Settings.route) {
                         SettingsScreen(
-                            context,
                             navController,
                             paddingValues = paddingValue.calculateTopPadding()
                         )
@@ -367,7 +364,6 @@ fun NavGraph(
                     composable(Screen.ThemeSettings.route) {
                         ThemeSettingsScreen(
                             context,
-                            navController,
                             paddingValues = paddingValue.calculateTopPadding()
                         )
                     }
@@ -375,7 +371,6 @@ fun NavGraph(
                     composable(Screen.WorkoutSettings.route) {
                         WorkoutSettingsScreen(
                             viewModel = workoutSettingsViewModel,
-                            navController,
                             paddingValues = paddingValue.calculateTopPadding()
                         )
                     }
@@ -470,7 +465,6 @@ fun NavGraph(
                         val context = LocalContext.current
                         BodyProgressScreen(
                             viewModel = bodyProgressViewModel,
-                            navController = navHostController,
                             context = context,
                             paddingValues = paddingValue.calculateTopPadding()
                         )

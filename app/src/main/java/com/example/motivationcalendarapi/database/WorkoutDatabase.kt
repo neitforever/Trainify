@@ -1,12 +1,15 @@
 package com.example.motivationcalendarapi.database
 
 import android.content.Context
-import androidx.room.*
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.example.motivationcalendarapi.model.BodyProgress
 import com.example.motivationcalendarapi.model.Converters
 import com.example.motivationcalendarapi.model.Exercise
-import com.example.motivationcalendarapi.model.Workout
-import com.example.motivationcalendarapi.model.BodyProgress
 import com.example.motivationcalendarapi.model.Template
+import com.example.motivationcalendarapi.model.Workout
 
 
 @Database(

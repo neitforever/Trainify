@@ -1,18 +1,25 @@
-import java.text.SimpleDateFormat
+package com.example.motivationcalendarapi.utils
+
+import android.content.Context
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
-fun formatTime(seconds: Int?): String {
-    return String.format("%02d:%02d", seconds!! / 60, seconds!! % 60)
+fun formatTime(context: Context, seconds: Int?): String {
+    val safeSeconds = seconds ?: 0
+    return String.format(
+        context.resources.configuration.locales[0] ?: Locale.getDefault(),
+        "%02d:%02d",
+        safeSeconds / 60,
+        safeSeconds % 60
+    )
 }
 
-
-fun formatDate(timestamp: Long): String {
-    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())
+fun formatDate(context: Context, timestamp: Long): String {
+    val locale = context.resources.configuration.locales[0] ?: Locale.getDefault()
+    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", locale)
     return Instant.ofEpochMilli(timestamp)
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
@@ -21,10 +28,7 @@ fun formatDate(timestamp: Long): String {
 
 fun getWeekOfMonth(timestamp: Long?): String {
     val calendar = Calendar.getInstance()
-    calendar.timeInMillis = timestamp!!
-
+    calendar.timeInMillis = timestamp ?: System.currentTimeMillis()
     calendar.firstDayOfWeek = Calendar.MONDAY
-    val weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH)
-
-    return "$weekOfMonth"
+    return calendar.get(Calendar.WEEK_OF_MONTH).toString()
 }

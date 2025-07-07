@@ -1,7 +1,6 @@
 package com.example.motivationcalendarapi.viewmodel
 
 import GoogleAuthClient
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.motivationcalendarapi.repositories.BodyProgressRepository

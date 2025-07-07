@@ -1,5 +1,6 @@
 package com.example.motivationcalendarapi.ui.fragments
 
+import Screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,22 +22,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.ui.theme.BLACK_COLOR
 import com.example.motivationcalendarapi.ui.theme.WHITE_COLOR
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
-import com.example.motivationcalendarapi.viewmodel.MainViewModel
 
 @Composable
 fun NavigationMenuView(
-    mainViewModel: MainViewModel,
     authViewModel: AuthViewModel,
     navController: NavController,
     onItemClick: () -> Unit
@@ -52,8 +48,6 @@ fun NavigationMenuView(
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentRoute = navBackStackEntry?.destination?.route?.split("/")?.get(0)
 
-    val isDarkTheme = mainViewModel.isDarkTheme
-    val color = if (isDarkTheme) BLACK_COLOR else WHITE_COLOR
 
     Column {
         if (authViewModel.getCurrentUser()?.email != null) {

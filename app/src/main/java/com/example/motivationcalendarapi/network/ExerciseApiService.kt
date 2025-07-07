@@ -1,6 +1,5 @@
 package com.example.motivationcalendarapi.network
 
-import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseResponse
 import retrofit2.http.GET
 import retrofit2.http.Query

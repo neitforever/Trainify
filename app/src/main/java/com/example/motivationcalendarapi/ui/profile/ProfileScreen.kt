@@ -1,7 +1,6 @@
 package com.example.motivationcalendarapi.ui.profile
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,11 +18,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.motivationcalendarapi.ui.profile.profile_calendar.ProfileCalendarView
 import com.example.motivationcalendarapi.ui.profile.fragments.LegendRow
 import com.example.motivationcalendarapi.ui.profile.fragments.LogoutButton
 import com.example.motivationcalendarapi.ui.profile.fragments.ProfileHeader
 import com.example.motivationcalendarapi.ui.profile.fragments.StatsRow
+import com.example.motivationcalendarapi.ui.profile.profile_calendar.ProfileCalendarView
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 
@@ -34,7 +33,6 @@ fun ProfileScreen(
     workoutViewModel: WorkoutViewModel,
     paddingValues: Dp,
 ) {
-    val userState = authViewModel.userState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val allWorkouts by workoutViewModel.allWorkouts.collectAsState()
     val weekReps by workoutViewModel.weekReps.collectAsState()

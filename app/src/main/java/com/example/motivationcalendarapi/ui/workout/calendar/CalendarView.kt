@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.utils.CalendarState
 import java.time.Instant
-import java.time.ZoneId
 import java.time.YearMonth
+import java.time.ZoneId
 
 @Composable
 fun CustomCalendarView(

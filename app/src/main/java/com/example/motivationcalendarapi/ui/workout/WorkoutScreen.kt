@@ -1,8 +1,10 @@
-package com.motivationcalendar.ui
+package com.example.motivationcalendarapi.ui.workout
 
 import android.content.Context
+import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
@@ -14,51 +16,75 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absolutePadding
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
-import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
-import getWeekOfMonth
-import kotlinx.coroutines.launch
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.ui.dialogs.EndWorkoutDialog
-import com.example.motivationcalendarapi.ui.workout.fragments.ExerciseSelectionBottomSheet
-import com.example.motivationcalendarapi.ui.workout.fragments.TimerBottomSheet
-import com.example.motivationcalendarapi.ui.workout.detail.fragments.TotalWeightAndTimeRow
-import com.example.motivationcalendarapi.ui.workout.fragments.WorkoutNameTextField
 import com.example.motivationcalendarapi.ui.dialogs.AutoDismissDialog
+import com.example.motivationcalendarapi.ui.dialogs.EndWorkoutDialog
 import com.example.motivationcalendarapi.ui.dialogs.ExistWorkoutDialog
 import com.example.motivationcalendarapi.ui.dialogs.TimerCompleteDialog
 import com.example.motivationcalendarapi.ui.dialogs.WarmupDialog
 import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
+import com.example.motivationcalendarapi.ui.workout.detail.fragments.TotalWeightAndTimeRow
+import com.example.motivationcalendarapi.ui.workout.fragments.ExerciseSelectionBottomSheet
 import com.example.motivationcalendarapi.ui.workout.fragments.InActiveWorkoutScreen
-import com.example.motivationcalendarapi.utils.CalendarState
+import com.example.motivationcalendarapi.ui.workout.fragments.TimerBottomSheet
+import com.example.motivationcalendarapi.ui.workout.fragments.WorkoutNameTextField
+import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
+import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
+import com.example.motivationcalendarapi.utils.getWeekOfMonth
+import com.motivationcalendar.ui.ExerciseCard
+import com.motivationcalendar.ui.PauseWorkoutDialog
+import com.motivationcalendar.ui.RepsDialog
 import kotlinx.coroutines.delay
-import java.time.LocalDate
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,8 +105,8 @@ fun AddWorkoutScreen(
     val totalKg by workoutViewModel.totalKg.collectAsState()
     var showRepDialog by remember { mutableStateOf(false) }
     var showWeightDialog by remember { mutableStateOf(false) }
-    var currentExerciseIndex by remember { mutableStateOf(0) }
-    var currentSetIndex by remember { mutableStateOf(0) }
+    var currentExerciseIndex by remember { mutableIntStateOf(0) }
+    var currentSetIndex by remember { mutableIntStateOf(0) }
 
     val currentWeek = getWeekOfMonth(System.currentTimeMillis())
     val workoutsThisWeek = workouts.count { workout ->
@@ -117,16 +143,15 @@ fun AddWorkoutScreen(
     val warmupTime by workoutViewModel.warmupTime.collectAsState()
     var currentTime by remember(warmupTime) { mutableIntStateOf(warmupTime) }
     var isTimerRunning by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
 
 
 
 
-    @Composable
-    fun rememberCalendarState(initialDate: LocalDate = LocalDate.now()) = remember {
-        CalendarState(initialDate)
-    }
+//    @Composable
+//    fun rememberCalendarState(initialDate: LocalDate = LocalDate.now()) = remember {
+//        CalendarState(initialDate)
+//    }
 
 
 
@@ -142,6 +167,8 @@ fun AddWorkoutScreen(
 
     var showTimerCompleteDialog by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+
     LaunchedEffect(isTimerRunning, currentTime) {
         if (isTimerRunning && currentTime > 0) {
             delay(1000L)
@@ -151,11 +178,22 @@ fun AddWorkoutScreen(
             showTimerCompleteDialog = true
             currentTime = warmupTime
 
-            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            if (vibrator.hasVibrator()) {
-                vibrator.vibrate(
-                    VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
-                )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                val vibrator = vibratorManager.defaultVibrator
+                if (vibrator.hasVibrator()) {
+                    vibrator.vibrate(
+                        VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+                    )
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                if (vibrator.hasVibrator()) {
+                    vibrator.vibrate(
+                        VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+                    )
+                }
             }
         }
     }
@@ -406,10 +444,6 @@ fun AddWorkoutScreen(
                                     currentSetIndex = setIndex
                                     showWeightDialog = true
                                 },
-                                onStatusClick = { exIndex, setIndex ->
-                                    currentExerciseIndex = exIndex
-                                    currentSetIndex = setIndex
-                                },
                                 onMoveUp = { workoutViewModel.moveExerciseUp(index) },
                                 onMoveDown = { workoutViewModel.moveExerciseDown(index) },
                                 canMoveUp = index > 0,
@@ -447,7 +481,6 @@ fun AddWorkoutScreen(
                 if (!isWorkoutStarted) {
                     InActiveWorkoutScreen(
                         workoutViewModel = workoutViewModel,
-                        exerciseViewModel = exersiceViewModel,
                         navController = navController,
                         paddingTop = paddingValues.calculateTopPadding()
                     )
@@ -515,7 +548,8 @@ fun AddWorkoutScreen(
 
             RepsDialog(
                 showDialog = showRepDialog,
-                initialRep = exerciseSetsMap[currentExerciseIndex]?.getOrNull(currentSetIndex)?.rep ?: minRep,
+                initialRep = exerciseSetsMap[currentExerciseIndex]?.getOrNull(currentSetIndex)?.rep
+                    ?: minRep,
                 minRep = minRep,
                 maxRep = maxRep,
                 stepRep = stepRep,
@@ -523,7 +557,11 @@ fun AddWorkoutScreen(
                 onSave = { newRep ->
                     exerciseSetsMap[currentExerciseIndex]?.let { sets ->
                         if (currentSetIndex < sets.size) {
-                            workoutViewModel.updateRep(currentExerciseIndex, currentSetIndex, newRep)
+                            workoutViewModel.updateRep(
+                                currentExerciseIndex,
+                                currentSetIndex,
+                                newRep
+                            )
                         }
                     }
                     showRepDialog = false

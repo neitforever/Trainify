@@ -1,8 +1,8 @@
 package com.example.motivationcalendarapi.repositories
 
+import com.example.motivationcalendarapi.database.WorkoutDatabase
 import com.example.motivationcalendarapi.model.BodyProgress
 import com.google.firebase.auth.FirebaseAuth
-import com.example.motivationcalendarapi.database.WorkoutDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 

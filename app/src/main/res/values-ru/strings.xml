@@ -2,7 +2,7 @@
 <resources>
 
 <!--body_progress-->
-    <string name="body_progress_not_enough_data">\"Недостаточно данных для отображения\\nДобавьте хотя бы 2 измерения\"</string>
+    <string name="body_progress_not_enough_data">Недостаточно данных для отображения\nДобавьте хотя бы 2 измерения</string>
     <string name="body_progress_track_progress">Начните отслеживать прогресс</string>
     <string name="body_progress_tracking_description">Для точного отслеживания:</string>
     <string name="measure_at_the_same_time_daily">Измеряйтесь в одно и то же время</string>
@@ -67,13 +67,13 @@
     <string name="no_results_for_query">Нет результатов для \"%s\"</string>
     <string name="no_exercises_found">Упражнения не найдены</string>
     <string name="search">Поиск</string>
-    <string name="search_exercises">Поиск упражнений...</string>
+    <string name="search_exercises">Поиск упражнений…</string>
     <string name="clear_search">Очистить поиск</string>
     <string name="add_all_with_count">Добавить все (%d)</string>
     <string name="exercises_count">%d упражнений</string>
     <string name="template_menu">Меню шаблона</string>
     <string name="view_exercises">Просмотр упражнений</string>
-    <string name="chest_back_legs">Грудь, Спина, Ноги...</string>
+    <string name="chest_back_legs">Грудь, Спина, Ноги…</string>
     <string name="save_body_part">Сохранить часть тела</string>
     <string name="available_body_parts">Доступные части тела</string>
     <string name="name">Название</string>
@@ -83,18 +83,18 @@
     <string name="body_part">Часть тела</string>
     <string name="instructions">Инструкции</string>
     <string name="back">Назад</string>
-    <string name="enter_instructions">Введите инструкции (по одной на строку)...</string>
+    <string name="enter_instructions">Введите инструкции (по одной на строку)…</string>
     <string name="guidelines">Рекомендации:</string>
     <string name="start_each_instruction_with_a_verb">• Начинайте инструкцию с глагола (например, «Держите», «Согните», «Поднимите»)</string>
     <string name="keep_instructions_concise_and_clear">• Делайте инструкции краткими и понятными</string>
     <string name="use_one_line_per_step">• Один шаг — одна строка</string>
     <string name="numbering_will_be_added_automatically">• Нумерация будет добавлена автоматически</string>
-    <string name="bench_press_squats">Жим лёжа, Приседания...</string>
+    <string name="bench_press_squats">Жим лёжа, Приседания…</string>
     <string name="exercise_name_guidelines">Правила названий упражнений:</string>
     <string name="use_descriptive_names">• Используйте описательные названия (например, «Жим гантелей на наклонной скамье»)</string>
     <string name="include_equipment_when_relevant">• Указывайте инвентарь, если это важно (например, «Приседания со штангой»)</string>
     <string name="keep_it_short_but_informative">• Делайте название коротким, но информативным</string>
-    <string name="barbell_dumbbells">Штанга, Гантели...</string>
+    <string name="barbell_dumbbells">Штанга, Гантели…</string>
     <string name="save_equipment">Сохранить инвентарь</string>
     <string name="available_equipment">Доступный инвентарь</string>
     <string name="no_templates_found">Шаблоны не найдены</string>
@@ -151,7 +151,7 @@
     <string name="add_set">Добавить подход</string>
     <string name="note">Заметка</string>
     <string name="move_down">Опустить ниже</string>
-    <string name="workout_template_split">Шаблон тренировки, Сплит...</string>
+    <string name="workout_template_split">Шаблон тренировки, Сплит…</string>
     <string name="template_name_guidelines">Правила названий шаблонов:</string>
     <string name="use_descriptive_names_template">• Используйте описательные названия (например, «Тренировка всего тела»)</string>
     <string name="include_training_type">• Указывайте тип тренировки (например, «Сплит на толчок/тягу»)</string>
@@ -162,7 +162,7 @@
     <string name="google">Google</string>
     <string name="continue_with_google">Продолжить с Google</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">Продолжая, вы соглашаетесь с нашими Условиями обслуживания и Политикой конфиденциальности\n</string>
-    <string name="signing_in">Вход в систему...\n</string>
+    <string name="signing_in">Вход в систему…\n</string>
 <!--    //Workout-->
     <string name="previous_month">Предыдущий месяц</string>
     <string name="next_month">Следующий месяц</string>
@@ -174,12 +174,12 @@
     <string name="kg">кг</string>
     <string name="time">Время\n</string>
     <string name="deleted">Удалено</string>
-    <string name="add_your_notes_here">Добавьте заметки здесь...</string>
+    <string name="add_your_notes_here">Добавьте заметки здесь…</string>
     <string name="select_content_type">Выберите тип контента</string>
     <string name="exercises">Упражнения</string>
     <string name="pause">Пауза</string>
     <string name="start">Старт</string>
-    <string name="workout_name">Название тренировки...</string>
+    <string name="workout_name">Название тренировки…</string>
     <string name="open_menu">Открыть меню</string>
     <string name="warmup">Разминка\n</string>
     <string name="repeat">Повторить\n</string>

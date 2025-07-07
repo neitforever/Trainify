@@ -2,9 +2,7 @@ package com.example.motivationcalendarapi.ui.workout.fragments
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import com.example.motivationcalendarapi.R
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,12 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Template
 
 @Composable

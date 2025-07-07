@@ -1,11 +1,8 @@
 package com.example.motivationcalendarapi.repositories
 
-import com.example.motivationcalendarapi.mapper.toEntity
-import com.example.motivationcalendarapi.model.Exercise
-import com.example.motivationcalendarapi.network.ApiClient
-import com.google.firebase.auth.FirebaseAuth
-import com.google.gson.Gson
 import com.example.motivationcalendarapi.database.WorkoutDatabase
+import com.example.motivationcalendarapi.model.Exercise
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.Flow
 
 class ExerciseRepository(
@@ -50,20 +47,20 @@ class ExerciseRepository(
         }
     }
 
-    suspend fun getExerciseFromApi(): List<Exercise> {
-        return try {
-            val localExercises = appDatabase.exerciseDao().getAllExercisesOnce()
-            ApiClient.apiService.getExercises()
-                .map { response ->
-                    val localExercise = localExercises.find { it.id == response.id }
-                    response.toEntity().copy(
-                        favorite = localExercise?.favorite ?: false
-                    )
-                }
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
+//    suspend fun getExerciseFromApi(): List<Exercise> {
+//        return try {
+//            val localExercises = appDatabase.exerciseDao().getAllExercisesOnce()
+//            ApiClient.apiService.getExercises()
+//                .map { response ->
+//                    val localExercise = localExercises.find { it.id == response.id }
+//                    response.toEntity().copy(
+//                        favorite = localExercise?.favorite ?: false
+//                    )
+//                }
+//        } catch (_: Exception) {
+//            emptyList()
+//        }
+//    }
 
     suspend fun syncExercisesWithFirestore() {
         if (currentUser == null) return
@@ -94,9 +91,9 @@ class ExerciseRepository(
     }
 
 
-    suspend fun getAllExercisesOnce(): List<Exercise> {
-        return appDatabase.exerciseDao().getAllExercisesOnce()
-    }
+//    suspend fun getAllExercisesOnce(): List<Exercise> {
+//        return appDatabase.exerciseDao().getAllExercisesOnce()
+//    }
 
     fun getAllBodyParts() = appDatabase.exerciseDao().getAllBodyParts()
 
@@ -129,19 +126,19 @@ class ExerciseRepository(
     }
 
 
-    suspend fun updateExerciseSecondaryMuscles(id: String, newSecondaryMuscles: String) {
-        val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
-        val updatedExercise = exercise.copy(secondaryMuscles = parseSecondaryMuscles(newSecondaryMuscles))
-        insertExercise(updatedExercise)
-    }
+//    suspend fun updateExerciseSecondaryMuscles(id: String, newSecondaryMuscles: String) {
+//        val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
+//        val updatedExercise = exercise.copy(secondaryMuscles = parseSecondaryMuscles(newSecondaryMuscles))
+//        insertExercise(updatedExercise)
+//    }
 
-    private fun parseSecondaryMuscles(input: String): List<String> {
-        return input.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-    }
+//    private fun parseSecondaryMuscles(input: String): List<String> {
+//        return input.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+//    }
 
-    fun getAllSecondaryMuscles() = appDatabase.exerciseDao().getAllSecondaryMuscles()
+//    fun getAllSecondaryMuscles() = appDatabase.exerciseDao().getAllSecondaryMuscles()
 
-    private val gson = Gson()
+//    private val gson = Gson()
 
     suspend fun updateExerciseInstructions(id: String, newInstructions: List<String>) {
         val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return

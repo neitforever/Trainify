@@ -62,12 +62,12 @@ class SettingsDataStore(private val context: Context) {
 
     val isDarkThemeFlow: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
-            preferences[IS_DARK_THEME] ?: true
+            preferences[IS_DARK_THEME] != false
         }
 
     suspend fun toggleTheme() {
         context.dataStore.edit { preferences ->
-            val currentTheme = preferences[IS_DARK_THEME] ?: true
+            val currentTheme = preferences[IS_DARK_THEME] != false
             preferences[IS_DARK_THEME] = !currentTheme
         }
     }

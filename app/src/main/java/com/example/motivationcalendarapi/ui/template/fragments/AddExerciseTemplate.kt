@@ -21,7 +21,6 @@ import com.example.motivationcalendarapi.ui.exercise.fragments.SearchBar
 import com.example.motivationcalendarapi.ui.exercise.fragments.SearchResultsList
 import com.example.motivationcalendarapi.ui.workout.fragments.BodyPartsList
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
-import kotlin.collections.removeAll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -3,8 +3,8 @@ package com.example.motivationcalendarapi.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.mapper.toEntity
+import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.network.ApiClient
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -50,11 +50,11 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
         }
     }
 
-    fun getExerciseFromApi() {
-        viewModelScope.launch(Dispatchers.IO) {
-            exerciseRepository.getExerciseFromApi()
-        }
-    }
+//    fun getExerciseFromApi() {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            exerciseRepository.getExerciseFromApi()
+//        }
+//    }
 
     fun getExercisesByBodyPart(bodyPart: String): Flow<List<Exercise>> {
         return exerciseRepository.getExercisesByBodyPart(bodyPart)
@@ -107,7 +107,7 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
 
 
 
-    val allSecondaryMuscles: Flow<List<String>> = exerciseRepository.getAllSecondaryMuscles()
+//    val allSecondaryMuscles: Flow<List<String>> = exerciseRepository.getAllSecondaryMuscles()
 
     fun updateExerciseInstructions(id: String, newInstructions: List<String>) {
         viewModelScope.launch {
@@ -167,11 +167,11 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
         }
     }
 
-    fun updateExerciseSecondaryMuscles(id: String, newSecondaryMuscles: String) {
-        viewModelScope.launch {
-            exerciseRepository.updateExerciseSecondaryMuscles(id, newSecondaryMuscles)
-        }
-    }
+//    fun updateExerciseSecondaryMuscles(id: String, newSecondaryMuscles: String) {
+//        viewModelScope.launch {
+//            exerciseRepository.updateExerciseSecondaryMuscles(id, newSecondaryMuscles)
+//        }
+//    }
 
     fun updateExerciseName(id: String, newName: String) {
         if (id == _tempExercise.value?.id) {

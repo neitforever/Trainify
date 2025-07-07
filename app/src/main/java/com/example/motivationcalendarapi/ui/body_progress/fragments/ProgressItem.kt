@@ -18,20 +18,32 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.BodyProgress
-import java.text.SimpleDateFormat
 import java.util.Date
 
 @Composable
 fun ProgressItem(
-    progress: BodyProgress, onDelete: () -> Unit, onClick: () -> Unit
+    progress: BodyProgress,
+    onDelete: () -> Unit,
+    onClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val dateFormat = remember {
+        java.text.DateFormat.getDateTimeInstance(
+            java.text.DateFormat.MEDIUM,
+            java.text.DateFormat.SHORT,
+            context.resources.configuration.locales[0]
+        )
+    }
+
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
@@ -42,7 +54,6 @@ fun ProgressItem(
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .clickable(onClick = onClick),
     ) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -53,7 +64,7 @@ fun ProgressItem(
         ) {
             Column {
                 Text(
-                    text = stringResource(R.string.weight_with_unit_precise,progress.weight),
+                    text = stringResource(R.string.weight_with_unit_precise, progress.weight),
                     style = MaterialTheme.typography.titleMedium,
                     color = colorScheme.primary,
                     maxLines = 1,
@@ -61,7 +72,7 @@ fun ProgressItem(
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
-                    text = SimpleDateFormat("dd MMM yyyy HH:mm").format(Date(progress.timestamp)),
+                    text = dateFormat.format(Date(progress.timestamp)),
                     style = MaterialTheme.typography.titleSmall,
                     color = colorScheme.onSurfaceVariant,
                     maxLines = 1,

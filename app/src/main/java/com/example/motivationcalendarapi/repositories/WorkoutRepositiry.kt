@@ -1,12 +1,12 @@
 package com.example.motivationcalendarapi.repositories
 
 import androidx.lifecycle.ViewModel
+import com.example.motivationcalendarapi.database.WorkoutDatabase
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.Workout
 import com.google.firebase.auth.FirebaseAuth
-import com.example.motivationcalendarapi.database.WorkoutDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
@@ -208,14 +208,14 @@ class WorkoutRepository(
         }
     }
 
-    suspend fun updateWorkout(workout: Workout) {
-        if (currentUser != null) {
-            firestoreRepo.update(workout)
-            appDatabase.workoutDao().updateWorkout(workout)
-        } else {
-            appDatabase.workoutDao().updateWorkout(workout)
-        }
-    }
+//    suspend fun updateWorkout(workout: Workout) {
+//        if (currentUser != null) {
+//            firestoreRepo.update(workout)
+//            appDatabase.workoutDao().updateWorkout(workout)
+//        } else {
+//            appDatabase.workoutDao().updateWorkout(workout)
+//        }
+//    }
 
     suspend fun syncWithFirestore() {
         if (currentUser == null) return
@@ -235,9 +235,9 @@ class WorkoutRepository(
     fun getExerciseNotesUpdates(): Flow<List<Exercise>> =
         appDatabase.exerciseDao().getAllExercisesWithNotes()
 
-
-    suspend fun getExerciseNoteById(id: String): String? =
-        appDatabase.exerciseDao().getExerciseNote(id)
+//
+//    suspend fun getExerciseNoteById(id: String): String? =
+//        appDatabase.exerciseDao().getExerciseNote(id)
 
     suspend fun updateExerciseNote(id: String, newNote: String) {
         appDatabase.exerciseDao().updateExerciseNote(id, newNote)

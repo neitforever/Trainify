@@ -91,7 +91,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun WorkoutScreen(
     workoutViewModel: WorkoutViewModel,
-    exersiceViewModel: ExerciseViewModel,
+    exerciseViewModel: ExerciseViewModel,
     navController: NavController,
     drawerState: MutableState<DrawerState>
 ) {
@@ -410,7 +410,7 @@ fun WorkoutScreen(
                         ExerciseSelectionBottomSheet(
                             isSheetOpen = isSheetOpen,
                             sheetState = sheetState,
-                            exerciseViewModel = exersiceViewModel,
+                            exerciseViewModel = exerciseViewModel,
                             workoutViewModel = workoutViewModel,
                             navController = navController,
                         )

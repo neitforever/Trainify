@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -81,7 +79,6 @@ fun NavGraph(
     mainViewModel: MainViewModel,
     exerciseViewModel: ExerciseViewModel,
     drawerState: MutableState<DrawerState>,
-    googleAuthClient: GoogleAuthClient,
     authViewModel: AuthViewModel,
     bodyProgressViewModel: BodyProgressViewModel,
     workoutSettingsViewModel: WorkoutSettingsViewModel

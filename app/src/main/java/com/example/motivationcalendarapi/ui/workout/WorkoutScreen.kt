@@ -77,9 +77,9 @@ import com.example.motivationcalendarapi.ui.workout.fragments.ExerciseSelectionB
 import com.example.motivationcalendarapi.ui.workout.fragments.InActiveWorkoutScreen
 import com.example.motivationcalendarapi.ui.workout.fragments.TimerBottomSheet
 import com.example.motivationcalendarapi.ui.workout.fragments.WorkoutNameTextField
+import com.example.motivationcalendarapi.utils.getStartAndEndOfCurrentWeek
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
-import com.example.motivationcalendarapi.utils.getWeekOfMonth
 import com.motivationcalendar.ui.ExerciseCard
 import com.motivationcalendar.ui.PauseWorkoutDialog
 import com.motivationcalendar.ui.RepsDialog
@@ -89,7 +89,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddWorkoutScreen(
+fun WorkoutScreen(
     workoutViewModel: WorkoutViewModel,
     exersiceViewModel: ExerciseViewModel,
     navController: NavController,
@@ -108,11 +108,14 @@ fun AddWorkoutScreen(
     var currentExerciseIndex by remember { mutableIntStateOf(0) }
     var currentSetIndex by remember { mutableIntStateOf(0) }
 
-    val currentWeek = getWeekOfMonth(System.currentTimeMillis())
-    val workoutsThisWeek = workouts.count { workout ->
-        getWeekOfMonth(workout.timestamp) == currentWeek
+    val (startOfWeek, endOfWeek) = remember { getStartAndEndOfCurrentWeek() }
+    val workoutNumberInWeek by remember(workouts) {
+        derivedStateOf {
+            workouts.count { workout ->
+                workout.timestamp in startOfWeek..endOfWeek
+            }
+        }
     }
-    val workoutNumberInWeek = workoutsThisWeek
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isSheetOpen = remember { mutableStateOf(false) }

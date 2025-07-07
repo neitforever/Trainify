@@ -63,7 +63,7 @@ import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
-import com.example.motivationcalendarapi.ui.workout.AddWorkoutScreen
+import com.example.motivationcalendarapi.ui.workout.WorkoutScreen
 import com.example.motivationcalendarapi.ui.workout.detail.WorkoutHistoryDetailScreen
 import com.motivationcalendar.ui.WorkoutHistoryScreen
 import kotlinx.coroutines.launch
@@ -283,7 +283,7 @@ fun NavGraph(
                 ) {
 
                     composable(Screen.AddWorkout.route) {
-                        AddWorkoutScreen(
+                        WorkoutScreen(
                             workoutViewModel, exerciseViewModel, navController, drawerState
                         )
                     }

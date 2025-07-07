@@ -101,6 +101,7 @@ fun NavGraph(
     // val pagerState = rememberPagerState(pageCount = { 2 })
     val screens = listOf(
         Screen.WorkoutHistory,
+        Screen.WorkoutDetail,
         Screen.ExercisesView,
         Screen.Settings,
         Screen.ThemeSettings,

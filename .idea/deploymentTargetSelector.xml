@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="MotivationCalendarAPI.app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-07-02T14:55:31.686364Z">
+        <DropdownSelection timestamp="2025-07-02T14:58:58.365377Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/neitik/.android/avd/android10.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=A54J023407000962" />
             </handle>
           </Target>
         </DropdownSelection>

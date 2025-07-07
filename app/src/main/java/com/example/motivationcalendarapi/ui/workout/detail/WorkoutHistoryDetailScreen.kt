@@ -73,12 +73,10 @@ fun WorkoutHistoryDetailScreen(
             onDismiss = { showSaveTemplateDialog.value = false },
             onConfirm = { name ->
                 selectedWorkout.value?.let { workout ->
-                    val exercisesWithoutSets = workout.exercises.map { ex ->
-                        ex.copy(sets = emptyList())
-                    }
+                    val exercises = workout.exercises
                     val templateWorkout = workout.copy(
                         name = name,
-                        exercises = exercisesWithoutSets,
+                        exercises = exercises,
                         duration = 0,
                         timestamp = System.currentTimeMillis()
                     )

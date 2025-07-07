@@ -50,11 +50,11 @@ fun WorkoutHistoryScreen(
         .collectAsState(initial = emptyMap())
 
     var expandedYears by remember { mutableStateOf(setOf<Int>()) }
-    var expandedMonths by remember { mutableStateOf(setOf<Pair<Int, Month>>()) } // Изменено на Month
-    var expandedWeeks by remember { mutableStateOf(setOf<Triple<Int, Month, Int>>()) } // Изменено на Month
+    var expandedMonths by remember { mutableStateOf(setOf<Pair<Int, Month>>()) }
+    var expandedWeeks by remember { mutableStateOf(setOf<Triple<Int, Month, Int>>()) }
 
     val currentYear = LocalDate.now().year
-    val currentMonth = LocalDate.now().month // Получаем текущий месяц как Month
+    val currentMonth = LocalDate.now().month
     val currentWeek = Calendar.getInstance().get(Calendar.WEEK_OF_MONTH)
 
     LaunchedEffect(groupedWorkouts) {

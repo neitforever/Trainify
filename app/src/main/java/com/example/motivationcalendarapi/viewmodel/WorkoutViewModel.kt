@@ -156,7 +156,7 @@ class WorkoutViewModel(
             timerDataStore.saveWarmupTime(newTime)
         }
     }
-//
+
     val templates: Flow<List<Template>>
         get() = workoutRepository.getAllTemplates()
     fun loadTemplates() {
@@ -168,9 +168,7 @@ class WorkoutViewModel(
     fun saveAsTemplate(workout: Workout, templateName: String) {
         val template = Template(
             name = templateName,
-            exercises = workout.exercises.map { ex ->
-                ex.copy(sets = emptyList())
-            },
+            exercises = workout.exercises,
             timestamp = System.currentTimeMillis()
         )
         viewModelScope.launch(Dispatchers.IO) {

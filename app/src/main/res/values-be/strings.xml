@@ -15,7 +15,7 @@
     <string name="weight_with_unit_precise">%.1fкг</string>
     <string name="weight_with_unit">%1$sкг</string>
     <string name= "edit_weight">Змяніць вагу</string>
-    <string name= "update_weight">Абнавіць вагу\n</string>
+    <string name= "update_weight">Абнавіць вагу</string>
     <string name= "weight_history">Гісторыя вагі</string>
     <string name= "delete">Выдаліць</string>
 <!--Dialogs-->
@@ -222,4 +222,11 @@
     <string name="settings">Налады</string>
     <string name="theme_settings">Налады тэмы</string>
     <string name="workout_settings">Налады трэніроўкі</string>
+
+    <string name="language_settings">Налады мовы</string>
+    <string name="russian">Руская</string>
+    <string name="english">Англійская</string>
+    <string name="belarusian">Беларуская</string>
+    <string name="current_language">Бягучая мова: %s</string>
+    <string name="system_default">Сістэмныя</string>
 </resources>

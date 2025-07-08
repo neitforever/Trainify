@@ -8,7 +8,17 @@ import kotlinx.coroutines.flow.Flow
 class MainRepository(private val context: Context) {
 
 
+
+
+
     private val settingsDataStore = SettingsDataStore(context)
+
+    val languageFlow: Flow<String> = settingsDataStore.languageFlow
+
+    suspend fun saveLanguage(languageCode: String) {
+        settingsDataStore.saveLanguage(languageCode)
+    }
+
 
 
     val minRepFlow: Flow<Int> = settingsDataStore.minRepFlow
@@ -29,9 +39,9 @@ class MainRepository(private val context: Context) {
 
     val isDarkThemeFlow: Flow<Boolean> = settingsDataStore.isDarkThemeFlow
 
-    suspend fun toggleTheme() {
-        settingsDataStore.toggleTheme()
-    }
+//    suspend fun toggleTheme() {
+//        settingsDataStore.toggleTheme()
+//    }
 
     suspend fun saveThemePreference(isDark: Boolean) {
         context.dataStore.edit { preferences ->

@@ -13,6 +13,31 @@ import kotlinx.coroutines.launch
 class MainViewModel(private val repository: MainRepository) : ViewModel() {
 
 
+    var appLanguage by mutableStateOf("en")
+        private set
+
+//    var isChangingLanguage by mutableStateOf(false)
+//        private set
+
+    init {
+        viewModelScope.launch {
+            repository.languageFlow.collect { lang ->
+                appLanguage = lang
+            }
+        }
+    }
+
+    var recreateActivity: (() -> Unit)? = null
+
+    fun changeLanguage(languageCode: String) {
+        viewModelScope.launch {
+            repository.saveLanguage(languageCode)
+            appLanguage = languageCode
+            recreateActivity?.invoke()
+        }
+    }
+
+
 
     var isDarkTheme by mutableStateOf(true)
         private set
@@ -25,11 +50,11 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
         }
     }
 
-    fun toggleTheme() {
-        viewModelScope.launch {
-            repository.toggleTheme()
-        }
-    }
+//    fun toggleTheme() {
+//        viewModelScope.launch {
+//            repository.toggleTheme()
+//        }
+//    }
 
     fun setTheme(isDark: Boolean) {
         viewModelScope.launch {

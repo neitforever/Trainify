@@ -40,4 +40,5 @@ sealed class Screen(
     object Settings : Screen("settings", R.string.settings)
     object ThemeSettings : Screen("settings_themes", R.string.theme_settings)
     object WorkoutSettings : Screen("settings_workout", R.string.workout_settings)
+    object LanguageSettings : Screen("settings_language", R.string.language_settings)
 }

@@ -40,6 +40,7 @@ fun SettingsScreen(
     val items = listOf(
         Screen.ThemeSettings,
         Screen.WorkoutSettings,
+        Screen.LanguageSettings,
     )
 
     val context = LocalContext.current

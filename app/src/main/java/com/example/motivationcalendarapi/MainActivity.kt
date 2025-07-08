@@ -3,6 +3,8 @@ package com.example.motivationcalendarapi
 import GoogleAuthClient
 import NavGraph
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,9 +42,10 @@ import com.example.motivationcalendarapi.viewmodel.WorkoutViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestoreSettings
+import java.util.*
 
 class MainActivity : ComponentActivity() {
-    // private lateinit var auth: FirebaseAuth
+
     @SuppressLint("UnrememberedMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,14 +54,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val context = LocalContext.current
-            val db = WorkoutDatabase.getDatabase(LocalContext.current)
+            val db = WorkoutDatabase.getDatabase(context)
             val auth = FirebaseAuth.getInstance()
             val workoutFirestoreRepo = WorkoutFirestoreRepository()
             val bodyProgressFirestoreRepo = BodyProgressFirestoreRepository()
             val templateFirestoreRepo = TemplateFirestoreRepository()
             val exerciseFirestoreRepo = ExerciseFirestoreRepository()
             val firestore = remember { FirebaseFirestore.getInstance() }
-            firestore.firestoreSettings = firestoreSettings{}
+            firestore.firestoreSettings = firestoreSettings {}
 
             val workoutRepository = WorkoutRepository(
                 db,
@@ -72,7 +75,6 @@ class MainActivity : ComponentActivity() {
                 exerciseFirestoreRepo,
                 FirebaseAuth.getInstance()
             )
-
 
             val mainRepository = MainRepository(context)
             val bodyProgressRepository = BodyProgressRepository(db, bodyProgressFirestoreRepo, auth)
@@ -91,7 +93,6 @@ class MainActivity : ComponentActivity() {
                 factory = WorkoutSettingsViewModelFactory(mainRepository)
             )
 
-
             val exerciseViewModel = ExerciseViewModel(
                 exerciseRepository, auth
             )
@@ -101,45 +102,58 @@ class MainActivity : ComponentActivity() {
             var drawerState = mutableStateOf(rememberDrawerState(initialValue = DrawerValue.Closed))
 
             val googleAuthClient = GoogleAuthClient(context = this)
-            val authViewModel = AuthViewModel(googleAuthClient, bodyProgressRepository, workoutRepository)
+            val authViewModel =
+                AuthViewModel(googleAuthClient, bodyProgressRepository, workoutRepository)
             val userState = authViewModel.userState.collectAsState()
 
             LaunchedEffect(Unit) {
                 if (userState.value is AuthViewModel.UserState.Authenticated) {
                     workoutViewModel.syncAllData()
                 }
+
+                mainViewModel.recreateActivity = {
+                    recreate()
+                }
             }
 
             MotivationCalendarAPITheme(mainViewModel = mainViewModel) {
-//                if (userState.value is AuthViewModel.UserState.Authenticated) {
-
-
-                    NavGraph(
-                        navHostController = navController,
-                        navController = navController,
-                        workoutViewModel,
-                        exerciseViewModel,
-                        drawerState,
-                        authViewModel,
-                        bodyProgressViewModel = bodyProgressViewModel,
-                        workoutSettingsViewModel = workoutSettingsViewModel,
-                    )
-//                }
-//            else {
-//                    AuthScreen(authViewModel, navController)
-//                }
-
+                NavGraph(
+                    navHostController = navController,
+                    navController = navController,
+                    workoutViewModel,
+                    exerciseViewModel,
+                    mainViewModel,
+                    drawerState,
+                    authViewModel,
+                    bodyProgressViewModel = bodyProgressViewModel,
+                    workoutSettingsViewModel = workoutSettingsViewModel,
+                )
             }
-
-
         }
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val prefs = newBase.getSharedPreferences("settings", MODE_PRIVATE)
+        val language = prefs.getString("app_language", "system") ?: "system"
+
+        super.attachBaseContext(wrapContext(newBase, language))
+    }
+
+    private fun wrapContext(context: Context, languageCode: String): Context {
+        if (languageCode == "system") {
+            return context
+        }
+
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+
+        val config = Configuration(context.resources.configuration)
+        config.setLocale(locale)
+
+        return context.createConfigurationContext(config)
     }
 
     override fun onStart() {
         super.onStart()
-
     }
 }
-
-
-

@@ -54,6 +54,7 @@ import com.example.motivationcalendarapi.ui.exercise.SearchExerciseScreen
 import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
 import com.example.motivationcalendarapi.ui.profile.ProfileScreen
 import com.example.motivationcalendarapi.ui.settings.SettingsScreen
+import com.example.motivationcalendarapi.ui.settings.language_settings.LanguageSettingsScreen
 import com.example.motivationcalendarapi.ui.settings.theme_settings.ThemeSettingsScreen
 import com.example.motivationcalendarapi.ui.settings.workout_settings.WorkoutSettingsScreen
 import com.example.motivationcalendarapi.ui.template.EditTemplateNameScreen
@@ -65,6 +66,7 @@ import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.example.motivationcalendarapi.ui.workout.WorkoutScreen
 import com.example.motivationcalendarapi.ui.workout.detail.WorkoutHistoryDetailScreen
+import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.motivationcalendar.ui.WorkoutHistoryScreen
 import kotlinx.coroutines.launch
 
@@ -76,6 +78,7 @@ fun NavGraph(
     navController: NavController,
     workoutViewModel: WorkoutViewModel,
     exerciseViewModel: ExerciseViewModel,
+    mainViewModel: MainViewModel,
     drawerState: MutableState<DrawerState>,
     authViewModel: AuthViewModel,
     bodyProgressViewModel: BodyProgressViewModel,
@@ -107,6 +110,7 @@ fun NavGraph(
         Screen.BodyProgress,
         Screen.TemplateDetailView,
         Screen.Profile,
+        Screen.LanguageSettings
     )
     ModalNavigationDrawer(drawerState = drawerState.value, drawerContent = {
         if (userState.value is AuthViewModel.UserState.Authenticated) {
@@ -364,6 +368,13 @@ fun NavGraph(
                     composable(Screen.ThemeSettings.route) {
                         ThemeSettingsScreen(
                             context,
+                            paddingValues = paddingValue.calculateTopPadding()
+                        )
+                    }
+
+                    composable(Screen.LanguageSettings.route) {
+                        LanguageSettingsScreen(
+                            mainViewModel = mainViewModel,
                             paddingValues = paddingValue.calculateTopPadding()
                         )
                     }

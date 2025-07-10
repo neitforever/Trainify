@@ -1,5 +1,6 @@
 package com.example.motivationcalendarapi.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,13 +9,17 @@ import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.network.ApiClient
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.mlkit.nl.translate.TranslateLanguage
+import com.google.mlkit.nl.translate.Translation
+import com.google.mlkit.nl.translate.TranslatorOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
-class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private val auth: FirebaseAuth
+class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private val auth: FirebaseAuth, private val context: Context
 ): ViewModel()  {
 
     val allBodyParts: Flow<List<String>> = exerciseRepository.getAllBodyParts()
@@ -29,6 +34,71 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
 
 
 
+    ///
+//    private val translationRepo by lazy { ExerciseTranslationRepository(context) }
+//
+//    // Новая функция для загрузки и перевода упражнений
+//    fun uploadExercisesToFirestore() {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                val exercises = exerciseRepository.getAllExercisesOnce()
+//                Log.d("Translation", "Найдено упражнений для перевода: ${exercises.size}")
+//                if (exercises.isNotEmpty()) {
+//                    translationRepo.uploadAndTranslateExercises(exercises)
+//                } else {
+//                    Log.d("Translation", "Нет упражнений для перевода")
+//                }
+//            } catch (e: Exception) {
+//                Log.e("Translation", "Ошибка при подготовке перевода", e)
+//            }
+//        }
+//    }
+
+//    fun testTranslation(
+//        text: String,
+//        onRussianTranslated: (String) -> Unit,
+//        onBelarusianTranslated: (String) -> Unit
+//    ) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                // Создаем переводчики
+//                val russianTranslator = Translation.getClient(
+//                    TranslatorOptions.Builder()
+//                        .setSourceLanguage(TranslateLanguage.ENGLISH)
+//                        .setTargetLanguage(TranslateLanguage.RUSSIAN)
+//                        .build()
+//                )
+//
+//                val belarusianTranslator = Translation.getClient(
+//                    TranslatorOptions.Builder()
+//                        .setSourceLanguage(TranslateLanguage.ENGLISH)
+//                        .setTargetLanguage(TranslateLanguage.BELARUSIAN)
+//                        .build()
+//                )
+//
+//
+//                // Загружаем модели
+//                russianTranslator.downloadModelIfNeeded().await()
+//                belarusianTranslator.downloadModelIfNeeded().await()
+//
+//                // Выполняем перевод
+//                val russian = russianTranslator.translate(text).await()
+//                onRussianTranslated(russian)
+//
+//                val belarusian = belarusianTranslator.translate(text).await()
+//                onBelarusianTranslated(belarusian)
+//
+//                // Закрываем переводчики
+//                russianTranslator.close()
+//                belarusianTranslator.close()
+//
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//                onBelarusianTranslated("Translation error: ${e.message}")
+//            }
+//        }
+//    }
+    ///
     suspend fun fetchAndSaveExercises() {
         try {
             if (currentUser != null) {

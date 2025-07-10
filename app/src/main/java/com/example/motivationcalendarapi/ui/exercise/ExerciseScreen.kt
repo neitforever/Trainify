@@ -1,5 +1,3 @@
-package com.example.motivationcalendarapi.ui.exercise
-
 import LoadingView
 import Screen
 import androidx.compose.animation.AnimatedVisibility
@@ -8,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absolutePadding
@@ -16,6 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +44,7 @@ import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import java.util.Locale
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseScreen(
     navController: NavController,
@@ -52,7 +54,6 @@ fun ExerciseScreen(
 ) {
 
     val templates by workoutViewModel.templates.collectAsState(initial = emptyList())
-
     val bodyParts by viewModel.allBodyParts.collectAsState(initial = emptyList())
     val sortedBodyParts = remember(bodyParts) {
         bodyParts.sortedBy { it.lowercase(Locale.getDefault()) }
@@ -60,17 +61,12 @@ fun ExerciseScreen(
 
     val expandedBodyParts = remember { mutableStateMapOf<String, Boolean>() }
     var isTemplatesExpanded by remember { mutableStateOf(false) }
-
     val favoriteExercises by viewModel.getFavoriteExercises().collectAsState(initial = emptyList())
-
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedTemplateForDeletion by remember { mutableStateOf<Template?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.fetchAndSaveExercises()
-    }
-
-    LaunchedEffect(Unit) {
         workoutViewModel.loadTemplates()
     }
 
@@ -92,12 +88,19 @@ fun ExerciseScreen(
     if (bodyParts.isEmpty()) {
         LoadingView()
     } else {
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = paddingTopValues)
         ) {
+//            item {
+//                    Button(
+//                        onClick = { viewModel.uploadExercisesToFirestore() },
+//                        modifier = Modifier.fillMaxWidth()
+//                    ) {
+//                        Text("Upload Exercises to Firestore")
+//                    }
+//                }
 
             item {
                 CollapsibleTemplateHeader(
@@ -114,26 +117,26 @@ fun ExerciseScreen(
                         if (templates.isEmpty()) {
                             Text(
                                 text = stringResource(R.string.no_templates_found),
-                                modifier = Modifier.padding(16.dp))
-                        } else {
-                        templates.forEach { template ->
-                            TemplateItem(
-                                template = template,
-                                onClick = {
-                                    navController.navigate("${Screen.TemplateDetailView.route}/${template.id}")
-                                },
-                                onDelete = {
-                                    selectedTemplateForDeletion = template
-                                    showDeleteDialog = true
-                                },
-                                navController = navController
+                                modifier = Modifier.padding(16.dp)
                             )
-                        }
+                        } else {
+                            templates.forEach { template ->
+                                TemplateItem(
+                                    template = template,
+                                    onClick = {
+                                        navController.navigate("${Screen.TemplateDetailView.route}/${template.id}")
+                                    },
+                                    onDelete = {
+                                        selectedTemplateForDeletion = template
+                                        showDeleteDialog = true
+                                    },
+                                    navController = navController
+                                )
+                            }
                         }
                     }
                 }
             }
-
 
             items(sortedBodyParts) { bodyPart ->
                 val isExpanded = expandedBodyParts[bodyPart] == true
@@ -164,7 +167,8 @@ fun ExerciseScreen(
                                     .clickable {
                                         navController.navigate("${Screen.ExerciseDetailView.route}/${exercise.id}")
                                     }
-                                    .padding(start = 16.dp, end = 16.dp)) {
+                                    .padding(start = 16.dp, end = 16.dp)
+                            ) {
                                 ExerciseItem(
                                     exercise = exercise,
                                     onItemClick = { navController.navigate("exercise_detail/${exercise.id}") },
@@ -180,11 +184,6 @@ fun ExerciseScreen(
                     modifier = Modifier.absolutePadding(bottom = 200.dp)
                 )
             }
-
         }
     }
 }
-
-
-
-

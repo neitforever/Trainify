@@ -49,7 +49,6 @@ import com.example.motivationcalendarapi.ui.exercise.EditExerciseInstructionsScr
 import com.example.motivationcalendarapi.ui.exercise.EditExerciseNameScreen
 import com.example.motivationcalendarapi.ui.exercise.EquipmentSelectionScreen
 import com.example.motivationcalendarapi.ui.exercise.ExerciseDetailScreen
-import com.example.motivationcalendarapi.ui.exercise.ExerciseScreen
 import com.example.motivationcalendarapi.ui.exercise.SearchExerciseScreen
 import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
 import com.example.motivationcalendarapi.ui.profile.ProfileScreen

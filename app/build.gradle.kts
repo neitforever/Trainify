@@ -49,7 +49,7 @@ android {
 
 dependencies {
 
-
+    implementation("com.google.mlkit:translate:17.0.3")
     // Google auth
     implementation("androidx.credentials:credentials:1.5.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.5.0")

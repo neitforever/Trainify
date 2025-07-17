@@ -41,17 +41,32 @@ fun TemplatesListSection(
     onTemplateSelected: (Template, String) -> Unit,
     onViewDetails: (Template) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        items(templates) { template ->
-            TemplateSelectionItem(
-                template = template,
-                onTemplateSelected = { onTemplateSelected(template, template.name) },
-                onViewDetails = onViewDetails
+    if (templates.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.no_templates_found),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            items(templates) { template ->
+                TemplateSelectionItem(
+                    template = template,
+                    onTemplateSelected = { onTemplateSelected(template, template.name) },
+                    onViewDetails = onViewDetails
+                )
+            }
         }
     }
 }

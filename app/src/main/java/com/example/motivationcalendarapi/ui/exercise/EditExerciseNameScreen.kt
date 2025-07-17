@@ -48,12 +48,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditExerciseNameScreen(
-    navController: NavController, exerciseId: String, viewModel: ExerciseViewModel
+    navController: NavController, exerciseId: String, viewModel: ExerciseViewModel,lang: String
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
     val tempExercise by viewModel.tempExercise.collectAsState()
-    var newName by remember { mutableStateOf("") }
+    var newName by remember { mutableStateOf(emptyMap<String, String>()) }
     val context = LocalContext.current
 
     LaunchedEffect(exerciseId) {
@@ -61,11 +61,11 @@ fun EditExerciseNameScreen(
             launch(Dispatchers.IO) {
                 viewModel.tempExercise.value?.let { temp ->
                     if (temp.id == exerciseId) {
-                        newName = temp.name
+//                        newName = temp.getName(lang)
                     }
                 } ?: run {
                     val exercise = viewModel.getExerciseById(exerciseId)
-                    newName = exercise?.name ?: ""
+//                    newName = exercise?.getName(lang) ?: ""
                 }
             }
         }
@@ -100,7 +100,7 @@ fun EditExerciseNameScreen(
             IconButton(
                 onClick = {
                     if (exerciseId == tempExercise?.id) {
-                        viewModel.updateTempExercise { it.copy(name = newName) }
+//                        viewModel.updateTempExercise { it.copy(name = newName) }
                     } else {
                         viewModel.updateExerciseName(exerciseId, newName)
                     }
@@ -129,32 +129,32 @@ fun EditExerciseNameScreen(
         ) {
             Spacer(modifier = Modifier.height(32.dp))
 
-            TextField(
-                value = newName,
-                onValueChange = { newName = it },
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = colorScheme.onSurface
-                ),
-                placeholder = {
-                    Text(
-                        text = stringResource(R.string.bench_press_squats),
-                        maxLines = 1,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = colorScheme.onSurfaceVariant
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    focusedIndicatorColor = colorScheme.primary,
-                    unfocusedIndicatorColor = colorScheme.outlineVariant,
-                    cursorColor = colorScheme.primary,
-                    focusedTextColor = colorScheme.onSurface,
-                ),
-                singleLine = true
-            )
+//            TextField(
+//                value = newName,
+//                onValueChange = { newName = it },
+//                modifier = Modifier.fillMaxWidth(),
+//                textStyle = MaterialTheme.typography.bodyLarge.copy(
+//                    color = colorScheme.onSurface
+//                ),
+//                placeholder = {
+//                    Text(
+//                        text = stringResource(R.string.bench_press_squats),
+//                        maxLines = 1,
+//                        style = MaterialTheme.typography.bodyLarge,
+//                        color = colorScheme.onSurfaceVariant
+//                    )
+//                },
+//                colors = TextFieldDefaults.colors(
+//                    focusedContainerColor = Color.Transparent,
+//                    unfocusedContainerColor = Color.Transparent,
+//                    disabledContainerColor = Color.Transparent,
+//                    focusedIndicatorColor = colorScheme.primary,
+//                    unfocusedIndicatorColor = colorScheme.outlineVariant,
+//                    cursorColor = colorScheme.primary,
+//                    focusedTextColor = colorScheme.onSurface,
+//                ),
+//                singleLine = true
+//            )
 
             Spacer(modifier = Modifier.height(16.dp))
 

@@ -64,7 +64,8 @@ import kotlinx.coroutines.launch
 fun ExerciseDetailScreen(
     navController: NavController,
     exerciseId: String,
-    viewModel: ExerciseViewModel = viewModel(),
+    viewModel: ExerciseViewModel,
+    lang: String
 ) {
     val showDeleteDialog = remember { mutableStateOf(false) }
     val selectedExercise = remember { mutableStateOf<Exercise?>(null) }
@@ -163,7 +164,7 @@ fun ExerciseDetailScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
-                        text = exercise.name.replaceFirstChar { it.uppercase() },
+                        text = exercise.getName(lang).replaceFirstChar { it.uppercase() },
                         color = MaterialTheme.colorScheme.onBackground,
                         style = MaterialTheme.typography.headlineLarge,
                         maxLines = 2,
@@ -225,7 +226,7 @@ fun ExerciseDetailScreen(
                                 ), verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                painter = painterResource(id = getIconForEquipment(exercise.equipment)),
+                                painter = painterResource(id = getIconForEquipment(exercise.getEquipment(lang))),
                                 contentDescription = stringResource(R.string.equipment),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
@@ -233,7 +234,7 @@ fun ExerciseDetailScreen(
                                     .padding(end = 8.dp)
                             )
                             Text(
-                                text = exercise.equipment,
+                                text = exercise.getEquipment(lang),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 maxLines = 1,
@@ -297,7 +298,7 @@ fun ExerciseDetailScreen(
                                 ), verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                painter = painterResource(id = getIconForBodyPart(exercise.bodyPart)),
+                                painter = painterResource(id = getIconForBodyPart(exercise.getBodyPart(lang))),
                                 contentDescription = stringResource(R.string.body_part),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
@@ -305,7 +306,7 @@ fun ExerciseDetailScreen(
                                     .padding(end = 8.dp)
                             )
                             Text(
-                                text = exercise.bodyPart,
+                                text = exercise.getBodyPart(lang),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 maxLines = 1,
@@ -425,7 +426,7 @@ fun ExerciseDetailScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    exercise.instructions.forEachIndexed { index, instruction ->
+                    exercise.getInstructions(lang).forEachIndexed { index, instruction ->
                         Text(
                             text = "${index + 1}. $instruction",
                             style = MaterialTheme.typography.titleMedium,

@@ -57,7 +57,8 @@ fun WorkoutHistoryDetailScreen(
     workoutId: String?,
     workoutViewModel: WorkoutViewModel,
     navController: NavController,
-    paddingValues: Dp
+    paddingValues: Dp,
+    lang: String
 ) {
 
     val selectedWorkout = remember { mutableStateOf<Workout?>(null) }
@@ -243,7 +244,8 @@ fun WorkoutHistoryDetailScreen(
                                 exercise = extendedExercise,
                                 exerciseSets = extendedExercise.sets,
                                 workoutViewModel = workoutViewModel,
-                                navController = navController
+                                navController = navController,
+                                lang = lang
                             )
                         }
                     }

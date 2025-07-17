@@ -13,6 +13,22 @@ class ExerciseRepository(
 
     private val currentUser get() = auth.currentUser
 
+    suspend fun initializeExercises() {
+        val localCount = appDatabase.exerciseDao().getExerciseCount()
+        if (localCount == 0) {
+            // Fetch localized exercises from Firestore
+            val localizedExercises = firestoreRepo.getLocalizedExercises()
+
+            // Save to user's collection if authenticated
+            if (auth.currentUser != null) {
+                firestoreRepo.saveLocalizedExercisesForUser(localizedExercises)
+            }
+
+            // Save to local DB
+            appDatabase.exerciseDao().insertAllExercises(localizedExercises)
+        }
+    }
+
     suspend fun insertExercise(exercise: Exercise) {
         if (currentUser != null) {
             firestoreRepo.insert(exercise)
@@ -36,9 +52,9 @@ class ExerciseRepository(
         }
     }
 
-    suspend fun updateExerciseName(id: String, newName: String) {
+    suspend fun updateExerciseName(id: String, newName: Map<String, String>) {
         val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
-        val updatedExercise = exercise.copy(name = newName)
+        val updatedExercise = exercise.copy(nameLocalized = newName)
 
         appDatabase.exerciseDao().insertExercise(updatedExercise)
 
@@ -113,15 +129,15 @@ class ExerciseRepository(
 
     fun getAllEquipment() = appDatabase.exerciseDao().getAllEquipment()
 
-    suspend fun updateExerciseEquipment(id: String, newEquipment: String) {
+    suspend fun updateExerciseEquipment(id: String, newEquipment: Map<String, String>) {
         val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
-        val updatedExercise = exercise.copy(equipment = newEquipment)
+        val updatedExercise = exercise.copy(equipmentLocalized = newEquipment)
         insertExercise(updatedExercise)
     }
 
-    suspend fun updateExerciseBodyPart(id: String, newBodyPart: String) {
+    suspend fun updateExerciseBodyPart(id: String, newBodyPart: Map<String, String>) {
         val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
-        val updatedExercise = exercise.copy(bodyPart = newBodyPart)
+        val updatedExercise = exercise.copy(bodyPartLocalized = newBodyPart)
         insertExercise(updatedExercise)
     }
 
@@ -140,9 +156,9 @@ class ExerciseRepository(
 
 //    private val gson = Gson()
 
-    suspend fun updateExerciseInstructions(id: String, newInstructions: List<String>) {
+    suspend fun updateExerciseInstructions(id: String, newInstructions: Map<String,List<String>>) {
         val exercise = appDatabase.exerciseDao().getExerciseById(id) ?: return
-        val updatedExercise = exercise.copy(instructions = newInstructions)
+        val updatedExercise = exercise.copy(instructionsLocalized = newInstructions)
         insertExercise(updatedExercise)
     }
 

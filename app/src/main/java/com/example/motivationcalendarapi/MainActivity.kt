@@ -70,11 +70,7 @@ class MainActivity : ComponentActivity() {
                 exerciseFirestoreRepo,
                 auth
             )
-            val exerciseRepository = ExerciseRepository(
-                db,
-                exerciseFirestoreRepo,
-                FirebaseAuth.getInstance()
-            )
+
 
             val mainRepository = MainRepository(context)
             val bodyProgressRepository = BodyProgressRepository(db, bodyProgressFirestoreRepo, auth)
@@ -93,11 +89,24 @@ class MainActivity : ComponentActivity() {
                 factory = WorkoutSettingsViewModelFactory(mainRepository)
             )
 
-            val exerciseViewModel = ExerciseViewModel(
-                exerciseRepository, auth, context = context
-            )
+
             val mainViewModel = MainViewModel(mainRepository)
 
+            val exerciseRepository = ExerciseRepository(
+                db,
+                exerciseFirestoreRepo,
+                FirebaseAuth.getInstance()
+            )
+
+            val currentLanguage = mainViewModel.appLanguage
+            val lang = when (currentLanguage) {
+                "ru" -> "ru"
+                "be" -> "be"
+                else -> "en"
+            }
+            val exerciseViewModel = ExerciseViewModel(
+                exerciseRepository, auth
+            )
             val navController = rememberNavController()
             var drawerState = mutableStateOf(rememberDrawerState(initialValue = DrawerValue.Closed))
 
@@ -116,6 +125,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+
             MotivationCalendarAPITheme(mainViewModel = mainViewModel) {
                 NavGraph(
                     navHostController = navController,
@@ -127,6 +137,7 @@ class MainActivity : ComponentActivity() {
                     authViewModel,
                     bodyProgressViewModel = bodyProgressViewModel,
                     workoutSettingsViewModel = workoutSettingsViewModel,
+                    lang = lang
                 )
             }
         }

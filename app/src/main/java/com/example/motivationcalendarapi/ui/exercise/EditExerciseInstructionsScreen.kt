@@ -49,19 +49,20 @@ import kotlinx.coroutines.launch
 fun EditExerciseInstructionsScreen(
     navController: NavController,
     exerciseId: String,
-    viewModel: ExerciseViewModel
+    viewModel: ExerciseViewModel,
+    lang: String
 ) {
     val tempExercise by viewModel.tempExercise.collectAsState()
-    var newInstructions by remember { mutableStateOf("") }
+    var newInstructions by remember { mutableStateOf(emptyMap<String, List<String>>()) }
     val context = LocalContext.current
     LaunchedEffect(exerciseId) {
         coroutineScope {
             launch(Dispatchers.IO) {
                 if (exerciseId == tempExercise?.id) {
-                    newInstructions = tempExercise?.instructions?.joinToString("\n") ?: ""
+//                    newInstructions = tempExercise?.getInstructions(lang)?.joinToString("\n") ?: ""
                 } else {
                     val exercise = viewModel.getExerciseById(exerciseId)
-                    newInstructions = exercise?.instructions?.joinToString("\n") ?: ""
+//                    newInstructions = exercise?.getInstructions(lang)?.joinToString("\n") ?: ""
                 }
             }
         }
@@ -96,10 +97,10 @@ fun EditExerciseInstructionsScreen(
                     IconButton(
                         onClick = {
                             val instructionsList = newInstructions
-                                .split("\n")
-                                .filter { it.isNotBlank() }
+//                                .split("\n")
+//                                .filter { it.isNotBlank() }
                             if (exerciseId == tempExercise?.id) {
-                                viewModel.updateTempExercise { it.copy(instructions = instructionsList) }
+//                                viewModel.updateTempExercise { it.copy(instructions = instructionsList) }
                             } else {
                                 viewModel.updateExerciseInstructions(exerciseId, instructionsList)
                             }
@@ -131,39 +132,39 @@ fun EditExerciseInstructionsScreen(
         ) {
             Spacer(modifier = Modifier.height(32.dp))
 
-            BasicTextField(
-                value = newInstructions,
-                onValueChange = { newInstructions = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = CutCornerShape(4.dp)
-                    )
-                    .padding(16.dp),
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    lineHeight = 24.sp
-                ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                decorationBox = { innerTextField ->
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.TopStart
-                    ) {
-                        if (newInstructions.isEmpty()) {
-                            Text(
-                                text = stringResource(R.string.enter_instructions),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        innerTextField()
-                    }
-                }
-            )
+//            BasicTextField(
+//                value = newInstructions,
+//                onValueChange = { newInstructions = it },
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(300.dp)
+//                    .border(
+//                        width = 1.dp,
+//                        color = MaterialTheme.colorScheme.outlineVariant,
+//                        shape = CutCornerShape(4.dp)
+//                    )
+//                    .padding(16.dp),
+//                textStyle = MaterialTheme.typography.bodyLarge.copy(
+//                    color = MaterialTheme.colorScheme.onSurface,
+//                    lineHeight = 24.sp
+//                ),
+//                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+//                decorationBox = { innerTextField ->
+//                    Box(
+//                        modifier = Modifier.fillMaxSize(),
+//                        contentAlignment = Alignment.TopStart
+//                    ) {
+//                        if (newInstructions.isEmpty()) {
+//                            Text(
+//                                text = stringResource(R.string.enter_instructions),
+//                                style = MaterialTheme.typography.bodyLarge,
+//                                color = MaterialTheme.colorScheme.onSurfaceVariant
+//                            )
+//                        }
+//                        innerTextField()
+//                    }
+//                }
+//            )
 
             Spacer(modifier = Modifier.height(16.dp))
 

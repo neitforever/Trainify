@@ -93,7 +93,8 @@ fun WorkoutScreen(
     workoutViewModel: WorkoutViewModel,
     exerciseViewModel: ExerciseViewModel,
     navController: NavController,
-    drawerState: MutableState<DrawerState>
+    drawerState: MutableState<DrawerState>,
+    lang: String
 ) {
     val workouts by workoutViewModel.allWorkouts.collectAsState()
     val timerValue by workoutViewModel.timerValue.collectAsState()
@@ -413,6 +414,7 @@ fun WorkoutScreen(
                             exerciseViewModel = exerciseViewModel,
                             workoutViewModel = workoutViewModel,
                             navController = navController,
+                            lang = lang
                         )
 
                         TimerBottomSheet(
@@ -452,7 +454,8 @@ fun WorkoutScreen(
                                 canMoveUp = index > 0,
                                 canMoveDown = index < selectedExercises.size - 1,
                                 workoutViewModel = workoutViewModel,
-                                navController = navController
+                                navController = navController,
+                                lang = lang
                             )
                         }
                         Row(

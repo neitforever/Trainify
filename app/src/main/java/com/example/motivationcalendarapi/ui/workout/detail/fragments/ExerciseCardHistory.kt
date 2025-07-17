@@ -48,7 +48,8 @@ fun ExerciseCardHistory(
     exerciseSets: List<ExerciseSet>,
     workoutViewModel: WorkoutViewModel,
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lang: String
 ) {
     val isExpanded = remember { mutableStateOf(false) }
     val notesMap by workoutViewModel.notesUpdates.collectAsState()
@@ -107,7 +108,7 @@ fun ExerciseCardHistory(
                     )
 
                     Text(
-                        text = exercise.exercise.name,
+                        text = exercise.exercise.getName(lang),
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .clickable { isExpanded.value = !isExpanded.value },
@@ -334,6 +335,7 @@ fun ExerciseCardHistory(
         onSaveNote = { newNote ->
             localNote = newNote
             workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, newNote)
-        }
+        },
+        lang = lang
     )
 }

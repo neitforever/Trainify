@@ -56,20 +56,21 @@ fun EquipmentSelectionScreen(
     navController: NavController,
     exerciseId: String,
     viewModel: ExerciseViewModel,
-    paddingValues: Dp
+    paddingValues: Dp,
+    lang: String
 ) {
     val tempExercise by viewModel.tempExercise.collectAsState()
     val allEquipment by viewModel.allEquipment.collectAsState(initial = emptyList())
-    var newEquipment by remember { mutableStateOf("") }
+    var newEquipment by remember { mutableStateOf(emptyMap<String, String>()) }
 
     LaunchedEffect(exerciseId) {
         coroutineScope {
             launch(Dispatchers.IO) {
                 if (exerciseId == tempExercise?.id) {
-                    newEquipment = tempExercise?.equipment ?: ""
+//                    newEquipment = tempExercise?.getEquipment(lang) ?: ""
                 } else {
                     val exercise = viewModel.getExerciseById(exerciseId)
-                    newEquipment = exercise?.equipment ?: ""
+//                    newEquipment = exercise?.getEquipment(lang) ?: ""
                 }
             }
         }
@@ -81,40 +82,40 @@ fun EquipmentSelectionScreen(
             .padding(top = 16.dp, start = 16.dp, end = 16.dp)
             .fillMaxSize()
     ) {
-        TextField(
-            value = newEquipment,
-            onValueChange = { newEquipment = it },
-            modifier = Modifier.fillMaxWidth(),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp
-            ),
-            placeholder = {
-                Text(
-                    text = stringResource(R.string.barbell_dumbbells),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
-                cursorColor = MaterialTheme.colorScheme.primary,
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            ),
-            singleLine = true,
-            shape = MaterialTheme.shapes.medium
-        )
+//        TextField(
+//            value = newEquipment,
+//            onValueChange = { newEquipment = it },
+//            modifier = Modifier.fillMaxWidth(),
+//            textStyle = MaterialTheme.typography.bodyLarge.copy(
+//                color = MaterialTheme.colorScheme.onSurface,
+//                fontSize = 18.sp
+//            ),
+//            placeholder = {
+//                Text(
+//                    text = stringResource(R.string.barbell_dumbbells),
+//                    style = MaterialTheme.typography.bodyLarge,
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant
+//                )
+//            },
+//            colors = TextFieldDefaults.colors(
+//                focusedContainerColor = Color.Transparent,
+//                unfocusedContainerColor = Color.Transparent,
+//                disabledContainerColor = Color.Transparent,
+//                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+//                unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+//                cursorColor = MaterialTheme.colorScheme.primary,
+//                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+//            ),
+//            singleLine = true,
+//            shape = MaterialTheme.shapes.medium
+//        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
                 if (exerciseId == tempExercise?.id) {
-                    viewModel.updateTempExercise { it.copy(equipment = newEquipment) }
+//                    viewModel.updateTempExercise { it.copy(equipment = newEquipment) }
                 } else {
                     viewModel.updateExerciseEquipment(exerciseId, newEquipment)
                 }
@@ -123,7 +124,7 @@ fun EquipmentSelectionScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            enabled = newEquipment.isNotBlank(),
+            enabled = newEquipment.isNotEmpty(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -148,62 +149,62 @@ fun EquipmentSelectionScreen(
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(4.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(allEquipment) { equipment ->
-                val isSelected = equipment == newEquipment
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(104.dp)
-                        .clickable {
-                            newEquipment = equipment
-                        }
-                        .animateContentSize()
-                        .padding(4.dp),
-                    color = if (isSelected) MaterialTheme.colorScheme.secondaryContainer
-                    else MaterialTheme.colorScheme.surfaceVariant,
-                    shape = CutCornerShape(8.dp),
-                    shadowElevation = 4.dp
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(12.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        Icon(
-                            painter = painterResource(id = getIconForEquipment(equipment)),
-                            contentDescription = equipment,
-                            tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
-                            else MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = equipment,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
-                                else MaterialTheme.colorScheme.onSurface,
-                                textAlign = TextAlign.Start,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                            ),
-                            maxLines = 2
-                        )
-                    }
-                }
-            }
-            item {
-                Spacer(
-                    modifier = Modifier
-                        .absolutePadding(bottom = 200.dp)
-                )
-            }
-        }
+//        LazyVerticalGrid(
+//            columns = GridCells.Fixed(2),
+//            contentPadding = PaddingValues(4.dp),
+//            verticalArrangement = Arrangement.spacedBy(8.dp),
+//            horizontalArrangement = Arrangement.spacedBy(8.dp),
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            items(allEquipment) { equipment ->
+//                val isSelected = equipment == newEquipment
+//                Surface(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(104.dp)
+//                        .clickable {
+//                            newEquipment = equipment
+//                        }
+//                        .animateContentSize()
+//                        .padding(4.dp),
+//                    color = if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+//                    else MaterialTheme.colorScheme.surfaceVariant,
+//                    shape = CutCornerShape(8.dp),
+//                    shadowElevation = 4.dp
+//                ) {
+//                    Column(
+//                        modifier = Modifier
+//                            .padding(12.dp)
+//                            .fillMaxWidth(),
+//                        horizontalAlignment = Alignment.Start
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(id = getIconForEquipment(equipment)),
+//                            contentDescription = equipment,
+//                            tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
+//                            else MaterialTheme.colorScheme.primary,
+//                            modifier = Modifier.size(24.dp)
+//                        )
+//                        Spacer(modifier = Modifier.height(4.dp))
+//                        Text(
+//                            text = equipment,
+//                            style = MaterialTheme.typography.bodyLarge.copy(
+//                                color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
+//                                else MaterialTheme.colorScheme.onSurface,
+//                                textAlign = TextAlign.Start,
+//                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+//                            ),
+//                            maxLines = 2
+//                        )
+//                    }
+//                }
+//            }
+//            item {
+//                Spacer(
+//                    modifier = Modifier
+//                        .absolutePadding(bottom = 200.dp)
+//                )
+//            }
+//        }
     }
 }

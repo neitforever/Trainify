@@ -31,7 +31,8 @@ fun ExerciseSelectionItem(
     exercise: Exercise,
     isFavorite: Boolean,
     selectedOrder: Int?,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
+    lang: String
 ) {
     Row(
         modifier = Modifier
@@ -51,7 +52,7 @@ fun ExerciseSelectionItem(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = selectedOrder?.toString() ?: exercise.name.first().uppercase(),
+                text = selectedOrder?.toString() ?: exercise.getName(lang).first().uppercase(),
                 style = MaterialTheme.typography.titleLarge,
                 color = if (selectedOrder != null) MaterialTheme.colorScheme.background
                 else MaterialTheme.colorScheme.primary,
@@ -64,7 +65,7 @@ fun ExerciseSelectionItem(
 
         Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
             Text(
-                text = exercise.name.replaceFirstChar {
+                text = exercise.getName(lang).replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
                 },
                 style = MaterialTheme.typography.titleLarge,

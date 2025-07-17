@@ -50,7 +50,8 @@ fun ExerciseScreen(
     navController: NavController,
     viewModel: ExerciseViewModel,
     workoutViewModel: WorkoutViewModel,
-    paddingTopValues: Dp
+    paddingTopValues: Dp,
+    lang: String
 ) {
 
     val templates by workoutViewModel.templates.collectAsState(initial = emptyList())
@@ -66,7 +67,6 @@ fun ExerciseScreen(
     var selectedTemplateForDeletion by remember { mutableStateOf<Template?>(null) }
 
     LaunchedEffect(Unit) {
-        viewModel.fetchAndSaveExercises()
         workoutViewModel.loadTemplates()
     }
 
@@ -173,7 +173,8 @@ fun ExerciseScreen(
                                     exercise = exercise,
                                     onItemClick = { navController.navigate("exercise_detail/${exercise.id}") },
                                     onFavoriteClick = { viewModel.toggleFavorite(exercise) },
-                                    isFavorite = favoriteExercises.any { it.id == exercise.id })
+                                    isFavorite = favoriteExercises.any { it.id == exercise.id },
+                                    lang = lang)
                             }
                         }
                     }

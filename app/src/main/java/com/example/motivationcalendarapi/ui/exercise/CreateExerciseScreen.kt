@@ -55,19 +55,19 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun CreateExerciseScreen(
-    navController: NavController, viewModel: ExerciseViewModel = viewModel()
+    navController: NavController, exerciseViewModel: ExerciseViewModel,lang: String
 ) {
-    val tempExercise by viewModel.tempExercise.collectAsState()
+    val tempExercise by exerciseViewModel.tempExercise.collectAsState()
     var showError by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        if (viewModel.tempExercise.value == null) {
-            viewModel.initializeNewExercise(UUID.randomUUID().toString())
+        if (exerciseViewModel.tempExercise.value == null) {
+            exerciseViewModel.initializeNewExercise(UUID.randomUUID().toString())
         }
     }
 
     BackHandler {
-        viewModel.clearTempExercise()
+        exerciseViewModel.clearTempExercise()
         navController.popBackStack()
     }
 
@@ -90,7 +90,7 @@ fun CreateExerciseScreen(
             )
         }, navigationIcon = {
             IconButton(onClick = {
-                viewModel.clearTempExercise()
+                exerciseViewModel.clearTempExercise()
                 navController.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_back),
@@ -101,9 +101,9 @@ fun CreateExerciseScreen(
         }, actions = {
             IconButton(onClick = {
                 if (tempExercise?.let {
-                        it.name.isNotBlank() && it.equipment.isNotBlank() && it.bodyPart.isNotBlank() && it.instructions.isNotEmpty()
+                        it.getName(lang).isNotBlank() && it.getEquipment(lang).isNotBlank() && it.getBodyPart(lang).isNotBlank() && it.getInstructions(lang).isNotEmpty()
                     } == true) {
-                    viewModel.finalizeNewExercise()
+                    exerciseViewModel.finalizeNewExercise()
                     navController.popBackStack()
                 } else {
                     showError = true
@@ -157,9 +157,9 @@ fun CreateExerciseScreen(
                         )
                     }
                     Text(
-                        text = exercise.name.ifBlank { stringResource(R.string.not_set) },
+                        text = exercise.getName(lang).ifBlank { stringResource(R.string.not_set) },
                         style = MaterialTheme.typography.titleLarge,
-                        color = if (exercise.name.isBlank()) MaterialTheme.colorScheme.outline
+                        color = if (exercise.getName(lang).isBlank()) MaterialTheme.colorScheme.outline
                         else MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -192,7 +192,7 @@ fun CreateExerciseScreen(
                                 .padding(start = 8.dp)
                         )
                     }
-                    if (exercise.equipment.isEmpty()) {
+                    if (exercise.getEquipment(lang).isEmpty()) {
                         Text(
                             text = stringResource(R.string.not_set),
                             style = MaterialTheme.typography.titleMedium,
@@ -211,7 +211,7 @@ fun CreateExerciseScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    painter = painterResource(id = getIconForEquipment(exercise.equipment)),
+                                    painter = painterResource(id = getIconForEquipment(exercise.getEquipment(lang))),
                                     contentDescription = stringResource(R.string.equipment),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier
@@ -219,9 +219,9 @@ fun CreateExerciseScreen(
                                         .padding(end = 8.dp)
                                 )
                                 Text(
-                                    text = exercise.equipment,
+                                    text = exercise.getEquipment(lang),
                                     style = MaterialTheme.typography.titleMedium,
-                                    color = if (exercise.bodyPart.isBlank()) MaterialTheme.colorScheme.outline
+                                    color = if (exercise.getEquipment(lang).isBlank()) MaterialTheme.colorScheme.outline
                                     else MaterialTheme.colorScheme.primary,
                                 )
                             }}
@@ -255,7 +255,7 @@ fun CreateExerciseScreen(
                                 .padding(start = 8.dp)
                         )
                     }
-                    if (exercise.bodyPart.isEmpty()) {
+                    if (exercise.getBodyPart(lang).isEmpty()) {
                         Text(
                             text = stringResource(R.string.not_set),
                             style = MaterialTheme.typography.titleMedium,
@@ -274,7 +274,7 @@ fun CreateExerciseScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    painter = painterResource(id = getIconForBodyPart(exercise.bodyPart)),
+                                    painter = painterResource(id = getIconForBodyPart(exercise.getBodyPart(lang))),
                                     contentDescription = stringResource(R.string.body_part),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier
@@ -282,9 +282,9 @@ fun CreateExerciseScreen(
                                         .padding(end = 8.dp)
                                 )
                         Text(
-                            text = exercise.bodyPart,
+                            text = exercise.getBodyPart(lang),
                             style = MaterialTheme.typography.titleMedium,
-                            color = if (exercise.bodyPart.isBlank()) MaterialTheme.colorScheme.outline
+                            color = if (exercise.getBodyPart(lang).isBlank()) MaterialTheme.colorScheme.outline
                             else MaterialTheme.colorScheme.primary,
                         )
                     }}
@@ -389,7 +389,7 @@ fun CreateExerciseScreen(
                         )
                     }
                     Column(modifier = Modifier.padding(top = 8.dp)) {
-                        if (exercise.instructions.isEmpty()) {
+                        if (exercise.getInstructions(lang).isEmpty()) {
                             Text(
                                 text = stringResource(R.string.not_set),
                                 style = MaterialTheme.typography.titleMedium,
@@ -397,7 +397,7 @@ fun CreateExerciseScreen(
                                 modifier = Modifier.padding(top = 8.dp)
                             )
                         } else {
-                            exercise.instructions.forEachIndexed { index, instruction ->
+                            exercise.getInstructions(lang).forEachIndexed { index, instruction ->
                                 Text(
                                     text = "${index + 1}. $instruction",
                                     style = MaterialTheme.typography.titleMedium,

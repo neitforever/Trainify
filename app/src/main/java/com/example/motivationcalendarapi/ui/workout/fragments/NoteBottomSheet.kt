@@ -33,7 +33,8 @@ fun NoteBottomSheet(
     showBottomSheet: Boolean,
     exercise: ExtendedExercise,
     onDismiss: () -> Unit,
-    onSaveNote: (String) -> Unit
+    onSaveNote: (String) -> Unit,
+    lang: String
 ) {
     var noteText by remember(exercise.exercise.note) {
         mutableStateOf(exercise.exercise.note)
@@ -64,7 +65,7 @@ fun NoteBottomSheet(
                 )
 
                 Text(
-                    text = exercise.exercise.name,
+                    text = exercise.exercise.getName(lang),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.fillMaxWidth(),

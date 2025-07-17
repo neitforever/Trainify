@@ -48,6 +48,7 @@ import kotlinx.coroutines.launch
 fun SearchExerciseScreen(
     navController: NavController,
     viewModel: ExerciseViewModel,
+    lang: String
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val searchResults by viewModel.searchExercises(searchQuery)
@@ -119,7 +120,9 @@ fun SearchExerciseScreen(
                     ExerciseItem(exercise = exercise,
                         onItemClick = { navController.navigate("exercise_detail/${exercise.id}") },
                         onFavoriteClick = { viewModel.toggleFavorite(exercise) },
-                        isFavorite = favoriteExercises.any { it.id == exercise.id })
+                        isFavorite = favoriteExercises.any { it.id == exercise.id },
+                        lang = lang
+                    )
                 }
                 item {
                     Spacer(

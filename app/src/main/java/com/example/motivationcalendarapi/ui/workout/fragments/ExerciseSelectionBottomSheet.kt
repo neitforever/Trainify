@@ -32,7 +32,8 @@ fun ExerciseSelectionBottomSheet(
     sheetState: SheetState,
     exerciseViewModel: ExerciseViewModel,
     workoutViewModel: WorkoutViewModel,
-    navController: NavController
+    navController: NavController,
+    lang: String
 ) {
     if (isSheetOpen.value) {
         val selectedExercises = remember { mutableStateListOf<Exercise>() }
@@ -110,7 +111,8 @@ fun ExerciseSelectionBottomSheet(
                                 }
                                 selectedExercises.clear()
                                 isSheetOpen.value = false
-                            }
+                            },
+                            lang = lang
                         )
 
                         else -> BodyPartsList(
@@ -132,7 +134,8 @@ fun ExerciseSelectionBottomSheet(
                                 }
                                 selectedExercises.clear()
                                 isSheetOpen.value = false
-                            }
+                            },
+                            lang = lang
                         )
                     }
                 }

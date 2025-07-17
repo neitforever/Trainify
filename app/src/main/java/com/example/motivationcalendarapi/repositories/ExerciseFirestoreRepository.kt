@@ -9,6 +9,38 @@ class ExerciseFirestoreRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    suspend fun getLocalizedExercises(): List<Exercise> {
+        val exercises = mutableListOf<Exercise>()
+        firestore.collection("ex1").get().await().forEach { doc ->
+            exercises.add(
+                Exercise(
+                    id = doc.id,
+                    bodyPartLocalized = doc.get("bodyPart") as? Map<String, String> ?: emptyMap(),
+                    nameLocalized = doc.get("name") as? Map<String, String> ?: emptyMap(),
+                    equipmentLocalized = doc.get("equipment") as? Map<String, String> ?: emptyMap(),
+                    targetLocalized = doc.get("target") as? Map<String, String> ?: emptyMap(),
+                    secondaryMusclesLocalized = doc.get("secondaryMuscles") as? Map<String, List<String>> ?: emptyMap(),
+                    instructionsLocalized = doc.get("instructions") as? Map<String, List<String>> ?: emptyMap(),
+                    gifUrl = doc.getString("gifUrl") ?: "",
+                    favorite = false,
+                    note = ""
+                )
+            )
+        }
+        return exercises
+    }
+
+    suspend fun saveLocalizedExercisesForUser(exercises: List<Exercise>) {
+        val userId = auth.currentUser?.uid ?: return
+        val batch = firestore.batch()
+
+        exercises.forEach { exercise ->
+            val ref = firestore.collection("users/$userId/exercises").document(exercise.id)
+            batch.set(ref, exercise)
+        }
+
+        batch.commit().await()
+    }
 //    fun getAllExercises(): Flow<List<Exercise>> = callbackFlow {
 //        val userId = auth.currentUser?.uid ?: run {
 //            trySend(emptyList())

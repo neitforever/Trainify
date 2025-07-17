@@ -56,6 +56,7 @@ fun TemplateDetailScreen(
     paddingTopValues: Dp,
     workoutViewModel: WorkoutViewModel,
     exerciseViewModel: ExerciseViewModel,
+    lang: String
 ) {
     val template by workoutViewModel.getTemplateById(templateId ?: "").collectAsState(initial = null)
     var showDeleteTemplateDialog by remember { mutableStateOf(false) }
@@ -217,6 +218,7 @@ fun TemplateDetailScreen(
                             navController = navController,
                             exerciseSets = exercise.sets,
                             workoutViewModel = workoutViewModel,
+                            lang = lang
                         )
                     }
                 }
@@ -240,7 +242,8 @@ fun TemplateDetailScreen(
                             }
                             workoutViewModel.updateTemplateExercises(it.id, updated)
                         }
-                    }
+                    },
+                    lang = lang
                 )
             }
         }

@@ -81,7 +81,8 @@ fun NavGraph(
     drawerState: MutableState<DrawerState>,
     authViewModel: AuthViewModel,
     bodyProgressViewModel: BodyProgressViewModel,
-    workoutSettingsViewModel: WorkoutSettingsViewModel
+    workoutSettingsViewModel: WorkoutSettingsViewModel,
+    lang: String
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
@@ -89,13 +90,9 @@ fun NavGraph(
     val currentRoute = currentDestination?.route?.split("/")?.get(0)
     val coroutineScope = rememberCoroutineScope()
 
-//    var isSignIn = rememberSaveable {
-//        mutableStateOf(googleAuthClient.isSingedIn())
-//    }
 
 
     val userState = authViewModel.userState.collectAsState()
-    // val pagerState = rememberPagerState(pageCount = { 2 })
     val screens = listOf(
         Screen.WorkoutHistory,
         Screen.WorkoutDetail,
@@ -287,7 +284,7 @@ fun NavGraph(
 
                     composable(Screen.AddWorkout.route) {
                         WorkoutScreen(
-                            workoutViewModel, exerciseViewModel, navController, drawerState
+                            workoutViewModel, exerciseViewModel, navController, drawerState,lang = lang
                         )
                     }
                     composable(Screen.WorkoutHistory.route) {
@@ -306,6 +303,7 @@ fun NavGraph(
                             exerciseViewModel,
                             workoutViewModel,
                             paddingTopValues = paddingValue.calculateTopPadding(),
+                            lang = lang
                         )
                     }
 
@@ -320,6 +318,7 @@ fun NavGraph(
                             paddingTopValues = paddingValue.calculateTopPadding(),
                             workoutViewModel = workoutViewModel,
                             exerciseViewModel = exerciseViewModel,
+                            lang = lang
                         )
                     }
 
@@ -345,7 +344,7 @@ fun NavGraph(
 
                     composable(Screen.SearchExercise.route) {
                         SearchExerciseScreen(
-                            navController = navHostController, viewModel = exerciseViewModel
+                            navController = navHostController, viewModel = exerciseViewModel,lang = lang
                         )
                     }
                     composable(Screen.Profile.route) {
@@ -389,7 +388,8 @@ fun NavGraph(
                     composable(Screen.CreateExercise.route) {
                         CreateExerciseScreen(
                             navController = navHostController,
-                            viewModel = exerciseViewModel
+                            exerciseViewModel = exerciseViewModel,
+                            lang = lang
                         )
                     }
 
@@ -401,7 +401,8 @@ fun NavGraph(
                         EditExerciseNameScreen(
                             navController = navHostController,
                             exerciseId = exerciseId ?: "",
-                            viewModel = exerciseViewModel
+                            viewModel = exerciseViewModel,
+                            lang = lang
                         )
                     }
 
@@ -417,7 +418,8 @@ fun NavGraph(
                             navController = navHostController,
                             exerciseId = exerciseId ?: "",
                             viewModel = exerciseViewModel,
-                            paddingValues = paddingValue.calculateTopPadding()
+                            paddingValues = paddingValue.calculateTopPadding(),
+                            lang = lang
                         )
                     }
 
@@ -431,7 +433,8 @@ fun NavGraph(
                             navController = navHostController,
                             exerciseId = exerciseId ?: "",
                             viewModel = exerciseViewModel,
-                            paddingValues = paddingValue.calculateTopPadding()
+                            paddingValues = paddingValue.calculateTopPadding(),
+                            lang = lang
                         )
                     }
 
@@ -455,7 +458,8 @@ fun NavGraph(
                         EditExerciseInstructionsScreen(
                             navController = navHostController,
                             exerciseId = exerciseId ?: "",
-                            viewModel = exerciseViewModel
+                            viewModel = exerciseViewModel,
+                            lang = lang
                         )
                     }
 
@@ -468,7 +472,8 @@ fun NavGraph(
                             workoutId = workoutId,
                             workoutViewModel = workoutViewModel,
                             navController = navController,
-                            paddingValues = paddingValue.calculateTopPadding()
+                            paddingValues = paddingValue.calculateTopPadding(),
+                            lang = lang
                         )
                     }
                     composable(Screen.BodyProgress.route) {
@@ -490,7 +495,8 @@ fun NavGraph(
                         ExerciseDetailScreen(
                             navController = navController,
                             exerciseId = exerciseId ?: "",
-                            viewModel = exerciseViewModel
+                            viewModel = exerciseViewModel,
+                            lang = lang
                         )
                     }
                 }

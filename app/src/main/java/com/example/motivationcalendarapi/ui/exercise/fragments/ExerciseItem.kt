@@ -34,7 +34,8 @@ fun ExerciseItem(
     exercise: Exercise,
     onItemClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    isFavorite: Boolean
+    isFavorite: Boolean,
+    lang: String
 ) {
     val iconSize by animateDpAsState(
         targetValue = if (isFavorite) 26.dp else 24.dp,
@@ -56,7 +57,7 @@ fun ExerciseItem(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = exercise.name.first().uppercase(),
+                text = exercise.getName(lang).first().uppercase(),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
@@ -70,7 +71,7 @@ fun ExerciseItem(
             modifier = Modifier.weight(1f).padding(end = 8.dp)
         ) {
             Text(
-                text = exercise.name.replaceFirstChar {
+                text = exercise.getName(lang).replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
                 },
                 style = MaterialTheme.typography.titleLarge,

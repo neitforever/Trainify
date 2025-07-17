@@ -40,11 +40,10 @@ fun BodyPartsList(
     selectedExercises: List<Exercise>,
     addedExercises: List<Exercise>,
     onExerciseSelected: (Exercise) -> Unit,
-    onAddAll: () -> Unit
+    onAddAll: () -> Unit,
+    lang: String
 ) {
-    LaunchedEffect(Unit) {
-        exerciseViewModel.fetchAndSaveExercises()
-    }
+
 
     val bodyParts by exerciseViewModel.allBodyParts.collectAsState(initial = emptyList())
     val sortedBodyParts = remember(bodyParts) {
@@ -96,8 +95,8 @@ fun BodyPartsList(
                             favoriteExercises.any { it.id == exercise.id }
                         }
 
-                        val sortedFavorites = favorites.sortedBy { it.name }
-                        val sortedNonFavorites = nonFavorites.sortedBy { it.name }
+                        val sortedFavorites = favorites.sortedBy { it.getName(lang) }
+                        val sortedNonFavorites = nonFavorites.sortedBy { it.getName(lang) }
 
                         Column(
                             modifier = Modifier
@@ -109,7 +108,9 @@ fun BodyPartsList(
                                     isFavorite = true,
                                     selectedOrder = selectedExercises.indexOfFirst { it.id == exercise.id }
                                         .takeIf { it >= 0 }?.plus(1),
-                                    onItemClick = { onExerciseSelected(exercise) }
+                                    onItemClick = { onExerciseSelected(exercise) },
+                                    lang = lang
+
                                 )
                             }
 
@@ -119,7 +120,8 @@ fun BodyPartsList(
                                     isFavorite = false,
                                     selectedOrder = selectedExercises.indexOfFirst { it.id == exercise.id }
                                         .takeIf { it >= 0 }?.plus(1),
-                                    onItemClick = { onExerciseSelected(exercise) }
+                                    onItemClick = { onExerciseSelected(exercise) },
+                                    lang = lang
                                 )
                             }
                         }

@@ -30,7 +30,8 @@ fun AddExerciseTemplate(
     sheetState: SheetState,
     exerciseViewModel: ExerciseViewModel,
     existingExercises: List<Exercise>,
-    onExercisesSelected: (List<Exercise>) -> Unit
+    onExercisesSelected: (List<Exercise>) -> Unit,
+    lang: String
 ) {
     val addedExercises = remember { existingExercises }
     val selectedExercises = remember { mutableStateListOf<Exercise>() }
@@ -78,7 +79,8 @@ fun AddExerciseTemplate(
                                     onExercisesSelected,
                                     onDismiss
                                 )
-                            }
+                            },
+                            lang = lang
                         )
                     }
 
@@ -96,7 +98,8 @@ fun AddExerciseTemplate(
                                     onExercisesSelected,
                                     onDismiss
                                 )
-                            }
+                            },
+                            lang = lang
                         )
                     }
                 }

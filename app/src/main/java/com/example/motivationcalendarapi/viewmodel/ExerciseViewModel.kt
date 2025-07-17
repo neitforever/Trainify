@@ -4,9 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.motivationcalendarapi.mapper.toEntity
 import com.example.motivationcalendarapi.model.Exercise
-import com.example.motivationcalendarapi.network.ApiClient
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.mlkit.nl.translate.TranslateLanguage
@@ -19,112 +17,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private val auth: FirebaseAuth, private val context: Context
+class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private val auth: FirebaseAuth
 ): ViewModel()  {
 
     val allBodyParts: Flow<List<String>> = exerciseRepository.getAllBodyParts()
 
     init {
         viewModelScope.launch {
+            exerciseRepository.initializeExercises()
             exerciseRepository.syncExercisesWithFirestore()
         }
     }
 
+
     private val currentUser get() = auth.currentUser
 
 
-
-    ///
-//    private val translationRepo by lazy { ExerciseTranslationRepository(context) }
-//
-//    // Новая функция для загрузки и перевода упражнений
-//    fun uploadExercisesToFirestore() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                val exercises = exerciseRepository.getAllExercisesOnce()
-//                Log.d("Translation", "Найдено упражнений для перевода: ${exercises.size}")
-//                if (exercises.isNotEmpty()) {
-//                    translationRepo.uploadAndTranslateExercises(exercises)
-//                } else {
-//                    Log.d("Translation", "Нет упражнений для перевода")
-//                }
-//            } catch (e: Exception) {
-//                Log.e("Translation", "Ошибка при подготовке перевода", e)
-//            }
-//        }
-//    }
-
-//    fun testTranslation(
-//        text: String,
-//        onRussianTranslated: (String) -> Unit,
-//        onBelarusianTranslated: (String) -> Unit
-//    ) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                // Создаем переводчики
-//                val russianTranslator = Translation.getClient(
-//                    TranslatorOptions.Builder()
-//                        .setSourceLanguage(TranslateLanguage.ENGLISH)
-//                        .setTargetLanguage(TranslateLanguage.RUSSIAN)
-//                        .build()
-//                )
-//
-//                val belarusianTranslator = Translation.getClient(
-//                    TranslatorOptions.Builder()
-//                        .setSourceLanguage(TranslateLanguage.ENGLISH)
-//                        .setTargetLanguage(TranslateLanguage.BELARUSIAN)
-//                        .build()
-//                )
-//
-//
-//                // Загружаем модели
-//                russianTranslator.downloadModelIfNeeded().await()
-//                belarusianTranslator.downloadModelIfNeeded().await()
-//
-//                // Выполняем перевод
-//                val russian = russianTranslator.translate(text).await()
-//                onRussianTranslated(russian)
-//
-//                val belarusian = belarusianTranslator.translate(text).await()
-//                onBelarusianTranslated(belarusian)
-//
-//                // Закрываем переводчики
-//                russianTranslator.close()
-//                belarusianTranslator.close()
-//
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//                onBelarusianTranslated("Translation error: ${e.message}")
-//            }
-//        }
-//    }
-    ///
-    suspend fun fetchAndSaveExercises() {
-        try {
-            if (currentUser != null) {
-                exerciseRepository.syncExercisesWithFirestore()
-            }
-
-            val localCount = exerciseRepository.getExerciseCount()
-            if (localCount == 0) {
-                val response = ApiClient.apiService.getExercises()
-                val exercises = response.map { it.toEntity() }
-                exercises.forEach { ex ->
-                    exerciseRepository.insertExercise(ex.copy(
-                        favorite = false // Явно инициализируем isFavorite
-                    ))
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-//    fun getExerciseFromApi() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            exerciseRepository.getExerciseFromApi()
-//        }
-//    }
 
     fun getExercisesByBodyPart(bodyPart: String): Flow<List<Exercise>> {
         return exerciseRepository.getExercisesByBodyPart(bodyPart)
@@ -159,7 +67,7 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
 
     val allEquipment: Flow<List<String>> = exerciseRepository.getAllEquipment()
 
-    fun updateExerciseEquipment(id: String, newEquipment: String) {
+    fun updateExerciseEquipment(id: String, newEquipment: Map<String, String>) {
         viewModelScope.launch {
             exerciseRepository.updateExerciseEquipment(id, newEquipment)
         }
@@ -167,7 +75,7 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
 
 
 
-    fun updateExerciseBodyPart(id: String, newBodyPart: String) {
+    fun updateExerciseBodyPart(id: String, newBodyPart:  Map<String, String>) {
         viewModelScope.launch {
             exerciseRepository.updateExerciseBodyPart(id, newBodyPart)
         }
@@ -179,7 +87,7 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
 
 //    val allSecondaryMuscles: Flow<List<String>> = exerciseRepository.getAllSecondaryMuscles()
 
-    fun updateExerciseInstructions(id: String, newInstructions: List<String>) {
+    fun updateExerciseInstructions(id: String, newInstructions:  Map<String, List<String>>) {
         viewModelScope.launch {
             exerciseRepository.updateExerciseInstructions(id, newInstructions)
         }
@@ -194,12 +102,12 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
     fun initializeNewExercise(id: String) {
         _tempExercise.value = Exercise(
             id = id,
-            name = "",
-            bodyPart = "",
-            equipment = "",
-            target = "",
-            secondaryMuscles = listOf(),
-            instructions = listOf(),
+            nameLocalized = emptyMap(),
+            bodyPartLocalized = emptyMap(),
+            equipmentLocalized = emptyMap(),
+            targetLocalized = emptyMap(),
+            secondaryMusclesLocalized = emptyMap(),
+            instructionsLocalized = emptyMap(),
             gifUrl = "",
             favorite = false,
             note = ""
@@ -221,17 +129,17 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
     }
 
     fun Exercise.isValid() =
-        name.isNotBlank() &&
-                equipment.isNotBlank() &&
-                bodyPart.isNotBlank() &&
-                instructions.isNotEmpty()
+        nameLocalized.isNotEmpty() &&
+                equipmentLocalized.isNotEmpty() &&
+                bodyPartLocalized.isNotEmpty() &&
+                instructionsLocalized.isNotEmpty()
 
 
     fun updateTempExercise(update: (Exercise) -> Exercise) {
         _tempExercise.value?.let { current ->
             val updated = update(current)
             _tempExercise.value = updated
-            Log.d("ExerciseViewModel", "Updated tempExercise: ${updated.name}")
+//            Log.d("ExerciseViewModel", "Updated tempExercise: ${updated.getName(lang)}")
         } ?: run {
             Log.e("ExerciseViewModel", "Attempted to update null tempExercise")
         }
@@ -243,9 +151,9 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
 //        }
 //    }
 
-    fun updateExerciseName(id: String, newName: String) {
+    fun updateExerciseName(id: String, newName: Map<String, String>) {
         if (id == _tempExercise.value?.id) {
-            updateTempExercise { it.copy(name = newName) }
+            updateTempExercise { it.copy(nameLocalized = newName) }
         } else {
             viewModelScope.launch {
                 exerciseRepository.updateExerciseName(id, newName)

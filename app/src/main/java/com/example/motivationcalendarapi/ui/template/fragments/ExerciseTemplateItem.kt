@@ -60,7 +60,8 @@ fun ExerciseTemplateItem(
     templateId: String,
     onDeleteSet: (String, Int, Int) -> Unit,
     exerciseSets: List<ExerciseSet>,
-    workoutViewModel: WorkoutViewModel
+    workoutViewModel: WorkoutViewModel,
+    lang: String
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showNoteDialog by remember { mutableStateOf(false) }
@@ -109,7 +110,7 @@ fun ExerciseTemplateItem(
                     )
 
                     Text(
-                        text = exercise.exercise.name.replaceFirstChar { it.uppercase() },
+                        text = exercise.exercise.getName(lang).replaceFirstChar { it.uppercase() },
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .clickable { isExpanded.value = !isExpanded.value },
@@ -497,7 +498,8 @@ fun ExerciseTemplateItem(
         onSaveNote = { newNote ->
             localNote = newNote
             workoutViewModel.updateExerciseNote(exercise.exercise.id, newNote)
-        }
+        },
+        lang = lang
     )
 
 }

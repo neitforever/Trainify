@@ -57,20 +57,21 @@ fun BodyPartSelectionScreen(
     navController: NavController,
     exerciseId: String,
     viewModel: ExerciseViewModel,
-    paddingValues: Dp
+    paddingValues: Dp,
+    lang: String
 ) {
     val tempExercise by viewModel.tempExercise.collectAsState()
     val allBodyParts by viewModel.allBodyParts.collectAsState(initial = emptyList())
-    var newBodyPart by remember { mutableStateOf("") }
+    var newBodyPart by remember { mutableStateOf(emptyMap<String, String>()) }
 
     LaunchedEffect(exerciseId) {
         coroutineScope {
             launch(Dispatchers.IO) {
                 if (exerciseId == tempExercise?.id) {
-                    newBodyPart = tempExercise?.bodyPart ?: ""
+//                    newBodyPart = tempExercise?.getBodyPart(lang) ?: ""
                 } else {
                     val exercise = viewModel.getExerciseById(exerciseId)
-                    newBodyPart = exercise?.bodyPart ?: ""
+//                    newBodyPart = exercise?.getBodyPart(lang) ?: ""
                 }
             }
         }
@@ -82,40 +83,40 @@ fun BodyPartSelectionScreen(
             .padding(top = 16.dp, start = 16.dp, end = 16.dp)
             .fillMaxSize()
     ) {
-        TextField(
-            value = newBodyPart,
-            onValueChange = { newBodyPart = it },
-            modifier = Modifier.fillMaxWidth(),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp
-            ),
-            placeholder = {
-                Text(
-                    text = stringResource(R.string.chest_back_legs),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
-                cursorColor = MaterialTheme.colorScheme.primary,
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            ),
-            singleLine = true,
-            shape = MaterialTheme.shapes.medium
-        )
+//        TextField(
+//            value = newBodyPart,
+//            onValueChange = { newBodyPart = it },
+//            modifier = Modifier.fillMaxWidth(),
+//            textStyle = MaterialTheme.typography.bodyLarge.copy(
+//                color = MaterialTheme.colorScheme.onSurface,
+//                fontSize = 18.sp
+//            ),
+//            placeholder = {
+//                Text(
+//                    text = stringResource(R.string.chest_back_legs),
+//                    style = MaterialTheme.typography.bodyLarge,
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant
+//                )
+//            },
+//            colors = TextFieldDefaults.colors(
+//                focusedContainerColor = Color.Transparent,
+//                unfocusedContainerColor = Color.Transparent,
+//                disabledContainerColor = Color.Transparent,
+//                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+//                unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+//                cursorColor = MaterialTheme.colorScheme.primary,
+//                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+//            ),
+//            singleLine = true,
+//            shape = MaterialTheme.shapes.medium
+//        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
                 if (exerciseId == tempExercise?.id) {
-                    viewModel.updateTempExercise { it.copy(bodyPart = newBodyPart) }
+//                    viewModel.updateTempExercise { it.copy(bodyPart = newBodyPart) }
                 } else {
                     viewModel.updateExerciseBodyPart(exerciseId, newBodyPart)
                 }
@@ -124,7 +125,7 @@ fun BodyPartSelectionScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            enabled = newBodyPart.isNotBlank(),
+            enabled = newBodyPart.isNotEmpty(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -149,63 +150,63 @@ fun BodyPartSelectionScreen(
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(4.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(allBodyParts) { bodyPart ->
-                val isSelected = bodyPart == newBodyPart
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .clickable {
-                            newBodyPart = bodyPart
-                        }
-                        .animateContentSize()
-                        .padding(4.dp),
-                    color = if (isSelected) MaterialTheme.colorScheme.secondaryContainer
-                    else MaterialTheme.colorScheme.surfaceVariant,
-                    shape = CutCornerShape(8.dp),
-                    shadowElevation = 4.dp
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(12.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        Icon(
-                            painter = painterResource(id = getIconForBodyPart(bodyPart)),
-                            contentDescription = bodyPart,
-                            tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
-                            else MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = bodyPart,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
-                                else MaterialTheme.colorScheme.onSurface,
-                                textAlign = TextAlign.Start,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                            ),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-            item {
-                Spacer(
-                    modifier = Modifier
-                        .absolutePadding(bottom = 200.dp)
-                )
-            }
-        }
+//        LazyVerticalGrid(
+//            columns = GridCells.Fixed(2),
+//            contentPadding = PaddingValues(4.dp),
+//            verticalArrangement = Arrangement.spacedBy(8.dp),
+//            horizontalArrangement = Arrangement.spacedBy(8.dp),
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            items(allBodyParts) { bodyPart ->
+//                val isSelected = bodyPart == newBodyPart
+//                Surface(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(80.dp)
+//                        .clickable {
+//                            newBodyPart = bodyPart
+//                        }
+//                        .animateContentSize()
+//                        .padding(4.dp),
+//                    color = if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+//                    else MaterialTheme.colorScheme.surfaceVariant,
+//                    shape = CutCornerShape(8.dp),
+//                    shadowElevation = 4.dp
+//                ) {
+//                    Column(
+//                        modifier = Modifier
+//                            .padding(12.dp)
+//                            .fillMaxWidth(),
+//                        horizontalAlignment = Alignment.Start
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(id = getIconForBodyPart(bodyPart)),
+//                            contentDescription = bodyPart,
+//                            tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
+//                            else MaterialTheme.colorScheme.primary,
+//                            modifier = Modifier.size(24.dp)
+//                        )
+//                        Spacer(modifier = Modifier.height(4.dp))
+//                        Text(
+//                            text = bodyPart,
+//                            style = MaterialTheme.typography.bodyLarge.copy(
+//                                color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
+//                                else MaterialTheme.colorScheme.onSurface,
+//                                textAlign = TextAlign.Start,
+//                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+//                            ),
+//                            maxLines = 2,
+//                            overflow = TextOverflow.Ellipsis
+//                        )
+//                    }
+//                }
+//            }
+//            item {
+//                Spacer(
+//                    modifier = Modifier
+//                        .absolutePadding(bottom = 200.dp)
+//                )
+//            }
+//        }
     }
 }

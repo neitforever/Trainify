@@ -58,7 +58,8 @@ fun ExerciseCard(
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     workoutViewModel: WorkoutViewModel,
-    navController: NavController
+    navController: NavController,
+    lang: String
 ) {
     val isExpanded = remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
@@ -115,7 +116,7 @@ fun ExerciseCard(
                     )
 
                     Text(
-                        text = exercise.exercise.name.replaceFirstChar { it.uppercase() },
+                        text = exercise.exercise.getName(lang).replaceFirstChar { it.uppercase() },
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .clickable { isExpanded.value = !isExpanded.value },
@@ -511,13 +512,16 @@ fun ExerciseCard(
     }
 
 
-    NoteBottomSheet(showBottomSheet = showNoteDialog, exercise = updatedExercise, onDismiss = {
+    NoteBottomSheet(
+        showBottomSheet = showNoteDialog, exercise = updatedExercise, onDismiss = {
         showNoteDialog = false
         workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, localNote)
     }, onSaveNote = { newNote ->
         localNote = newNote
         workoutViewModel.updateExerciseNote(updatedExercise.exercise.id, newNote)
-    })
+    },
+        lang = lang
+    )
 
 }
 

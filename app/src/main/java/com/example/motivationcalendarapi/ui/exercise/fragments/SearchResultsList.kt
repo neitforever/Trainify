@@ -25,7 +25,8 @@ fun SearchResultsList(
     selectedExercises: List<Exercise>,
     addedExercises: List<Exercise>,
     onExerciseSelected: (Exercise) -> Unit,
-    onAddAll: () -> Unit
+    onAddAll: () -> Unit,
+    lang: String
 ) {
     val filteredResults = searchResults.filterNot { ex ->
         addedExercises.any { it.id == ex.id }
@@ -48,7 +49,9 @@ fun SearchResultsList(
                             .indexOfFirst { it.id == exercise.id }
                             .takeIf { it >= 0 }
                             ?.plus(1),
-                        onItemClick = { onExerciseSelected(exercise) }
+                        onItemClick = { onExerciseSelected(exercise)
+                        },
+                        lang = lang
                     )
                 }
             }

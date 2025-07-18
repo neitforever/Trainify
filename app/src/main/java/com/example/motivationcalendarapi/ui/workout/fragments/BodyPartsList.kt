@@ -19,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -45,7 +44,7 @@ fun BodyPartsList(
 ) {
 
 
-    val bodyParts by exerciseViewModel.allBodyParts.collectAsState(initial = emptyList())
+    val bodyParts by exerciseViewModel.getBodyPartsLocalized(lang).collectAsState(initial = emptyList())
     val sortedBodyParts = remember(bodyParts) {
         bodyParts.sortedBy { it.lowercase(Locale.getDefault()) }
     }
@@ -84,7 +83,7 @@ fun BodyPartsList(
                         ),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        val exercises by exerciseViewModel.getExercisesByBodyPart(bodyPart)
+                        val exercises by exerciseViewModel.getExercisesLocalizedByBodyPart(bodyPart, lang)
                             .collectAsState(initial = emptyList())
 
                         val filteredExercises = exercises.filterNot { ex ->

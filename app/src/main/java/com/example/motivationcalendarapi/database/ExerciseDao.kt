@@ -9,6 +9,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExerciseDao {
+    //Надо
+    @Query("SELECT * FROM exercises")
+    fun getAllExercisesFlow(): Flow<List<Exercise>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExercises(exercises: Exercise)
 

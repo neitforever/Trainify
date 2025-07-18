@@ -1,24 +1,30 @@
 package com.example.motivationcalendarapi.viewmodel
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
-import com.google.firebase.auth.FirebaseAuth
-import com.google.mlkit.nl.translate.TranslateLanguage
-import com.google.mlkit.nl.translate.Translation
-import com.google.mlkit.nl.translate.TranslatorOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
-class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private val auth: FirebaseAuth
+class ExerciseViewModel(
+    val exerciseRepository: ExerciseRepository
 ): ViewModel()  {
+
+    //Надо
+    fun getBodyPartsLocalized(lang: String): Flow<List<String>> {
+        return exerciseRepository.getBodyPartsLocalized(lang)
+    }
+    //Надо
+    fun getExercisesLocalizedByBodyPart(bodyPart: String, lang: String): Flow<List<Exercise>> {
+        return exerciseRepository.getExercisesLocalizedByBodyPart(bodyPart, lang)
+    }
+
+
 
     val allBodyParts: Flow<List<String>> = exerciseRepository.getAllBodyParts()
 
@@ -30,13 +36,13 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
     }
 
 
-    private val currentUser get() = auth.currentUser
-
-
-
-    fun getExercisesByBodyPart(bodyPart: String): Flow<List<Exercise>> {
-        return exerciseRepository.getExercisesByBodyPart(bodyPart)
-    }
+//    private val currentUser get() = auth.currentUser
+//
+//
+//
+//    fun getExercisesByBodyPart(bodyPart: String): Flow<List<Exercise>> {
+//        return exerciseRepository.getExercisesByBodyPart(bodyPart)
+//    }
 
     fun getExerciseById(id: String): Exercise? {
         return exerciseRepository.getExerciseById(id)
@@ -99,20 +105,59 @@ class ExerciseViewModel(val exerciseRepository: ExerciseRepository ,   private v
     private val _tempExercise = MutableStateFlow<Exercise?>(null)
     val tempExercise: StateFlow<Exercise?> = _tempExercise
 
-    fun initializeNewExercise(id: String) {
-        _tempExercise.value = Exercise(
-            id = id,
-            nameLocalized = emptyMap(),
-            bodyPartLocalized = emptyMap(),
-            equipmentLocalized = emptyMap(),
-            targetLocalized = emptyMap(),
-            secondaryMusclesLocalized = emptyMap(),
-            instructionsLocalized = emptyMap(),
-            gifUrl = "",
-            favorite = false,
-            note = ""
-        )
-    }
+//    fun initializeNewExercise(id: String) {
+//        _tempExercise.value = Exercise(
+//            id = id,
+//            nameLocalized = emptyMap(),
+//            bodyPartLocalized = emptyMap(),
+//            equipmentLocalized = emptyMap(),
+//            targetLocalized = emptyMap(),
+//            secondaryMusclesLocalized = emptyMap(),
+//            instructionsLocalized = emptyMap(),
+//            gifUrl = "",
+//            favorite = false,
+//            note = ""
+//        )
+//    }
+fun initializeNewExercise(id: String) {
+    _tempExercise.value = Exercise(
+        id = id,
+        nameLocalized = mapOf(
+            "en" to "chest",
+            "ru" to "груди1",
+            "be" to "грудзі"
+        ),
+        bodyPartLocalized = mapOf(
+            "en" to "chest",
+            "ru" to "груди1",
+            "be" to "грудзі"
+        ),
+        equipmentLocalized = mapOf(
+            "en" to "chest",
+            "ru" to "груди1",
+            "be" to "грудзі"
+        ),
+        targetLocalized = mapOf(
+            "en" to "chest",
+            "ru" to "груди1",
+            "be" to "грудзі"
+        ),
+        secondaryMusclesLocalized = mapOf(
+            "en" to listOf("chest"),
+            "ru" to listOf("груди1"),
+            "be" to listOf("грудзі")
+        ),
+        instructionsLocalized = mapOf(
+            "en" to listOf("chest"),
+            "ru" to listOf("груди1"),
+            "be" to listOf("грудзі")
+        ),
+        gifUrl = "geg",
+        favorite = false,
+        note = "fsdfasdf"
+    )
+    Log.d("tempExerciseInit", "Initialized exercise: ${_tempExercise.value}")
+}
 
     fun finalizeNewExercise() {
         _tempExercise.value?.let { exercise ->

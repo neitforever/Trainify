@@ -4,12 +4,36 @@ import com.example.motivationcalendarapi.database.WorkoutDatabase
 import com.example.motivationcalendarapi.model.Exercise
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import java.util.Locale
 
 class ExerciseRepository(
     val appDatabase: WorkoutDatabase,
     private val firestoreRepo: ExerciseFirestoreRepository,
     private val auth: FirebaseAuth
 ) {
+    //Надо
+    fun getBodyPartsLocalized(lang: String): Flow<List<String>> {
+        return appDatabase.exerciseDao().getAllExercisesFlow().map { exercises ->
+            exercises
+                .mapNotNull { it.bodyPartLocalized[lang] }
+                .distinct()
+                .sortedBy { it.lowercase(Locale.getDefault()) }
+        }
+    }
+    //Надо
+    fun getExercisesLocalizedByBodyPart(bodyPart: String, lang: String): Flow<List<Exercise>> {
+        return appDatabase.exerciseDao().getAllExercisesFlow().map { exercises ->
+            exercises.filter {
+                it.bodyPartLocalized[lang] == bodyPart
+            }.sortedWith(
+                compareByDescending<Exercise> { it.favorite }
+                    .thenBy { it.nameLocalized[lang] ?: "" }
+            )
+        }
+    }
+
+
 
     private val currentUser get() = auth.currentUser
 
@@ -102,9 +126,9 @@ class ExerciseRepository(
         }
         appDatabase.exerciseDao().deleteExercise(id)
     }
-    fun getExercisesByBodyPart(bodyPart: String): Flow<List<Exercise>> {
-        return appDatabase.exerciseDao().getExercisesByBodyPart(bodyPart)
-    }
+//    fun getExercisesByBodyPart(bodyPart: String): Flow<List<Exercise>> {
+//        return appDatabase.exerciseDao().getExercisesByBodyPart(bodyPart)
+//    }
 
 
 //    suspend fun getAllExercisesOnce(): List<Exercise> {
@@ -113,7 +137,7 @@ class ExerciseRepository(
 
     fun getAllBodyParts() = appDatabase.exerciseDao().getAllBodyParts()
 
-    suspend fun getExerciseCount() = appDatabase.exerciseDao().getExerciseCount()
+//    suspend fun getExerciseCount() = appDatabase.exerciseDao().getExerciseCount()
 
 
     fun getExerciseById(id: String) = appDatabase.exerciseDao().getExerciseById(id)

@@ -112,7 +112,7 @@ class MainActivity : ComponentActivity() {
                 else -> "en"
             }
             val exerciseViewModel = ExerciseViewModel(
-                exerciseRepository, auth
+                exerciseRepository
             )
             val navController = rememberNavController()
             var drawerState = mutableStateOf(rememberDrawerState(initialValue = DrawerValue.Closed))

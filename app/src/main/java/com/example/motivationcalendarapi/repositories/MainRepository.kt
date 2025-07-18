@@ -8,15 +8,16 @@ import kotlinx.coroutines.flow.Flow
 class MainRepository(private val context: Context) {
 
 
-
-
-
     private val settingsDataStore = SettingsDataStore(context)
 
-    val languageFlow: Flow<String> = settingsDataStore.languageFlow
+    fun saveLanguage(languageCode: String) {
+        val sharedPreferences = context.getSharedPreferences("language_prefs", Context.MODE_PRIVATE)
+        sharedPreferences.edit().putString("language", languageCode).apply()
+    }
 
-    suspend fun saveLanguage(languageCode: String) {
-        settingsDataStore.saveLanguage(languageCode)
+    fun getSavedLanguageCode(): String? {
+        val sharedPreferences = context.getSharedPreferences("language_prefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("language", null)
     }
 
 
@@ -39,13 +40,14 @@ class MainRepository(private val context: Context) {
 
     val isDarkThemeFlow: Flow<Boolean> = settingsDataStore.isDarkThemeFlow
 
-//    suspend fun toggleTheme() {
-//        settingsDataStore.toggleTheme()
-//    }
 
     suspend fun saveThemePreference(isDark: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[IS_DARK_THEME] = isDark
         }
     }
+
+
+
+
 }

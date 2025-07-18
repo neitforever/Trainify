@@ -7,7 +7,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -25,24 +24,10 @@ class SettingsDataStore(private val context: Context) {
         val MIN_WEIGHT = floatPreferencesKey("min_weight")
         val MAX_WEIGHT = floatPreferencesKey("max_weight")
         val STEP_WEIGHT = floatPreferencesKey("step_weight")
-        val LANGUAGE_KEY = stringPreferencesKey("app_language")
     }
 
-    suspend fun saveLanguage(languageCode: String) {
-        context.dataStore.edit { preferences ->
-            preferences[LANGUAGE_KEY] = languageCode
-        }
 
-        context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-            .edit()
-            .putString("app_language", languageCode)
-            .apply()
-    }
 
-    val languageFlow: Flow<String> = context.dataStore.data
-        .map { preferences ->
-            preferences[LANGUAGE_KEY] ?: "system"
-        }
 
     val minRepFlow: Flow<Int> = context.dataStore.data
         .map { it[MIN_REP] ?: 0 }
@@ -83,10 +68,4 @@ class SettingsDataStore(private val context: Context) {
             preferences[IS_DARK_THEME] != false
         }
 
-//    suspend fun toggleTheme() {
-//        context.dataStore.edit { preferences ->
-//            val currentTheme = preferences[IS_DARK_THEME] != false
-//            preferences[IS_DARK_THEME] = !currentTheme
-//        }
-//    }
 }

@@ -3,12 +3,13 @@ package com.example.motivationcalendarapi
 import GoogleAuthClient
 import NavGraph
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
@@ -42,13 +43,15 @@ import com.example.motivationcalendarapi.viewmodel.WorkoutViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestoreSettings
-import java.util.*
 
 class MainActivity : ComponentActivity() {
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("UnrememberedMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         WindowCompat.setDecorFitsSystemWindows(window, true)
         enableEdgeToEdge()
 
@@ -92,14 +95,18 @@ class MainActivity : ComponentActivity() {
 
             val mainViewModel = MainViewModel(mainRepository)
 
+
+            val languageCode = mainViewModel.getSavedLanguageCode() ?: "en"
+            mainViewModel.setLanguage(languageCode, this)
+
             val exerciseRepository = ExerciseRepository(
                 db,
                 exerciseFirestoreRepo,
                 FirebaseAuth.getInstance()
             )
+            Log.d("languageCode", languageCode)
 
-            val currentLanguage = mainViewModel.appLanguage
-            val lang = when (currentLanguage) {
+            val lang = when (languageCode) {
                 "ru" -> "ru"
                 "be" -> "be"
                 else -> "en"
@@ -120,9 +127,7 @@ class MainActivity : ComponentActivity() {
                     workoutViewModel.syncAllData()
                 }
 
-                mainViewModel.recreateActivity = {
-                    recreate()
-                }
+
             }
 
 
@@ -143,26 +148,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun attachBaseContext(newBase: Context) {
-        val prefs = newBase.getSharedPreferences("settings", MODE_PRIVATE)
-        val language = prefs.getString("app_language", "system") ?: "system"
-
-        super.attachBaseContext(wrapContext(newBase, language))
-    }
-
-    private fun wrapContext(context: Context, languageCode: String): Context {
-        if (languageCode == "system") {
-            return context
-        }
-
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-
-        val config = Configuration(context.resources.configuration)
-        config.setLocale(locale)
-
-        return context.createConfigurationContext(config)
-    }
 
     override fun onStart() {
         super.onStart()

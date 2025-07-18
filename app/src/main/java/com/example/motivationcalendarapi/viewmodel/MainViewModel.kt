@@ -1,9 +1,14 @@
 package com.example.motivationcalendarapi.viewmodel
 
+import android.app.LocaleManager
 import android.content.Context
+import android.os.Build
+import android.os.LocaleList
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -13,30 +18,20 @@ import kotlinx.coroutines.launch
 class MainViewModel(private val repository: MainRepository) : ViewModel() {
 
 
-    var appLanguage by mutableStateOf("en")
-        private set
 
-//    var isChangingLanguage by mutableStateOf(false)
-//        private set
-
-    init {
-        viewModelScope.launch {
-            repository.languageFlow.collect { lang ->
-                appLanguage = lang
-            }
-        }
-    }
-
-    var recreateActivity: (() -> Unit)? = null
-
-    fun changeLanguage(languageCode: String) {
-        viewModelScope.launch {
+    fun setLanguage(languageCode: String, context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.getSystemService(LocaleManager::class.java)
+                .applicationLocales = LocaleList.forLanguageTags(languageCode)
             repository.saveLanguage(languageCode)
-            appLanguage = languageCode
-            recreateActivity?.invoke()
+        } else {
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageCode))
         }
     }
 
+    fun getSavedLanguageCode(): String? {
+        return repository.getSavedLanguageCode()
+    }
 
 
     var isDarkTheme by mutableStateOf(true)
@@ -50,11 +45,6 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
         }
     }
 
-//    fun toggleTheme() {
-//        viewModelScope.launch {
-//            repository.toggleTheme()
-//        }
-//    }
 
     fun setTheme(isDark: Boolean) {
         viewModelScope.launch {
@@ -67,8 +57,7 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
 class MainViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return MainViewModel(MainRepository(context)) as T
+            @Suppress("UNCHECKED_CAST") return MainViewModel(MainRepository(context)) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

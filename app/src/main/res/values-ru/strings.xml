@@ -227,4 +227,11 @@
     <string name="belarusian">Белорусский</string>
     <string name="current_language">Текущий язык: %s</string>
     <string name="system_default">По умолчанию</string>
+    <string name="unknown">Неизвестный язык</string>
+
+    <string name="language_description">Русский - официальный язык России, Беларуси, Казахстана и других стран</string>
+    <string name="language_example">Здравствуйте! Как ваши дела?</string>
+    <string name="select_language">Выберите язык</string>
+    <string name="example_prefix">Пример</string>
+    <string name="language_description_title">Пример:</string>
 </resources>

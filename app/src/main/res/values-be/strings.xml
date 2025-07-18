@@ -229,4 +229,11 @@
     <string name="belarusian">Беларуская</string>
     <string name="current_language">Бягучая мова: %s</string>
     <string name="system_default">Сістэмныя</string>
+    <string name="unknown">Невядомая мова</string>
+
+    <string name="language_description">Беларуская мова - дзяржаўная мова Рэспублікі Беларусь і адна з моў Еўрапейскага Саюза</string>
+    <string name="language_example">Прывітанне! Як маецеся?</string>
+    <string name="select_language">Выберыце мову</string>
+    <string name="example_prefix">Прыклад</string>
+    <string name="language_description_title">Заўвага:</string>
 </resources>

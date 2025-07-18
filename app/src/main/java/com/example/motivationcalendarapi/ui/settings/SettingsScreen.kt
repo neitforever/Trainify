@@ -59,25 +59,24 @@ fun SettingsScreen(
                     .padding(top = 12.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = MaterialTheme.shapes.medium,
-                tonalElevation = 2.dp) {
+                tonalElevation = 2.dp)
+            {
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                         .fillMaxWidth()
-                        .height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically
+                        .height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .size(48.dp)
+                        contentAlignment = Alignment.Center, modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
                             painter = painterResource(
                                 id = when (screen) {
                                     Screen.ThemeSettings -> R.drawable.ic_color_theme
                                     Screen.WorkoutSettings -> R.drawable.ic_dumbbell
-                                    else -> R.drawable.ic_settings
+                                    Screen.LanguageSettings -> R.drawable.ic_flag
+                                    else -> R.drawable.ic_flag
                                 }
                             ),
                             contentDescription = screen.getTitle(context),
@@ -105,7 +104,8 @@ fun SettingsScreen(
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .size(48.dp).padding(start = 8.dp)
+                            .size(48.dp)
+                            .padding(start = 8.dp)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_right),

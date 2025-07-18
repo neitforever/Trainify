@@ -91,7 +91,6 @@ fun NavGraph(
     val coroutineScope = rememberCoroutineScope()
 
 
-
     val userState = authViewModel.userState.collectAsState()
     val screens = listOf(
         Screen.WorkoutHistory,
@@ -117,7 +116,7 @@ fun NavGraph(
                     .fillMaxWidth(0.8f)
             ) {
                 NavigationMenuView(
-                    authViewModel = authViewModel,navController = navController, onItemClick = {
+                    authViewModel = authViewModel, navController = navController, onItemClick = {
                         coroutineScope.launch {
                             drawerState.value.close()
                         }
@@ -284,7 +283,11 @@ fun NavGraph(
 
                     composable(Screen.AddWorkout.route) {
                         WorkoutScreen(
-                            workoutViewModel, exerciseViewModel, navController, drawerState,lang = lang
+                            workoutViewModel,
+                            exerciseViewModel,
+                            navController,
+                            drawerState,
+                            lang = lang
                         )
                     }
                     composable(Screen.WorkoutHistory.route) {
@@ -344,7 +347,9 @@ fun NavGraph(
 
                     composable(Screen.SearchExercise.route) {
                         SearchExerciseScreen(
-                            navController = navHostController, viewModel = exerciseViewModel,lang = lang
+                            navController = navHostController,
+                            viewModel = exerciseViewModel,
+                            lang = lang
                         )
                     }
                     composable(Screen.Profile.route) {
@@ -373,7 +378,8 @@ fun NavGraph(
                     composable(Screen.LanguageSettings.route) {
                         LanguageSettingsScreen(
                             mainViewModel = mainViewModel,
-                            paddingValues = paddingValue.calculateTopPadding()
+                            paddingValues = paddingValue.calculateTopPadding(),
+                            navController = navController
                         )
                     }
 

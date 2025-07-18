@@ -225,4 +225,11 @@
     <string name="belarusian">Belarusian</string>
     <string name="current_language">Current language: %s</string>
     <string name="system_default">System default</string>
+    <string name="unknown">Unknown language</string>
+
+    <string name="language_description">English - global lingua franca, official language in 67 countries worldwide</string>
+    <string name="language_example">Hello! How are you doing today?</string>
+    <string name="select_language">Select language</string>
+    <string name="example_prefix">Example</string>
+    <string name="language_description_title">Note:</string>
 </resources>

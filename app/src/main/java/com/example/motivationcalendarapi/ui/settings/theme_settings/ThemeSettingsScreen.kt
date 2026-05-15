@@ -26,22 +26,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.settings.theme_settings.fragments.ColorPalettePreview
 import com.example.motivationcalendarapi.ui.settings.theme_settings.fragments.ThemeCard
 import com.example.motivationcalendarapi.ui.theme.DarkColorScheme
 import com.example.motivationcalendarapi.ui.theme.LightColorScheme
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
-import com.example.motivationcalendarapi.viewmodel.MainViewModelFactory
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ThemeSettingsScreen(
     context: Context,
-    paddingValues: Dp
+    paddingValues: Dp,
+    mainViewModel: MainViewModel
 ) {
-    val mainViewModel: MainViewModel = viewModel(factory = MainViewModelFactory(context))
     val isDarkTheme = mainViewModel.isDarkTheme
 
     Column(

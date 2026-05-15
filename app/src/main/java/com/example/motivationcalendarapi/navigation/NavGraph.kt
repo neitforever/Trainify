@@ -383,8 +383,9 @@ fun NavGraph(
 
                     composable(Screen.ThemeSettings.route) {
                         ThemeSettingsScreen(
-                            context,
-                            paddingValues = paddingValue.calculateTopPadding()
+                            context = context,
+                            paddingValues = paddingValue.calculateTopPadding(),
+                            mainViewModel = mainViewModel
                         )
                     }
 

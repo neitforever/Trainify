@@ -17,15 +17,32 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(private val repository: MainRepository) : ViewModel() {
 
-
-
     fun setLanguage(languageCode: String, context: Context) {
+        val normalizedLanguageCode = languageCode.ifBlank { "en" }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.getSystemService(LocaleManager::class.java)
-                .applicationLocales = LocaleList.forLanguageTags(languageCode)
-            repository.saveLanguage(languageCode)
+            val localeManager = context.getSystemService(LocaleManager::class.java)
+            val currentLanguageCode = localeManager.applicationLocales.toLanguageTags()
+
+            if (currentLanguageCode == normalizedLanguageCode) {
+                repository.saveLanguage(normalizedLanguageCode)
+                return
+            }
+
+            repository.saveLanguage(normalizedLanguageCode)
+            localeManager.applicationLocales = LocaleList.forLanguageTags(normalizedLanguageCode)
         } else {
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageCode))
+            val currentLanguageCode = AppCompatDelegate
+                .getApplicationLocales()
+                .toLanguageTags()
+
+            if (currentLanguageCode == normalizedLanguageCode) {
+                repository.saveLanguage(normalizedLanguageCode)
+                return
+            }
+
+            repository.saveLanguage(normalizedLanguageCode)
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(normalizedLanguageCode))
         }
     }
 
@@ -34,7 +51,7 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
     }
 
 
-    var isDarkTheme by mutableStateOf(true)
+    var isDarkTheme by mutableStateOf(repository.getSavedThemePreference())
         private set
 
     init {

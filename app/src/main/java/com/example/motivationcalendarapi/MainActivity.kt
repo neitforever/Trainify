@@ -37,6 +37,7 @@ import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModelFactory
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.EquipmentRecognitionViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
+import com.example.motivationcalendarapi.viewmodel.MainViewModelFactory
 import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModelFactory
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
@@ -94,8 +95,9 @@ class MainActivity : ComponentActivity() {
             )
 
 
-            val mainViewModel = MainViewModel(mainRepository)
-
+            val mainViewModel: MainViewModel = viewModel(
+                factory = MainViewModelFactory(applicationContext)
+            )
 
             val languageCode = mainViewModel.getSavedLanguageCode() ?: "en"
             mainViewModel.setLanguage(languageCode, this)

@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import com.example.motivationcalendarapi.repositories.SettingsDataStore.Companion.IS_DARK_THEME
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 class MainRepository(private val context: Context) {
 
@@ -63,6 +65,15 @@ class MainRepository(private val context: Context) {
     }
 
     val isDarkThemeFlow: Flow<Boolean> = settingsDataStore.isDarkThemeFlow
+
+
+    fun getSavedThemePreference(): Boolean {
+        return runBlocking {
+            runCatching {
+                context.dataStore.data.first()[IS_DARK_THEME] != false
+            }.getOrDefault(true)
+        }
+    }
 
 
     suspend fun saveThemePreference(isDark: Boolean) {

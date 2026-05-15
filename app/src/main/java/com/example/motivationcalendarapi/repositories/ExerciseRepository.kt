@@ -117,6 +117,22 @@ class ExerciseRepository(
         appDatabase.exerciseDao().insertAllExercises(updatedExercises)
     }
 
+    suspend fun syncMissingExercisesFromFirestore() = withContext(Dispatchers.IO) {
+        if (currentUser == null) return@withContext
+
+        val remoteExercises = firestoreRepo.getAllExercisesOnce()
+        val localExercises = appDatabase.exerciseDao().getAllExercisesOnce()
+        val localIds = localExercises.map { it.id }.toSet()
+
+        val missingExercises = remoteExercises.filter { remote ->
+            remote.id !in localIds
+        }
+
+        if (missingExercises.isNotEmpty()) {
+            appDatabase.exerciseDao().insertAllExercises(missingExercises)
+        }
+    }
+
     suspend fun deleteExercise(id: String) = withContext(Dispatchers.IO) {
         if (currentUser != null) {
             firestoreRepo.delete(id)

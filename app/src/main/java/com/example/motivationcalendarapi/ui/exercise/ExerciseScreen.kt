@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -60,6 +61,9 @@ fun ExerciseScreen(
     val expandedBodyParts = remember { mutableStateMapOf<String, Boolean>() }
     var isTemplatesExpanded by remember { mutableStateOf(false) }
     val favoriteExercises by exerciseViewModel.getFavoriteExercises().collectAsState(initial = emptyList())
+    val isExercisesRefreshing by exerciseViewModel.isRefreshingExercisesFromFirestore.collectAsState()
+    val isTemplatesRefreshing by workoutViewModel.isRefreshingTemplatesFromFirestore.collectAsState()
+    val isRefreshing = isExercisesRefreshing || isTemplatesRefreshing
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedTemplateForDeletion by remember { mutableStateOf<Template?>(null) }
 
@@ -85,11 +89,19 @@ fun ExerciseScreen(
     if (bodyParts.isEmpty()) {
         LoadingView()
     } else {
-        LazyColumn(
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                exerciseViewModel.refreshMissingExercisesFromFirestore()
+                workoutViewModel.refreshTemplatesFromFirestore()
+            },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = paddingTopValues)
         ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
             item {
                 CollapsibleTemplateHeader(
                     isExpanded = isTemplatesExpanded,
@@ -175,6 +187,7 @@ fun ExerciseScreen(
                     modifier = Modifier.absolutePadding(bottom = 200.dp)
                 )
             }
+        }
         }
     }
 }

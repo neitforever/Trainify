@@ -213,6 +213,25 @@ class WorkoutViewModel(
 
     val templates: Flow<List<Template>>
         get() = workoutRepository.getAllTemplates()
+
+    private val _isRefreshingTemplatesFromFirestore = MutableStateFlow(false)
+    val isRefreshingTemplatesFromFirestore: StateFlow<Boolean> = _isRefreshingTemplatesFromFirestore.asStateFlow()
+
+    fun refreshTemplatesFromFirestore() {
+        if (_isRefreshingTemplatesFromFirestore.value) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _isRefreshingTemplatesFromFirestore.value = true
+            try {
+                workoutRepository.syncTemplatesWithFirestore()
+            } catch (e: Exception) {
+                android.util.Log.e("WorkoutDebug", "refreshTemplatesFromFirestore ERROR", e)
+            } finally {
+                _isRefreshingTemplatesFromFirestore.value = false
+            }
+        }
+    }
+
     fun loadTemplates() {
         viewModelScope.launch {
             workoutRepository.syncTemplatesWithFirestore()

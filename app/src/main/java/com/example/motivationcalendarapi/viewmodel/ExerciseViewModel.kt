@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ExerciseViewModel(
@@ -30,7 +31,7 @@ class ExerciseViewModel(
     init {
         viewModelScope.launch {
             exerciseRepository.initializeExercises()
-            exerciseRepository.syncExercisesWithFirestore()
+            exerciseRepository.syncMissingExercisesFromFirestore()
         }
     }
 
@@ -60,6 +61,25 @@ class ExerciseViewModel(
     fun getFavoriteExercises(): Flow<List<Exercise>> {
         return exerciseRepository.getFavoriteExercises()
     }
+
+    private val _isRefreshingExercisesFromFirestore = MutableStateFlow(false)
+    val isRefreshingExercisesFromFirestore: StateFlow<Boolean> = _isRefreshingExercisesFromFirestore.asStateFlow()
+
+    fun refreshMissingExercisesFromFirestore() {
+        if (_isRefreshingExercisesFromFirestore.value) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _isRefreshingExercisesFromFirestore.value = true
+            try {
+                exerciseRepository.syncMissingExercisesFromFirestore()
+            } catch (e: Exception) {
+                Log.e("ExerciseDebug", "refreshMissingExercisesFromFirestore ERROR", e)
+            } finally {
+                _isRefreshingExercisesFromFirestore.value = false
+            }
+        }
+    }
+
     fun toggleFavorite(exercise: Exercise) {
         viewModelScope.launch(Dispatchers.IO) {
             exerciseRepository.updateFavoriteStatus(

@@ -187,7 +187,7 @@ fun NavGraph(
                                         .padding(start = 4.dp)
                                 ) {
                                     Text(
-                                        text = it.getTitle(context),
+                                        text = if (it.route == Screen.EquipmentRecognizer.route) context.getString(R.string.equipment_recognizer_short) else it.getTitle(context),
                                         style = MaterialTheme.typography.displaySmall,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis

@@ -281,7 +281,18 @@
     <string name="recognized_equipment">Recognized equipment</string>
     <string name="suitable_exercises">Suitable exercises</string>
     <string name="no_suitable_exercises_found">No suitable exercises found</string>
+    <string name="equipment_recognizer_short">Equipment</string>
+    <string name="vpn_required_title">Enable VPN</string>
+    <string name="vpn_required_message">Turn on VPN and try again. Gemini API is unavailable without VPN on your current network.</string>
+    <string name="recognition_error_title">Recognition error</string>
+    <string name="recognition_error_message">Could not recognize the equipment. Try another photo.</string>
     <string name="equipment_recognizer_empty_image">Add a photo from camera or gallery</string>
     <string name="selected_equipment_image">Selected equipment image</string>
     <string name="equipment_recognizer_select_image_first">Select an image first</string>
+<string name="confidence_percent">Confidence: %1$d%%</string>
+    <string name="alternative_variants">Alternative variants</string>
+    <string name="exact_match">Exact equipment match</string>
+    <string name="similar_match">Similar exercise</string>
+    <string name="gemini_high_demand_title">Service is busy</string>
+    <string name="gemini_high_demand_message">Gemini API is currently under high load. Please try again a little later.</string>
 </resources>

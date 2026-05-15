@@ -282,7 +282,18 @@
     <string name="recognized_equipment">Распознанный тренажёр</string>
     <string name="suitable_exercises">Подходящие упражнения</string>
     <string name="no_suitable_exercises_found">Подходящие упражнения не найдены</string>
+    <string name="equipment_recognizer_short">Тренажёр</string>
+    <string name="vpn_required_title">Включите VPN</string>
+    <string name="vpn_required_message">Включите VPN и повторите анализ. Сейчас Gemini API недоступен из вашей сети без VPN.</string>
+    <string name="recognition_error_title">Ошибка анализа</string>
+    <string name="recognition_error_message">Не удалось распознать тренажёр. Попробуйте другое фото.</string>
     <string name="equipment_recognizer_empty_image">Добавьте фото с камеры или из галереи</string>
     <string name="selected_equipment_image">Выбранное изображение тренажёра</string>
     <string name="equipment_recognizer_select_image_first">Сначала выберите изображение</string>
+<string name="confidence_percent">Уверенность: %1$d%%</string>
+    <string name="alternative_variants">Альтернативные варианты</string>
+    <string name="exact_match">Точное совпадение по тренажёру</string>
+    <string name="similar_match">Похожее упражнение</string>
+    <string name="gemini_high_demand_title">Сервис перегружен</string>
+    <string name="gemini_high_demand_message">Сейчас Gemini API перегружен из-за высокого спроса. Повторите анализ немного позже.</string>
 </resources>

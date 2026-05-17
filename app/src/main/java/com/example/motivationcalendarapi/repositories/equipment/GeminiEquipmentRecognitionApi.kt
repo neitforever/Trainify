@@ -3,6 +3,7 @@ package com.example.motivationcalendarapi.repositories.equipment
 import android.content.Context
 import android.net.Uri
 import android.util.Base64
+import android.util.Log
 import com.example.motivationcalendarapi.BuildConfig
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -24,10 +25,17 @@ import java.util.Locale
 class GeminiEquipmentRecognitionApi(private val context: Context) {
     private val gson = Gson()
 
+    private companion object {
+        private const val TAG = "GeminiRecognition"
+        private const val MAX_LOG_BODY_LENGTH = 2_000
+    }
+
     suspend fun recognize(imageUri: Uri, allowedEquipment: List<EquipmentCandidate>): GeminiEquipmentResult =
         withContext(Dispatchers.IO) {
-            val apiKey = BuildConfig.GEMINI_API_KEY
-            if (apiKey.isBlank()) error("Gemini API key is empty. Add GEMINI_API_KEY=your_key to local.properties.")
+            val proxyUrl = BuildConfig.GEMINI_PROXY_URL
+            if (proxyUrl.isBlank()) {
+                error("Gemini proxy URL is empty. Add GEMINI_PROXY_URL=https://your-worker.workers.dev/recognize-equipment to local.properties.")
+            }
             if (allowedEquipment.isEmpty()) error("No equipment list found in local exercises.")
 
             val bytes = context.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
@@ -36,12 +44,12 @@ class GeminiEquipmentRecognitionApi(private val context: Context) {
             val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
 
             val body = buildRequestJson(base64, mimeType, allowedEquipment)
+            Log.d(TAG, "Starting Gemini equipment recognition. proxyUrl=$proxyUrl, mimeType=$mimeType, imageBytes=${bytes.size}, candidates=${allowedEquipment.size}")
             try {
-                val url = URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")
+                val url = URL(proxyUrl)
                 val connection = (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     setRequestProperty("Content-Type", "application/json")
-                    setRequestProperty("x-goog-api-key", apiKey)
                     connectTimeout = 30_000
                     readTimeout = 60_000
                     doOutput = true
@@ -51,7 +59,8 @@ class GeminiEquipmentRecognitionApi(private val context: Context) {
 
                 val code = connection.responseCode
                 val stream = if (code in 200..299) connection.inputStream else connection.errorStream
-                val response = BufferedReader(InputStreamReader(stream)).use { it.readText() }
+                val response = stream?.let { BufferedReader(InputStreamReader(it)).use { reader -> reader.readText() } }.orEmpty()
+                Log.d(TAG, "Gemini proxy response. code=$code, body=${response.take(MAX_LOG_BODY_LENGTH)}")
                 if (code !in 200..299) {
                     if (code == 503 || response.contains("high demand", ignoreCase = true) || response.contains("overloaded", ignoreCase = true)) {
                         throw EquipmentRecognitionHighDemandException()
@@ -59,18 +68,24 @@ class GeminiEquipmentRecognitionApi(private val context: Context) {
                     if (code == 403 || response.contains("location", ignoreCase = true) || response.contains("country", ignoreCase = true)) {
                         throw EquipmentRecognitionNetworkException()
                     }
-                    error("Gemini API error $code: $response")
+                    error("Gemini proxy error $code: $response")
                 }
 
-                parseResponse(response)
+                val result = parseResponse(response)
+                Log.d(TAG, "Gemini equipment recognition parsed successfully. equipmentKey=${result.equipmentKey}, confidence=${result.confidence}")
+                result
             } catch (error: UnknownHostException) {
-                throw EquipmentRecognitionNetworkException(error)
+                Log.e(TAG, "Cannot resolve Gemini proxy host. Check GEMINI_PROXY_URL in local.properties: $proxyUrl", error)
+                throw EquipmentRecognitionNetworkException("Не удалось найти proxy-сервер. Проверь GEMINI_PROXY_URL в local.properties: $proxyUrl", error)
             } catch (error: SocketTimeoutException) {
-                throw EquipmentRecognitionNetworkException(error)
+                Log.e(TAG, "Gemini proxy request timed out. proxyUrl=$proxyUrl", error)
+                throw EquipmentRecognitionNetworkException("Истекло время ожидания ответа proxy-сервера. Проверь Worker и интернет-соединение.", error)
             } catch (error: ConnectException) {
-                throw EquipmentRecognitionNetworkException(error)
+                Log.e(TAG, "Cannot connect to Gemini proxy. proxyUrl=$proxyUrl", error)
+                throw EquipmentRecognitionNetworkException("Не удалось подключиться к proxy-серверу. Проверь адрес Worker и доступность сети.", error)
             } catch (error: IOException) {
-                throw EquipmentRecognitionNetworkException(error)
+                Log.e(TAG, "Gemini proxy IO error. proxyUrl=$proxyUrl", error)
+                throw EquipmentRecognitionNetworkException("Ошибка сети при обращении к proxy-серверу: ${error.message}", error)
             }
         }
 
@@ -158,7 +173,7 @@ class GeminiEquipmentRecognitionApi(private val context: Context) {
     private fun String.normalizeKey(): String = trim().lowercase(Locale.ROOT).replace(" ", "_").replace("-", "_")
 }
 
-class EquipmentRecognitionNetworkException(cause: Throwable? = null) : Exception(cause)
+class EquipmentRecognitionNetworkException(message: String? = null, cause: Throwable? = null) : Exception(message, cause)
 
 class EquipmentRecognitionHighDemandException(cause: Throwable? = null) : Exception(cause)
 

@@ -185,7 +185,7 @@ class EquipmentRecognitionViewModel(application: Application) : AndroidViewModel
                 _uiState.value = _uiState.value.copy(
                     isAnalyzing = false,
                     errorMessage = when {
-                        isNetworkError -> context.getString(R.string.vpn_required_message)
+                        isNetworkError -> error.message ?: context.getString(R.string.vpn_required_message)
                         isHighDemandError -> context.getString(R.string.gemini_high_demand_message)
                         else -> error.message ?: context.getString(R.string.recognition_error_message)
                     },

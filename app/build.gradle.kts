@@ -32,7 +32,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY", "")}\"")
+        buildConfigField("String", "GEMINI_PROXY_URL", "\"${localProperties.getProperty("GEMINI_PROXY_URL", "")}\"")
     }
 
     buildTypes {

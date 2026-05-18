@@ -85,7 +85,7 @@ class HealthConnectViewModel(private val repository: HealthConnectRepository) : 
         heartRateJob = viewModelScope.launch {
             while (true) {
                 refreshHeartRateOnly()
-                delay(5000)
+                delay(10000)
             }
         }
     }

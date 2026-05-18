@@ -299,4 +299,25 @@
     <string name="similar_match">Падобнае практыкаванне</string>
     <string name="gemini_high_demand_title">Сэрвіс перагружаны</string>
     <string name="gemini_high_demand_message">Зараз Gemini API перагружаны з-за высокага попыту. Паўтарыце аналіз крыху пазней.</string>
+
+    <string name="smart_watch">Смарт-гадзіннік</string>
+    <string name="health_connect_not_available">Health Connect недаступны на гэтай прыладзе</string>
+    <string name="health_connect">Health Connect</string>
+    <string name="device_connected_format">Падключана прылада: %1$s</string>
+    <string name="device_not_connected">Прылада не падключана</string>
+    <string name="steps_today">Крокі за сёння</string>
+    <string name="connect_device">Падключыць</string>
+    <string name="update">Абнавіць</string>
+    <string name="current_heart_rate">Бягучы пульс</string>
+    <string name="heart_rate_bpm_format">%1$d уд/хв</string>
+    <string name="heart_rate_not_available">Няма даных пра пульс</string>
+    <string name="average_heart_rate_format">Сярэдні пульс: %1$d уд/хв</string>
+    <string name="steps_today_short">Крокі</string>
+    <string name="calories_today_short">ккал</string>
+    <string name="calories_today">Калорыі за сёння</string>
+    <string name="health_connect_connected">Health Connect падключаны</string>
+    <string name="health_connect_not_connected">Health Connect не падключаны</string>
+    <string name="connect_health_connect">Падключыць Health Connect</string>
+    <string name="smart_watch_connected">Падключаны як крыніца даных</string>
+    <string name="health_connect_data_source_unknown">Крыніца даных пакуль не знойдзена</string>
 </resources>

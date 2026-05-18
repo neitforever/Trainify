@@ -630,12 +630,15 @@ class WorkoutViewModel(
     }
 
 
-    fun saveWorkout(exercises: List<ExtendedExercise>) {
+    fun getWorkoutStartTime(): Long = startTime
+
+    fun saveWorkout(exercises: List<ExtendedExercise>, averageHeartRate: Long? = null) {
         viewModelScope.launch {
             val workout = Workout(
                 name = workoutName.value,
                 duration = timerValue.value,
                 timestamp = System.currentTimeMillis(),
+                averageHeartRate = averageHeartRate,
                 exercises = exercises
             )
             workoutRepository.insertWorkout(workout)

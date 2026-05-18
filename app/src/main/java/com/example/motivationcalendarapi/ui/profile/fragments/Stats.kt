@@ -22,8 +22,8 @@ import com.example.motivationcalendarapi.model.Workout
 @Composable
 fun StatsRow(
     allWorkouts: List<Workout>,
-    totalReps: Int,
-    totalWeight: Float,
+    todaySteps: Long?,
+    todayCalories: Long?,
     modifier: Modifier,
 ) {
     Row(
@@ -32,8 +32,8 @@ fun StatsRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         StatCard(stringResource(R.string.workouts), allWorkouts.size.toString())
-        StatCard(stringResource(R.string.reps), totalReps.toString())
-        StatCard(stringResource(R.string.weight_kg), totalWeight.toString())
+        StatCard(stringResource(R.string.steps_today_short), todaySteps?.toString() ?: "—")
+        StatCard(stringResource(R.string.calories_today_short), todayCalories?.toString() ?: "—")
     }
 }
 

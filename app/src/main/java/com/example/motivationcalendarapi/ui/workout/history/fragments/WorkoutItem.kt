@@ -109,6 +109,13 @@ fun WorkoutItem(
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                workout.averageHeartRate?.let { averageHeartRate ->
+                    Text(
+                        text = stringResource(R.string.average_heart_rate_format, averageHeartRate),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Box(

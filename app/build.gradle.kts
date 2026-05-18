@@ -17,7 +17,7 @@ android {
         }
     }
     namespace = "com.example.motivationcalendarapi"
-    compileSdk = 35
+    compileSdk = 36
 
     packaging {
         resources.excludes.add("META-INF/*")
@@ -26,8 +26,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.motivationcalendarapi"
-        minSdk = 28
-        targetSdk = 35
+        minSdk = 36
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -58,6 +58,8 @@ android {
 }
 
 dependencies {
+
+    implementation("androidx.health.connect:connect-client:1.1.0")
 
     implementation("com.google.mlkit:translate:17.0.3")
     // Google auth
@@ -117,6 +119,7 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

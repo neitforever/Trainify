@@ -296,4 +296,25 @@
     <string name="similar_match">Похожее упражнение</string>
     <string name="gemini_high_demand_title">Сервис перегружен</string>
     <string name="gemini_high_demand_message">Сейчас Gemini API перегружен из-за высокого спроса. Повторите анализ немного позже.</string>
+
+    <string name="smart_watch">Смарт-часы</string>
+    <string name="health_connect_not_available">Health Connect недоступен на этом устройстве</string>
+    <string name="health_connect">Health Connect</string>
+    <string name="device_connected_format">Подключено устройство: %1$s</string>
+    <string name="device_not_connected">Устройство не подключено</string>
+    <string name="steps_today">Шаги за сегодня</string>
+    <string name="connect_device">Подключить</string>
+    <string name="update">Обновить</string>
+    <string name="current_heart_rate">Текущий пульс</string>
+    <string name="heart_rate_bpm_format">%1$d уд/мин</string>
+    <string name="heart_rate_not_available">Нет данных о пульсе</string>
+    <string name="average_heart_rate_format">Средний пульс: %1$d уд/мин</string>
+    <string name="steps_today_short">Шаги</string>
+    <string name="calories_today_short">ккал</string>
+    <string name="calories_today">Калории за сегодня</string>
+    <string name="health_connect_connected">Health Connect подключён</string>
+    <string name="health_connect_not_connected">Health Connect не подключён</string>
+    <string name="connect_health_connect">Подключить Health Connect</string>
+    <string name="smart_watch_connected">Подключены как источник данных</string>
+    <string name="health_connect_data_source_unknown">Источник данных пока не найден</string>
 </resources>

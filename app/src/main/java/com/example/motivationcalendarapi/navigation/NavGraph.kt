@@ -289,7 +289,8 @@ fun NavGraph(
                             exerciseViewModel,
                             navController,
                             drawerState,
-                            lang = lang
+                            lang = lang,
+                            context = context
                         )
                     }
                     composable(Screen.WorkoutHistory.route) {

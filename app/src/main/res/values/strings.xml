@@ -295,4 +295,25 @@
     <string name="similar_match">Similar exercise</string>
     <string name="gemini_high_demand_title">Service is busy</string>
     <string name="gemini_high_demand_message">Gemini API is currently under high load. Please try again a little later.</string>
+
+    <string name="smart_watch">Smart watch</string>
+    <string name="health_connect_not_available">Health Connect is not available on this device</string>
+    <string name="health_connect">Health Connect</string>
+    <string name="device_connected_format">Device connected: %1$s</string>
+    <string name="device_not_connected">Device is not connected</string>
+    <string name="steps_today">Steps today</string>
+    <string name="connect_device">Connect device</string>
+    <string name="update">Update</string>
+    <string name="current_heart_rate">Current heart rate</string>
+    <string name="heart_rate_bpm_format">%1$d bpm</string>
+    <string name="heart_rate_not_available">No pulse data</string>
+    <string name="average_heart_rate_format">Avg pulse: %1$d bpm</string>
+    <string name="steps_today_short">Steps</string>
+    <string name="calories_today_short">kcal</string>
+    <string name="calories_today">Calories today</string>
+    <string name="health_connect_connected">Health Connect connected</string>
+    <string name="health_connect_not_connected">Health Connect is not connected</string>
+    <string name="connect_health_connect">Connect Health Connect</string>
+    <string name="smart_watch_connected">Connected as a data source</string>
+    <string name="health_connect_data_source_unknown">Data source not found yet</string>
 </resources>

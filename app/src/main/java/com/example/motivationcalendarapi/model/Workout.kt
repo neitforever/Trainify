@@ -10,5 +10,6 @@ data class Workout(
     val name: String = "",
     val duration: Int = 0,
     val timestamp: Long = 0,
+    val averageHeartRate: Long? = null,
     val exercises: List<ExtendedExercise> = emptyList(),
 )

@@ -230,15 +230,37 @@ fun WorkoutHistoryDetailScreen(
                         totalKg = totalKg,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
-                    Text(
-                        text = stringResource(R.string.exercises_performed),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
+                    Row(
                         modifier = Modifier
                             .padding(top = 8.dp, bottom = 4.dp)
-                            .fillMaxWidth()
-                            .align(Alignment.Start)
-                    )
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.exercises_performed),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        workout.averageHeartRate?.let { averageHeartRate ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.heart_rate_bpm_format, averageHeartRate),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_heart_pulse),
+                                    contentDescription = stringResource(R.string.average_heart_rate_format, averageHeartRate),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                    }
 
 
                     selectedWorkout.value?.let { workout ->

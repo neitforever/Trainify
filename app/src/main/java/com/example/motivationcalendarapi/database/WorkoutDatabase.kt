@@ -14,7 +14,7 @@ import com.example.motivationcalendarapi.model.Workout
 
 @Database(
     entities = [Workout::class, Exercise::class, BodyProgress::class, Template::class],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

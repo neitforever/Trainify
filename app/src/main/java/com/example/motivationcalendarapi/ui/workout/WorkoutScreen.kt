@@ -1,5 +1,9 @@
 package com.example.motivationcalendarapi.ui.workout
 
+import com.example.motivationcalendarapi.viewmodel.health.HealthConnectViewModelFactory
+import com.example.motivationcalendarapi.viewmodel.health.HealthConnectViewModel
+import com.example.motivationcalendarapi.repositories.health.HealthConnectRepository
+import androidx.lifecycle.viewmodel.compose.viewModel
 import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
@@ -41,11 +45,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -59,7 +65,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -98,7 +103,8 @@ fun WorkoutScreen(
     exerciseViewModel: ExerciseViewModel,
     navController: NavController,
     drawerState: MutableState<DrawerState>,
-    lang: String
+    lang: String,
+    context: Context,
 ) {
     val workouts by workoutViewModel.allWorkouts.collectAsState()
     val timerValue by workoutViewModel.timerValue.collectAsState()
@@ -106,7 +112,10 @@ fun WorkoutScreen(
     val isWorkoutStarted by workoutViewModel.isWorkoutStarted.collectAsState()
     val workoutName by workoutViewModel.workoutName.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
-
+    val healthViewModel: HealthConnectViewModel = viewModel(
+        factory = HealthConnectViewModelFactory(HealthConnectRepository(context))
+    )
+    val healthState by healthViewModel.uiState.collectAsState()
     val totalKg by workoutViewModel.totalKg.collectAsState()
     var showRepDialog by remember { mutableStateOf(false) }
     var showWeightDialog by remember { mutableStateOf(false) }
@@ -168,9 +177,18 @@ fun WorkoutScreen(
     var currentTime by remember(warmupTime) { mutableIntStateOf(warmupTime) }
     var isTimerRunning by remember { mutableStateOf(false) }
 
+    DisposableEffect(isWorkoutStarted) {
+        if (isWorkoutStarted) {
+            healthViewModel.startHeartRateUpdates()
+        } else {
+            healthViewModel.stopHeartRateUpdates()
+            healthViewModel.refresh()
+        }
 
-
-
+        onDispose {
+            healthViewModel.stopHeartRateUpdates()
+        }
+    }
 
 //    @Composable
 //    fun rememberCalendarState(initialDate: LocalDate = LocalDate.now()) = remember {
@@ -190,8 +208,6 @@ fun WorkoutScreen(
 
 
     var showTimerCompleteDialog by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
 
     LaunchedEffect(isTimerRunning, currentTime) {
         if (isTimerRunning && currentTime > 0) {
@@ -428,6 +444,15 @@ fun WorkoutScreen(
                             modifier = Modifier.padding(horizontal = 2.dp, vertical = 8.dp)
                         )
 
+                        val currentHeartRate = healthState.currentHeartRate
+                        val shouldShowHeartRate = healthState.hasPermissions && healthState.isSmartWatchDetected
+                        if (shouldShowHeartRate) {
+                            CurrentHeartRateCard(
+                                heartRate = currentHeartRate,
+                                modifier = Modifier.padding(horizontal = 2.dp, vertical = 4.dp)
+                            )
+                        }
+
                         ExerciseSelectionBottomSheet(
                             isSheetOpen = isSheetOpen,
                             sheetState = sheetState,
@@ -603,9 +628,14 @@ fun WorkoutScreen(
                         val updatedExercises = selectedExercises.mapIndexed { index, ex ->
                             ex.copy(sets = exerciseSetsMap[index] ?: emptyList())
                         }
-                        workoutViewModel.saveWorkout(updatedExercises)
-                        workoutViewModel.resetWorkout()
-                        showEndWorkoutDialog.value = false
+                        coroutineScope.launch {
+                            val averageHeartRate = healthViewModel.readAverageHeartRateSince(
+                                workoutViewModel.getWorkoutStartTime()
+                            )
+                            workoutViewModel.saveWorkout(updatedExercises, averageHeartRate)
+                            workoutViewModel.resetWorkout()
+                            showEndWorkoutDialog.value = false
+                        }
                     }
                 })
 
@@ -717,6 +747,52 @@ fun WorkoutScreen(
             )
 
 
+        }
+    }
+}
+
+@Composable
+private fun CurrentHeartRateCard(
+    heartRate: Long?,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.medium,
+        tonalElevation = 2.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_heart_pulse),
+                    contentDescription = null,
+                    modifier = Modifier.size(26.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = stringResource(R.string.current_heart_rate),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Text(
+                text = if (heartRate != null) {
+                    stringResource(R.string.heart_rate_bpm_format, heartRate)
+                } else {
+                    stringResource(R.string.heart_rate_not_available)
+                },
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }

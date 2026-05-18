@@ -188,12 +188,12 @@ fun EditExerciseInstructionsScreen(
                 onValueChange = { enState.value = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 100.dp, max = 160.dp),
+                    .heightIn(min = 100.dp),
                 label = { Text("English") },
                 placeholder = { Text(stringResource(R.string.enter_instructions)) },
                 singleLine = false,
                 minLines = 3,
-                maxLines = 6
+                maxLines = Int.MAX_VALUE
             )
 
             OutlinedTextField(
@@ -201,13 +201,13 @@ fun EditExerciseInstructionsScreen(
                 onValueChange = { ruState.value = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 100.dp, max = 160.dp)
+                    .heightIn(min = 100.dp)
                     .padding(top = 12.dp),
                 label = { Text("Русский") },
                 placeholder = { Text(stringResource(R.string.enter_instructions)) },
                 singleLine = false,
                 minLines = 3,
-                maxLines = 6
+                maxLines = Int.MAX_VALUE
             )
 
             OutlinedTextField(
@@ -215,13 +215,13 @@ fun EditExerciseInstructionsScreen(
                 onValueChange = { beState.value = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 100.dp, max = 160.dp)
+                    .heightIn(min = 100.dp)
                     .padding(top = 12.dp),
                 label = { Text("Беларуская") },
                 placeholder = { Text(stringResource(R.string.enter_instructions)) },
                 singleLine = false,
                 minLines = 3,
-                maxLines = 6
+                maxLines = Int.MAX_VALUE
             )
 
             Spacer(

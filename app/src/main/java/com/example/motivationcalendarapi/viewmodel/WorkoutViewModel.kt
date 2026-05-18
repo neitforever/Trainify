@@ -367,7 +367,7 @@ class WorkoutViewModel(
         workouts.filter { isInCurrentWeek(it.timestamp) }
             .sumOf { workout ->
                 workout.exercises.sumOf { exercise ->
-                    exercise.sets.sumOf { it.weight * it.rep.toDouble() }
+                    exercise.sets.filter { it.status != SetStatus.FAILED }.sumOf { it.weight * it.rep.toDouble() }
                 }
             }.toFloat()
     }.stateIn(
@@ -401,10 +401,40 @@ class WorkoutViewModel(
 
     fun calculateTotalKg(workout: Workout): Float {
         return workout.exercises.sumOf { exercise ->
-            exercise.sets.sumOf { set ->
-                (set.weight * set.rep).toDouble()
-            }
+            exercise.sets
+                .filter { set -> set.status != SetStatus.FAILED }
+                .sumOf { set ->
+                    (set.weight * set.rep).toDouble()
+                }
         }.toFloat()
+    }
+
+    fun isEmptySet(exercise: ExtendedExercise, set: ExerciseSet, lang: String): Boolean {
+        return when (exercise.exercise.getCardType(lang)) {
+            ExerciseCardType.STRENGTH -> set.rep <= 0
+            ExerciseCardType.BIKE -> set.time <= 0f
+            ExerciseCardType.TREADMILL -> set.time <= 0f
+        }
+    }
+
+    fun hasEmptySets(lang: String): Boolean {
+        return _selectedExercises.value.withIndex().any { indexedExercise ->
+            val sets = _exerciseSetsMap.value[indexedExercise.index] ?: emptyList()
+            sets.any { set -> isEmptySet(indexedExercise.value, set, lang) }
+        }
+    }
+
+    fun buildWorkoutExercisesWithoutEmptySets(lang: String): List<ExtendedExercise> {
+        return _selectedExercises.value.mapIndexedNotNull { index, exercise ->
+            val cleanedSets = (_exerciseSetsMap.value[index] ?: emptyList())
+                .filterNot { set -> isEmptySet(exercise, set, lang) }
+
+            if (cleanedSets.isEmpty()) {
+                null
+            } else {
+                exercise.copy(sets = cleanedSets)
+            }
+        }
     }
 
 
@@ -698,7 +728,7 @@ class WorkoutViewModel(
     val totalKg: StateFlow<Float> =
         combine(selectedExercises, exerciseSetsMap) { exercises, setsMap ->
             exercises.indices.sumOf { index ->
-                setsMap[index]?.sumOf { it.weight.toDouble() * it.rep.toDouble()} ?: 0.0
+                setsMap[index]?.filter { it.status != SetStatus.FAILED }?.sumOf { it.weight.toDouble() * it.rep.toDouble() } ?: 0.0
             }.toFloat()
         }.stateIn(
             scope = viewModelScope,

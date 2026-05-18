@@ -313,4 +313,6 @@
     <string name="connect_health_connect">Connect Health Connect</string>
     <string name="smart_watch_connected">Connected as a data source</string>
     <string name="health_connect_data_source_unknown">Data source not found yet</string>
+    <string name="finish_workout_with_empty_sets_title">Finish workout?</string>
+    <string name="finish_workout_with_empty_sets_message">The workout contains empty sets. Finish the workout and remove empty sets? If all sets in an exercise are empty, the exercise will also be removed.</string>
 </resources>

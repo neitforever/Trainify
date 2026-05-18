@@ -72,7 +72,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.model.ExerciseCardType
 import com.example.motivationcalendarapi.ui.dialogs.AutoDismissDialog
 import com.example.motivationcalendarapi.ui.dialogs.EndWorkoutDialog
 import com.example.motivationcalendarapi.ui.dialogs.ExistWorkoutDialog
@@ -94,6 +93,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.ui.dialogs.FloatMetricDialog
+import com.example.motivationcalendarapi.ui.dialogs.FinishWorkoutWithEmptySetsDialog
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -166,6 +166,7 @@ fun WorkoutScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val showEndWorkoutDialog = remember { mutableStateOf(false) }
+    val showEmptySetsDialog = remember { mutableStateOf(false) }
     val showPauseDialog = remember { mutableStateOf(false) }
     val isWorkoutPaused = remember { derivedStateOf { timerRunning.not() } }
 
@@ -588,42 +589,16 @@ fun WorkoutScreen(
                 onDismiss = { showEndWorkoutDialog.value = false },
                 onConfirm = {
                     val isNameEmpty = workoutName.isBlank()
-                    val hasInvalidSets = selectedExercises.withIndex().any { indexedExercise ->
-                        val index = indexedExercise.index
-                        val extendedExercise = indexedExercise.value
-                        val sets = exerciseSetsMap[index] ?: emptyList()
 
-                        when (extendedExercise.exercise.getCardType(lang)) {
-                            ExerciseCardType.STRENGTH -> {
-                                sets.any { set ->
-                                    set.rep <= 0
-                                }
-                            }
-
-                            ExerciseCardType.BIKE -> {
-                                sets.any { set ->
-                                    set.time <= 0f || set.resistance < 0f
-                                }
-                            }
-
-                            ExerciseCardType.TREADMILL -> {
-                                sets.any { set ->
-                                    set.time <= 0f ||
-                                            set.resistance < 0f ||
-                                            set.incline < 0f
-                                }
-                            }
-                        }
-                    }
-
-                    if (isNameEmpty || hasInvalidSets) {
+                    if (isNameEmpty) {
                         validationMessage = buildString {
-                            Log.d("messageM1","name $nameEmpty")
-                            Log.d("messageM1","rep $repEmpty")
+                            Log.d("messageM1", "name $nameEmpty")
                             if (isNameEmpty) append(nameEmpty)
-                            if (hasInvalidSets) append(repEmpty)
                         }
                         showValidationDialog = true
+                    } else if (workoutViewModel.hasEmptySets(lang)) {
+                        showEndWorkoutDialog.value = false
+                        showEmptySetsDialog.value = true
                     } else {
                         val updatedExercises = selectedExercises.mapIndexed { index, ex ->
                             ex.copy(sets = exerciseSetsMap[index] ?: emptyList())
@@ -638,6 +613,30 @@ fun WorkoutScreen(
                         }
                     }
                 })
+
+
+            FinishWorkoutWithEmptySetsDialog(
+                showDialog = showEmptySetsDialog.value,
+                onDismiss = { showEmptySetsDialog.value = false },
+                onConfirm = {
+                    val cleanedExercises = workoutViewModel.buildWorkoutExercisesWithoutEmptySets(lang)
+
+                    if (cleanedExercises.isEmpty()) {
+                        validationMessage = repEmpty
+                        showValidationDialog = true
+                        showEmptySetsDialog.value = false
+                    } else {
+                        coroutineScope.launch {
+                            val averageHeartRate = healthViewModel.readAverageHeartRateSince(
+                                workoutViewModel.getWorkoutStartTime()
+                            )
+                            workoutViewModel.saveWorkout(cleanedExercises, averageHeartRate)
+                            workoutViewModel.resetWorkout()
+                            showEmptySetsDialog.value = false
+                        }
+                    }
+                }
+            )
 
             AutoDismissDialog(
                 showDialog = showValidationDialog,

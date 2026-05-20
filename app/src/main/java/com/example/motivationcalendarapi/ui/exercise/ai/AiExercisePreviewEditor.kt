@@ -199,19 +199,33 @@ internal fun PreviewBodyEquipmentCard(
     onSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-
-    SelectorRowWithIcon(
-        title = title,
-        value = selected.ifBlank { stringResource(R.string.not_set) },
-        iconRes = iconRes,
-        isFilled = selected.isNotBlank(),
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-        options = options,
-        optionIcon = optionIcon,
-        onSelected = onSelected,
-        optionContainerColor = MaterialTheme.colorScheme.surface
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = tween(durationMillis = 210),
+        label = "$title preview arrow rotation"
     )
+
+    CardBlock(title = title) {
+        SelectableHeaderCard(
+            value = selected.ifBlank { stringResource(R.string.not_set) },
+            iconRes = iconRes,
+            isFilled = selected.isNotBlank(),
+            rotation = rotation,
+            onClick = { expanded = !expanded }
+        )
+
+        AnimatedVisibility(visible = expanded) {
+            InlineOptionsList(
+                options = options,
+                optionIcon = optionIcon,
+                optionContainerColor = MaterialTheme.colorScheme.surface,
+                onSelected = { option ->
+                    onSelected(option)
+                    expanded = false
+                }
+            )
+        }
+    }
 }
 
 @Composable

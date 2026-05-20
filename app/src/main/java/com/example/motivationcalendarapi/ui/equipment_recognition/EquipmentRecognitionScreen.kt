@@ -25,6 +25,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -79,13 +81,14 @@ fun EquipmentRecognitionScreen(
         if (granted) cameraLauncher.launch(null)
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = paddingTopValues)
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = paddingTopValues)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
         item {
             Spacer(modifier = Modifier.height(16.dp))
             ImagePreviewCard(selectedImage = state.selectedImage)
@@ -97,12 +100,14 @@ fun EquipmentRecognitionScreen(
                     modifier = Modifier.weight(1f),
                     text = stringResource(R.string.choose_from_gallery),
                     iconRes = R.drawable.ic_gallery,
+                    enabled = !state.isAnalyzing,
                     onClick = { galleryLauncher.launch("image/*") }
                 )
                 EquipmentActionButton(
                     modifier = Modifier.weight(1f),
                     text = stringResource(R.string.take_photo),
                     iconRes = R.drawable.ic_camera,
+                    enabled = !state.isAnalyzing,
                     onClick = {
                         cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                     }
@@ -110,24 +115,7 @@ fun EquipmentRecognitionScreen(
             }
         }
 
-        item {
-            EquipmentActionButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.analyze_equipment),
-                iconRes = R.drawable.ic_search,
-                enabled = state.selectedImage != null && !state.isAnalyzing,
-                isAnalyzeButton = true,
-                onClick = { recognitionViewModel.analyzeSelectedImage(allExercises, noImageError) }
-            )
-        }
 
-        if (state.isAnalyzing) {
-            item {
-                Box(modifier = Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            }
-        }
 
         state.errorMessage?.let { message ->
             item {
@@ -198,15 +186,66 @@ fun EquipmentRecognitionScreen(
                 }
             } else {
                 items(state.matchedExercises) { matched ->
-                    EquipmentExerciseCard(matchedExercise = matched, lang = lang) {
+                    EquipmentExerciseCard(matchedExercise = matched, lang = lang, enabled = !state.isAnalyzing) {
                         navController.navigate("${Screen.ExerciseDetailView.route}/${matched.exercise.id}")
                     }
                 }
             }
         }
 
-        item { Spacer(modifier = Modifier.height(96.dp)) }
+            item { Spacer(modifier = Modifier.height(112.dp)) }
+        }
+
+        EquipmentAnalyzeFab(
+            enabled = state.selectedImage != null && !state.isAnalyzing,
+            isAnalyzing = state.isAnalyzing,
+            onClick = { recognitionViewModel.analyzeSelectedImage(allExercises, noImageError) },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        )
     }
+}
+
+@Composable
+private fun EquipmentAnalyzeFab(
+    enabled: Boolean,
+    isAnalyzing: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ExtendedFloatingActionButton(
+        onClick = { if (enabled) onClick() },
+        modifier = modifier,
+        expanded = !isAnalyzing,
+        containerColor = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = if (enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        shape = RoundedCornerShape(18.dp),
+        icon = {
+            if (isAnalyzing) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.5.dp,
+                    strokeCap = StrokeCap.Round,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                Icon(
+                    painter = painterResource(R.drawable.ic_search),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        },
+        text = {
+            Text(
+                text = stringResource(R.string.analyze_equipment),
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    )
 }
 
 @Composable
@@ -374,10 +413,10 @@ private fun ImagePreviewCard(selectedImage: SelectedEquipmentImage?) {
 }
 
 @Composable
-private fun EquipmentExerciseCard(matchedExercise: MatchedExercise, lang: String, onClick: () -> Unit) {
+private fun EquipmentExerciseCard(matchedExercise: MatchedExercise, lang: String, enabled: Boolean = true, onClick: () -> Unit) {
     val exercise = matchedExercise.exercise
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().clickable(enabled = enabled, onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(18.dp)
     ) {

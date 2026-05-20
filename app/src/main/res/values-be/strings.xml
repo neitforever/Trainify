@@ -322,4 +322,31 @@
     <string name="health_connect_data_source_unknown">Крыніца даных пакуль не знойдзена</string>
     <string name="finish_workout_with_empty_sets_title">Скончыць трэніроўку?</string>
     <string name="finish_workout_with_empty_sets_message">У трэніроўцы ёсць пустыя падыходы. Скончыць трэніроўку і выдаліць пустыя падыходы? Калі ў практыкаванні ўсе падыходы пустыя, практыкаванне таксама будзе выдалена.</string>
+
+    <string name="ai_exercise_generation">ІІ-практыкаванне</string>
+    <string name="ai_template_generation">ІІ-шаблон</string>
+    <string name="ai_exercise_generation_description">Згенераваць новае практыкаванне</string>
+    <string name="ai_template_generation_description">Апiшыце шаблон трэніроўкі, выберыце групы мышцаў, абсталяванне і дыяпазон нагрузкі. Шаблон будзе створаны толькі з лакальных практыкаванняў.</string>
+    <string name="ai_user_request">Што трэба згенераваць?</string>
+    <string name="ai_level_range">Дыяпазон складанасці / нагрузкі</string>
+    <string name="generate">Згенераваць</string>
+    <string name="regenerate">Згенераваць нанова</string>
+    <string name="preview_and_edit">Папярэдні прагляд і рэдагаванне</string>
+    <string name="card_type">Тып карткі</string>
+    <string name="apply_selected_body_and_equipment">Ужыць выбраную групу мышцаў і абсталяванне</string>
+    <string name="generation_in_progress">Ідзе генерацыя</string>
+    <string name="create_exercise_manually">Стварыць практыкаванне</string>
+    <string name="create_exercise_manually_description">Стварыць новае практыкаванне ўручную</string>
+    <string name="create_ai_exercise">Стварыць ІІ-практыкаванне</string>
+    <string name="create_ai_exercise_description">Згенераваць новае практыкаванне</string>
+    <string name="create_ai_template">Стварыць ІІ-шаблон</string>
+    <string name="create_ai_template_description">Згенераваць шаблон трэніроўкі з лакальных практыкаванняў</string>
+    <string name="target">Мэтавая мышца</string>
+    <string name="secondary_muscles">Другасныя мышцы</string>
+    <string name="ai_generation_required_fields">Запоўніце апісанне, частку цела, інвентар і складанасць.</string>
+    <string name="ai_exercise_help_title">Што ўмее генерацыя практыкавання праз ШІ?</string>
+    <string name="ai_exercise_help_item_1">Стварае новае практыкаванне па вашым запыце, выбранай групе мышцаў і абсталяванні.</string>
+    <string name="ai_exercise_help_item_2">Выкарыстоўвае лакальныя практыкаванні як прыклад і запаўняе палі на рускай, англійскай і беларускай мовах.</string>
+    <string name="ai_exercise_help_item_3">Пасля генерацыі кожны блок можна адрэдагаваць перад захаваннем.</string>
+    <string name="exercise_type">Тып практыкавання</string>
 </resources>

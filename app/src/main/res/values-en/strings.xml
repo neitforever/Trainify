@@ -315,4 +315,31 @@
     <string name="health_connect_data_source_unknown">Data source not found yet</string>
     <string name="finish_workout_with_empty_sets_title">Finish workout?</string>
     <string name="finish_workout_with_empty_sets_message">The workout contains empty sets. Finish the workout and remove empty sets? If all sets in an exercise are empty, the exercise will also be removed.</string>
+
+    <string name="ai_exercise_generation">AI Exercise</string>
+    <string name="ai_template_generation">AI Template</string>
+    <string name="ai_exercise_generation_description">Generate new exercise</string>
+    <string name="ai_template_generation_description">Describe the workout template you want, select muscle groups, equipment and load range. The template will use only local exercises.</string>
+    <string name="ai_user_request">What do you want to generate?</string>
+    <string name="ai_level_range">Difficulty / load range</string>
+    <string name="generate">Generate</string>
+    <string name="regenerate">Regenerate</string>
+    <string name="preview_and_edit">Preview and edit</string>
+    <string name="card_type">Card type</string>
+    <string name="apply_selected_body_and_equipment">Apply selected body part and equipment</string>
+    <string name="generation_in_progress">Generation in progress</string>
+    <string name="create_exercise_manually">Create exercise</string>
+    <string name="create_exercise_manually_description">Create a new exercise manually</string>
+    <string name="create_ai_exercise">Create AI exercise</string>
+    <string name="create_ai_exercise_description">Generate new exercise</string>
+    <string name="create_ai_template">Create AI template</string>
+    <string name="create_ai_template_description">Generate a workout template from local exercises</string>
+    <string name="target">Target muscle</string>
+    <string name="secondary_muscles">Secondary muscles</string>
+    <string name="ai_generation_required_fields">Fill in the description, body part, equipment and difficulty.</string>
+    <string name="ai_exercise_help_title">What can AI exercise generation do?</string>
+    <string name="ai_exercise_help_item_1">Creates a new exercise from your request, selected muscle group and equipment.</string>
+    <string name="ai_exercise_help_item_2">Uses local exercises as a reference and fills English, Russian and Belarusian fields.</string>
+    <string name="ai_exercise_help_item_3">After generation you can edit each block before saving.</string>
+    <string name="exercise_type">Exercise type</string>
 </resources>

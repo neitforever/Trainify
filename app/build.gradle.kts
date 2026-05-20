@@ -33,6 +33,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GEMINI_PROXY_URL", "\"${localProperties.getProperty("GEMINI_PROXY_URL", "")}\"")
+        buildConfigField("String", "GEMINI_EXERCISE_GENERATION_URL", "\"${localProperties.getProperty("GEMINI_EXERCISE_GENERATION_URL", "")}\"")
+        buildConfigField("String", "GEMINI_TEMPLATE_GENERATION_URL", "\"${localProperties.getProperty("GEMINI_TEMPLATE_GENERATION_URL", "")}\"")
     }
 
     buildTypes {
@@ -102,6 +104,7 @@ dependencies {
     //room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.compose.foundation)
     ksp(libs.androidx.room.compiler)
 
 

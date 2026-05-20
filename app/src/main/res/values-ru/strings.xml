@@ -319,4 +319,31 @@
     <string name="health_connect_data_source_unknown">Источник данных пока не найден</string>
     <string name="finish_workout_with_empty_sets_title">Завершить тренировку?</string>
     <string name="finish_workout_with_empty_sets_message">В тренировке есть пустые подходы. Завершить тренировку и удалить пустые подходы? Если в упражнении все подходы пустые, упражнение тоже будет удалено.</string>
+
+    <string name="ai_exercise_generation">ИИ-упражнение</string>
+    <string name="ai_template_generation">ИИ-шаблон</string>
+    <string name="ai_exercise_generation_description">Сгенерировать новое упражнение</string>
+    <string name="ai_template_generation_description">Опишите шаблон тренировки, выберите группы мышц, оборудование и диапазон нагрузки. Шаблон будет создан только из локальных упражнений.</string>
+    <string name="ai_user_request">Что нужно сгенерировать?</string>
+    <string name="ai_level_range">Диапазон сложности / нагрузки</string>
+    <string name="generate">Сгенерировать</string>
+    <string name="regenerate">Сгенерировать заново</string>
+    <string name="preview_and_edit">Предпросмотр и редактирование</string>
+    <string name="card_type">Тип карточки</string>
+    <string name="apply_selected_body_and_equipment">Применить выбранную группу мышц и оборудование</string>
+    <string name="generation_in_progress">Идёт генерация</string>
+    <string name="create_exercise_manually">Создать упражнение</string>
+    <string name="create_exercise_manually_description">Создать новое упражнение вручную</string>
+    <string name="create_ai_exercise">Создать ИИ-упражнение</string>
+    <string name="create_ai_exercise_description">Сгенерировать новое упражнение</string>
+    <string name="create_ai_template">Создать ИИ-шаблон</string>
+    <string name="create_ai_template_description">Сгенерировать шаблон тренировки из локальных упражнений</string>
+    <string name="target">Целевая мышца</string>
+    <string name="secondary_muscles">Вторичные мышцы</string>
+    <string name="ai_generation_required_fields">Заполните описание, часть тела, инвентарь и сложность.</string>
+    <string name="ai_exercise_help_title">Что умеет генерация упражнения через ИИ?</string>
+    <string name="ai_exercise_help_item_1">Создаёт новое упражнение по вашему запросу, выбранной группе мышц и оборудованию.</string>
+    <string name="ai_exercise_help_item_2">Использует локальные упражнения как пример и заполняет поля на русском, английском и белорусском языках.</string>
+    <string name="ai_exercise_help_item_3">После генерации каждый блок можно отредактировать перед сохранением.</string>
+    <string name="exercise_type">Тип упражнения</string>
 </resources>

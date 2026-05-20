@@ -32,6 +32,8 @@ sealed class Screen(
     object ExerciseDetailView : Screen("exercise_detail", R.string.exercise)
     object SearchExercise : Screen("search_exercise", R.string.search)
     object CreateExercise : Screen("create_exercise", R.string.new_exercise)
+    object AiExerciseGeneration : Screen("ai_exercise_generation", R.string.ai_exercise_generation)
+    object AiTemplateGeneration : Screen("ai_template_generation", R.string.ai_template_generation)
     object EditExerciseName : Screen("edit_exercise_name", R.string.edit_name)
     object EquipmentSelection : Screen("equipment_selection", R.string.select_equipment)
     object BodyPartSelection : Screen("body_part_selection", R.string.select_body_part)

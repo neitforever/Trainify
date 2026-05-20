@@ -3,6 +3,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +23,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import com.example.motivationcalendarapi.ui.exercise.ai.AiTemplateGeneratorScreen
+import com.example.motivationcalendarapi.ui.exercise.ai.AiExerciseGeneratorScreen
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -59,6 +74,7 @@ import com.example.motivationcalendarapi.ui.settings.theme_settings.ThemeSetting
 import com.example.motivationcalendarapi.ui.settings.workout_settings.WorkoutSettingsScreen
 import com.example.motivationcalendarapi.ui.template.EditTemplateNameScreen
 import com.example.motivationcalendarapi.ui.template.TemplateDetailScreen
+import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
@@ -85,6 +101,7 @@ fun NavGraph(
     bodyProgressViewModel: BodyProgressViewModel,
     workoutSettingsViewModel: WorkoutSettingsViewModel,
     equipmentRecognitionViewModel: EquipmentRecognitionViewModel,
+    aiExerciseGenerationViewModel: AiExerciseGenerationViewModel,
     lang: String
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -92,6 +109,7 @@ fun NavGraph(
     val currentDestination = currentBackStackEntry?.destination
     val currentRoute = currentDestination?.route?.split("/")?.get(0)
     val coroutineScope = rememberCoroutineScope()
+    var showCreateMenu by remember { mutableStateOf(false) }
 
 
     val userState = authViewModel.userState.collectAsState()
@@ -100,6 +118,7 @@ fun NavGraph(
         Screen.WorkoutDetail,
         Screen.ExercisesView,
         Screen.EquipmentRecognizer,
+        Screen.AiExerciseGeneration,
         Screen.Settings,
         Screen.ThemeSettings,
         Screen.WorkoutSettings,
@@ -127,6 +146,51 @@ fun NavGraph(
         }
 
     }) {
+        if (showCreateMenu) {
+            ModalBottomSheet(
+                onDismissRequest = { showCreateMenu = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                containerColor = MaterialTheme.colorScheme.background
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    CreateActionCard(
+                        title = context.getString(R.string.create_exercise_manually),
+                        description = context.getString(R.string.create_exercise_manually_description),
+                        iconRes = R.drawable.ic_add,
+                        onClick = {
+                            showCreateMenu = false
+                            navController.navigate(Screen.CreateExercise.route)
+                        }
+                    )
+                    CreateActionCard(
+                        title = context.getString(R.string.create_ai_exercise),
+                        description = context.getString(R.string.create_ai_exercise_description),
+                        iconRes = R.drawable.ic_dumbbell,
+                        onClick = {
+                            showCreateMenu = false
+                            navController.navigate(Screen.AiExerciseGeneration.route)
+                        }
+                    )
+                    CreateActionCard(
+                        title = context.getString(R.string.create_ai_template),
+                        description = context.getString(R.string.create_ai_template_description),
+                        iconRes = R.drawable.ic_template,
+                        onClick = {
+                            showCreateMenu = false
+                            navController.navigate(Screen.AiTemplateGeneration.route)
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+        }
+
         Scaffold(
             topBar = {
                 screens.forEach { it ->
@@ -245,7 +309,7 @@ fun NavGraph(
                                     modifier = Modifier.navigationBarsPadding()
                                 ) {
                                     FloatingActionButton(
-                                        onClick = { navController.navigate(Screen.CreateExercise.route) },
+                                        onClick = { showCreateMenu = true },
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                         contentColor = MaterialTheme.colorScheme.onPrimary,
                                         modifier = Modifier.size(64.dp)
@@ -414,6 +478,26 @@ fun NavGraph(
                         )
                     }
 
+
+                    composable(Screen.AiExerciseGeneration.route) {
+                        AiExerciseGeneratorScreen(
+                            navController = navHostController,
+                            exerciseViewModel = exerciseViewModel,
+                            aiExerciseGenerationViewModel = aiExerciseGenerationViewModel,
+                            paddingTopValues = paddingValue.calculateTopPadding(),
+                            lang = lang
+                        )
+                    }
+
+                    composable(Screen.AiTemplateGeneration.route) {
+                        AiTemplateGeneratorScreen(
+                            navController = navHostController,
+                            exerciseViewModel = exerciseViewModel,
+                            workoutViewModel = workoutViewModel,
+                            lang = lang
+                        )
+                    }
+
                     composable(
                         Screen.EditExerciseName.route + "/{exerciseId}",
                         arguments = listOf(navArgument("exerciseId") { type = NavType.StringType })
@@ -525,3 +609,45 @@ fun NavGraph(
     }
 }
 
+
+
+@Composable
+private fun CreateActionCard(
+    title: String,
+    description: String,
+    iconRes: Int,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.45f))
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(34.dp)
+            )
+            Column(modifier = Modifier.padding(start = 12.dp)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}

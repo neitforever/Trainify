@@ -75,6 +75,7 @@ import com.example.motivationcalendarapi.ui.settings.workout_settings.WorkoutSet
 import com.example.motivationcalendarapi.ui.template.EditTemplateNameScreen
 import com.example.motivationcalendarapi.ui.template.TemplateDetailScreen
 import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
+import com.example.motivationcalendarapi.viewmodel.AiTemplateGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
@@ -102,6 +103,7 @@ fun NavGraph(
     workoutSettingsViewModel: WorkoutSettingsViewModel,
     equipmentRecognitionViewModel: EquipmentRecognitionViewModel,
     aiExerciseGenerationViewModel: AiExerciseGenerationViewModel,
+    aiTemplateGenerationViewModel: AiTemplateGenerationViewModel,
     lang: String
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -119,6 +121,7 @@ fun NavGraph(
         Screen.ExercisesView,
         Screen.EquipmentRecognizer,
         Screen.AiExerciseGeneration,
+        Screen.AiTemplateGeneration,
         Screen.Settings,
         Screen.ThemeSettings,
         Screen.WorkoutSettings,
@@ -494,6 +497,8 @@ fun NavGraph(
                             navController = navHostController,
                             exerciseViewModel = exerciseViewModel,
                             workoutViewModel = workoutViewModel,
+                            aiTemplateGenerationViewModel = aiTemplateGenerationViewModel,
+                            paddingTopValues = paddingValue.calculateTopPadding(),
                             lang = lang
                         )
                     }

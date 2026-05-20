@@ -142,7 +142,7 @@
     <string name="exercise_info">Инфо об упражнении</string>
     <string name="set">Подход</string>
     <string name="rep">Повтор</string>
-    <string name="status">Стат</string>
+    <string name="status">Статус</string>
     <string name="warm_up">Разминка</string>
     <string name="failed">Не удалось</string>
     <string name="completed">Завершено</string>
@@ -236,7 +236,7 @@
     <string name="language_description_title">Пример:</string>
     <string name="time_minutes">Время</string>
     <string name="resistance_level">Сила</string>
-    <string name="incline_percent">Наклон</string>
+    <string name="incline_percent">Накл.</string>
     <string name="cardio_time_configuration">Настройка времени кардио</string>
     <string name="resistance_configuration">Настройка силы</string>
     <string name="incline_configuration">Настройка наклона</string>
@@ -323,7 +323,7 @@
     <string name="ai_exercise_generation">ИИ-упражнение</string>
     <string name="ai_template_generation">ИИ-шаблон</string>
     <string name="ai_exercise_generation_description">Сгенерировать новое упражнение</string>
-    <string name="ai_template_generation_description">Опишите шаблон тренировки, выберите группы мышц, оборудование и диапазон нагрузки. Шаблон будет создан только из локальных упражнений.</string>
+    <string name="ai_template_generation_description">Опишите шаблон тренировки, выберите группы мышц, оборудование, сложность и количество упражнений.</string>
     <string name="ai_user_request">Что нужно сгенерировать?</string>
     <string name="ai_level_range">Диапазон сложности / нагрузки</string>
     <string name="generate">Сгенерировать</string>
@@ -333,17 +333,23 @@
     <string name="apply_selected_body_and_equipment">Применить выбранную группу мышц и оборудование</string>
     <string name="generation_in_progress">Идёт генерация</string>
     <string name="create_exercise_manually">Создать упражнение</string>
-    <string name="create_exercise_manually_description">Создать новое упражнение вручную</string>
+    <string name="create_exercise_manually_description">Создать новое упражнение</string>
     <string name="create_ai_exercise">Создать ИИ-упражнение</string>
     <string name="create_ai_exercise_description">Сгенерировать новое упражнение</string>
     <string name="create_ai_template">Создать ИИ-шаблон</string>
-    <string name="create_ai_template_description">Сгенерировать шаблон тренировки из локальных упражнений</string>
+    <string name="create_ai_template_description">Сгенерировать шаблон тренировки</string>
     <string name="target">Целевая мышца</string>
     <string name="secondary_muscles">Вторичные мышцы</string>
-    <string name="ai_generation_required_fields">Заполните описание, часть тела, инвентарь и сложность.</string>
+    <string name="ai_generation_required_fields">Заполните описание, группы мышц, оборудование и сложность.</string>
     <string name="ai_exercise_help_title">Что умеет генерация упражнения через ИИ?</string>
     <string name="ai_exercise_help_item_1">Создаёт новое упражнение по вашему запросу, выбранной группе мышц и оборудованию.</string>
     <string name="ai_exercise_help_item_2">Использует локальные упражнения как пример и заполняет поля на русском, английском и белорусском языках.</string>
     <string name="ai_exercise_help_item_3">После генерации каждый блок можно отредактировать перед сохранением.</string>
     <string name="exercise_type">Тип упражнения</string>
+    <string name="ai_template_help_title">Что умеет генерация шаблона через ИИ</string>
+    <string name="ai_template_help_item_1">Составляет тренировку только из упражнений, сохранённых в приложении.</string>
+    <string name="ai_template_help_item_2">Учитывает выбранные группы мышц, оборудование и сложность.</string>
+    <string name="ai_template_help_item_3">Подбирает подходящее количество упражнений и подходов.</string>
+    <string name="exercise_count_range">Количество упражнений</string>
+    <string name="selected_exercise_count_range">От %1$d до %2$d упражнений</string>
 </resources>

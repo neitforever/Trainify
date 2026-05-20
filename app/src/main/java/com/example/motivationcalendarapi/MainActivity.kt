@@ -32,6 +32,7 @@ import com.example.motivationcalendarapi.repositories.WorkoutFirestoreRepository
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
 import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
 import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
+import com.example.motivationcalendarapi.viewmodel.AiTemplateGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModelFactory
@@ -120,6 +121,7 @@ class MainActivity : ComponentActivity() {
             )
             val equipmentRecognitionViewModel: EquipmentRecognitionViewModel = viewModel()
             val aiExerciseGenerationViewModel: AiExerciseGenerationViewModel = viewModel()
+            val aiTemplateGenerationViewModel: AiTemplateGenerationViewModel = viewModel()
             val navController = rememberNavController()
             var drawerState = mutableStateOf(rememberDrawerState(initialValue = DrawerValue.Closed))
 
@@ -150,6 +152,7 @@ class MainActivity : ComponentActivity() {
                     workoutSettingsViewModel = workoutSettingsViewModel,
                     equipmentRecognitionViewModel = equipmentRecognitionViewModel,
                     aiExerciseGenerationViewModel = aiExerciseGenerationViewModel,
+                    aiTemplateGenerationViewModel = aiTemplateGenerationViewModel,
                     lang = lang
                 )
             }

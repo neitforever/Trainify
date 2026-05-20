@@ -89,7 +89,8 @@ internal fun SelectorRowWithIcon(
     options: List<String>,
     optionIcon: (String) -> Int,
     onSelected: (String) -> Unit,
-    optionContainerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant
+    optionContainerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant,
+    enabled: Boolean = true
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
@@ -113,10 +114,11 @@ internal fun SelectorRowWithIcon(
             iconRes = iconRes,
             isFilled = isFilled,
             rotation = rotation,
-            onClick = { onExpandedChange(!expanded) }
+            onClick = { if (enabled) onExpandedChange(!expanded) },
+            enabled = enabled
         )
 
-        AnimatedVisibility(visible = expanded) {
+        AnimatedVisibility(visible = expanded && enabled) {
             InlineOptionsList(
                 options = options,
                 optionIcon = optionIcon,
@@ -133,7 +135,8 @@ internal fun SelectorRowWithIcon(
 @Composable
 internal fun DifficultySelector(
     selected: String,
-    onSelected: (String) -> Unit
+    onSelected: (String) -> Unit,
+    enabled: Boolean = true
 ) {
     Column(
         modifier = Modifier
@@ -156,21 +159,24 @@ internal fun DifficultySelector(
                 title = stringResource(R.string.easy),
                 iconRes = R.drawable.ic_smile_easy,
                 selected = selected == stringResource(R.string.easy),
-                onClick = { onSelected(it) }
+                onClick = { if (enabled) onSelected(it) },
+                enabled = enabled
             )
             DifficultyCard(
                 modifier = Modifier.weight(1f),
                 title = stringResource(R.string.medium),
                 iconRes = R.drawable.ic_smile_normal,
                 selected = selected == stringResource(R.string.medium),
-                onClick = { onSelected(it) }
+                onClick = { if (enabled) onSelected(it) },
+                enabled = enabled
             )
             DifficultyCard(
                 modifier = Modifier.weight(1f),
                 title = stringResource(R.string.hard),
                 iconRes = R.drawable.ic_smile_hard,
                 selected = selected == stringResource(R.string.hard),
-                onClick = { onSelected(it) }
+                onClick = { if (enabled) onSelected(it) },
+                enabled = enabled
             )
         }
     }
@@ -182,7 +188,8 @@ internal fun DifficultyCard(
     title: String,
     iconRes: Int,
     selected: Boolean,
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
+    enabled: Boolean = true
 ) {
     val iconColor = when (iconRes) {
         R.drawable.ic_smile_easy -> EASY_COLOR
@@ -192,7 +199,7 @@ internal fun DifficultyCard(
     }
 
     Card(
-        modifier = modifier.clickable { onClick(title) },
+        modifier = modifier.clickable(enabled = enabled) { onClick(title) },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (selected) iconColor.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surfaceVariant
@@ -259,10 +266,11 @@ internal fun AiScaffold(
 }
 
 @Composable
-internal fun AiTextField(value: String, onValueChange: (String) -> Unit, label: String, minLines: Int = 1) {
+internal fun AiTextField(value: String, onValueChange: (String) -> Unit, label: String, minLines: Int = 1, enabled: Boolean = true) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
+        enabled = enabled,
         label = { Text(label) },
         minLines = minLines,
         modifier = Modifier.fillMaxWidth(),
@@ -322,7 +330,7 @@ internal fun CardBlock(title: String, content: @Composable ColumnScope.() -> Uni
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+            Text(title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
             content()
         }
     }
@@ -413,7 +421,8 @@ internal fun SelectableHeaderCard(
     iconRes: Int,
     isFilled: Boolean,
     rotation: Float,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean = true
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -427,7 +436,7 @@ internal fun SelectableHeaderCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp)
-            .clickable { onClick() }
+            .clickable(enabled = enabled) { onClick() }
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
@@ -498,6 +507,125 @@ internal fun InlineOptionsList(
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+internal fun MultiChoiceCardsSection(
+    title: String,
+    options: List<String>,
+    selected: MutableList<String>,
+    iconForOption: (String) -> Int
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        options.forEach { option ->
+            val isSelected = selected.contains(option)
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        if (isSelected) selected.remove(option) else selected.add(option)
+                    },
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant
+                ),
+                border = BorderStroke(
+                    width = if (isSelected) 2.dp else 1.dp,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = iconForOption(option)),
+                        contentDescription = option,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(26.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = option,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (isSelected) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_complete),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun AiTemplateHelpCard() {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.ai_template_help_title),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Medium
+                )
+            )
+            val guidelines = listOf(
+                stringResource(R.string.ai_template_help_item_1),
+                stringResource(R.string.ai_template_help_item_2),
+                stringResource(R.string.ai_template_help_item_3)
+            )
+            guidelines.forEach { guideline ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_complete),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = guideline,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 8.dp)
                     )
                 }
             }

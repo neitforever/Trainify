@@ -5,6 +5,7 @@ import com.example.motivationcalendarapi.BuildConfig
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseCardType
 import com.example.motivationcalendarapi.model.ExerciseSet
+import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
 import com.google.gson.Gson
@@ -62,7 +63,9 @@ class GeminiAiGenerationApi {
         prompt: String,
         selectedBodyParts: List<String>,
         selectedEquipment: List<String>,
-        levelRange: String,
+        difficulty: String,
+        minExercises: Int,
+        maxExercises: Int,
         lang: String,
         localExercises: List<Exercise>
     ): GeneratedTemplateDraft = withContext(Dispatchers.IO) {
@@ -77,7 +80,7 @@ class GeminiAiGenerationApi {
                     (selectedEquipment.isEmpty() || selectedEquipment.contains(equipment))
         }.ifEmpty { localExercises }
 
-        val modelPrompt = buildTemplatePrompt(prompt, selectedBodyParts, selectedEquipment, levelRange, lang, allowedExercises)
+        val modelPrompt = buildTemplatePrompt(prompt, selectedBodyParts, selectedEquipment, difficulty, minExercises, maxExercises, lang, allowedExercises)
         logLarge("generateTemplate.prompt", modelPrompt)
 
         val request = buildGeminiRequest(
@@ -158,7 +161,9 @@ class GeminiAiGenerationApi {
         userPrompt: String,
         selectedBodyParts: List<String>,
         selectedEquipment: List<String>,
-        levelRange: String,
+        difficulty: String,
+        minExercises: Int,
+        maxExercises: Int,
         lang: String,
         allowedExercises: List<Exercise>
     ): String {
@@ -171,7 +176,8 @@ class GeminiAiGenerationApi {
             User request: $userPrompt
             Selected body parts: ${selectedBodyParts.joinToString()}
             Selected equipment: ${selectedEquipment.joinToString()}
-            User selected difficulty/load range: $levelRange
+            Selected difficulty: $difficulty
+            Required exercise count range: from $minExercises to $maxExercises exercises
 
             Allowed local exercises. You MUST use ONLY these ids:
             $catalog
@@ -182,7 +188,9 @@ class GeminiAiGenerationApi {
             - Use only exerciseId values from the allowed list.
             - Select exercises according to selected body parts and equipment.
             - Do not add abs/cardio/warmup unless requested.
-            - Prefer 4 to 8 exercises.
+            - Use at most ONE cardio exercise in the whole template.
+            - Generate from $minExercises to $maxExercises exercises.
+            - Use the selected difficulty to choose realistic load values.
             - Use 3 sets by default.
             - Use 12 repetitions by default for strength exercises.
             - Choose medium realistic weight/resistance/time values.
@@ -224,7 +232,7 @@ class GeminiAiGenerationApi {
             Log.d(TAG, "post.responseCode=$code")
             logLarge("post.rawResponse", response)
             if (code !in 200..299) {
-                if (code == 503 || response.contains("high demand", ignoreCase = true) || response.contains("overloaded", ignoreCase = true)) {
+                if (code == 500 || code == 503 || response.contains("high demand", ignoreCase = true) || response.contains("overloaded", ignoreCase = true)) {
                     throw AiGenerationHighDemandException()
                 }
                 error("Gemini proxy error $code: $response")
@@ -319,28 +327,80 @@ class GeminiAiGenerationApi {
 
     private fun parseTemplate(json: JsonObject, allowedExercises: List<Exercise>): GeneratedTemplateDraft {
         val byId = allowedExercises.associateBy { it.id }
+        var cardioAdded = false
         val items = json.getAsJsonArray("items")?.mapNotNull { element ->
             val item = element.asJsonObject
             val exercise = byId[item.get("exerciseId")?.asString] ?: return@mapNotNull null
-            val sets = item.getAsJsonArray("sets")?.map { setElement ->
+            val cardType = exercise.getCardType("en")
+
+            if (cardType != ExerciseCardType.STRENGTH) {
+                if (cardioAdded) return@mapNotNull null
+                cardioAdded = true
+            }
+
+            val parsedSets = item.getAsJsonArray("sets")?.map { setElement ->
                 val set = setElement.asJsonObject
-                ExerciseSet(
-                    rep = max(0, set.get("rep")?.asInt ?: 12),
-                    weight = max(0f, set.get("weight")?.asFloat ?: 0f),
-                    time = max(0f, set.get("time")?.asFloat ?: 0f),
-                    resistance = max(0f, set.get("resistance")?.asFloat ?: 0f),
-                    incline = max(0f, set.get("incline")?.asFloat ?: 0f),
-                    status = SetStatus.NONE
+                sanitizeGeneratedTemplateSet(
+                    cardType = cardType,
+                    rep = set.get("rep")?.asInt,
+                    weight = set.get("weight")?.asFloat,
+                    time = set.get("time")?.asFloat,
+                    resistance = set.get("resistance")?.asFloat,
+                    incline = set.get("incline")?.asFloat
                 )
-            }?.takeIf { it.isNotEmpty() } ?: List(3) { ExerciseSet(rep = 12, status = SetStatus.NONE) }
+            }.orEmpty()
+            val sets = when (cardType) {
+                ExerciseCardType.STRENGTH -> parsedSets.takeIf { it.isNotEmpty() } ?: defaultTemplateSets(cardType)
+                ExerciseCardType.BIKE,
+                ExerciseCardType.TREADMILL -> listOf(parsedSets.firstOrNull() ?: defaultTemplateSets(cardType).first())
+            }
+
             ExtendedExercise(exercise = exercise, sets = sets)
-        }.orEmpty()
+        }.orEmpty().distinctBy { it.exercise.id }
 
         if (items.isEmpty()) error("Generated template does not contain valid local exercises")
         return GeneratedTemplateDraft(
             nameLocalized = json.stringMap("nameLocalized"),
-            exercises = items.distinctBy { it.exercise.id }
+            exercises = items
         )
+    }
+
+    private fun sanitizeGeneratedTemplateSet(
+        cardType: ExerciseCardType,
+        rep: Int?,
+        weight: Float?,
+        time: Float?,
+        resistance: Float?,
+        incline: Float?
+    ): ExerciseSet {
+        return when (cardType) {
+            ExerciseCardType.STRENGTH -> ExerciseSet(
+                rep = max(1, rep ?: 12),
+                weight = max(0f, weight ?: 30f),
+                status = SetStatus.NONE
+            )
+
+            ExerciseCardType.BIKE -> ExerciseSet(
+                time = max(1f, time?.takeIf { it > 0f } ?: 20f),
+                resistance = max(1f, resistance?.takeIf { it > 0f } ?: 5f),
+                status = SetStatus.NONE
+            )
+
+            ExerciseCardType.TREADMILL -> ExerciseSet(
+                time = max(1f, time?.takeIf { it > 0f } ?: 20f),
+                resistance = max(1f, resistance?.takeIf { it > 0f } ?: 6f),
+                incline = max(0f, incline?.takeIf { it > 0f } ?: 3f),
+                status = SetStatus.NONE
+            )
+        }
+    }
+
+    private fun defaultTemplateSets(cardType: ExerciseCardType): List<ExerciseSet> {
+        return when (cardType) {
+            ExerciseCardType.STRENGTH -> List(3) { ExerciseSet(rep = 12, weight = 30f, status = SetStatus.NONE) }
+            ExerciseCardType.BIKE -> listOf(ExerciseSet(time = 20f, resistance = 5f, status = SetStatus.NONE))
+            ExerciseCardType.TREADMILL -> listOf(ExerciseSet(time = 20f, resistance = 6f, incline = 3f, status = SetStatus.NONE))
+        }
     }
 
     private fun JsonObject.stringMap(name: String): Map<String, String> {

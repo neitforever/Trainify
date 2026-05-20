@@ -62,6 +62,7 @@ import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Template
+import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.model.getIconForBodyPart
 import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.repositories.ai.GeminiAiGenerationApi
@@ -69,11 +70,13 @@ import com.example.motivationcalendarapi.repositories.ai.GeneratedTemplateDraft
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
+import com.example.motivationcalendarapi.ui.template.fragments.ExerciseTemplateItem
 import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import kotlinx.coroutines.launch
 import java.util.UUID
+import java.util.Collections
 
 @Composable
 internal fun ExercisePreviewEditor(
@@ -235,23 +238,95 @@ internal fun cardTypeIcon(cardType: String): Int = when (cardType) {
 internal fun TemplatePreviewEditor(
     draft: GeneratedTemplateDraft,
     lang: String,
+    navController: NavController,
+    workoutViewModel: WorkoutViewModel,
     onChange: (GeneratedTemplateDraft) -> Unit
 ) {
-    CardBlock(title = stringResource(R.string.preview_and_edit)) {
-        LocalizedStringEditor(stringResource(R.string.template_name), draft.nameLocalized) {
-            onChange(draft.copy(nameLocalized = it))
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.preview_and_edit),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+
+        PreviewLocalizedStringCard(
+            title = stringResource(R.string.template_name),
+            lang = lang,
+            values = draft.nameLocalized
+        ) { updatedName ->
+            onChange(draft.copy(nameLocalized = updatedName))
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f))
+
         draft.exercises.forEachIndexed { index, extended ->
-            Text(
-                text = "${index + 1}. ${extended.exercise.getName(lang)}",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = extended.sets.joinToString { set -> "${set.weight} × ${set.rep}" },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            ExerciseTemplateItem(
+                index = index,
+                exercise = extended,
+                templateId = "ai_template_preview",
+                onDelete = {
+                    val updated = draft.exercises.toMutableList().apply { removeAt(index) }
+                    onChange(draft.copy(exercises = updated))
+                },
+                onMoveUp = {
+                    if (index > 0) {
+                        val updated = draft.exercises.toMutableList().apply {
+                            Collections.swap(this, index, index - 1)
+                        }
+                        onChange(draft.copy(exercises = updated))
+                    }
+                },
+                onMoveDown = {
+                    if (index < draft.exercises.lastIndex) {
+                        val updated = draft.exercises.toMutableList().apply {
+                            Collections.swap(this, index, index + 1)
+                        }
+                        onChange(draft.copy(exercises = updated))
+                    }
+                },
+                canMoveUp = index > 0,
+                canMoveDown = index < draft.exercises.lastIndex,
+                onAddSetClick = { exerciseIndex ->
+                    val updated = draft.exercises.toMutableList()
+                    val current = updated[exerciseIndex]
+                    val cardType = current.exercise.getCardType(lang)
+                    if (cardType == ExerciseCardType.STRENGTH) {
+                        val nextSet = current.sets.lastOrNull() ?: ExerciseSet(rep = 12, weight = 30f, status = SetStatus.NONE)
+                        updated[exerciseIndex] = current.copy(sets = current.sets + nextSet.copy(status = SetStatus.NONE))
+                        onChange(draft.copy(exercises = updated))
+                    }
+                },
+                onRepClick = { _, _ -> },
+                onWeightClick = { _, _ -> },
+                onTimeClick = { _, _ -> },
+                onResistanceClick = { _, _ -> },
+                onInclineClick = { _, _ -> },
+                onStatusClick = { exerciseIndex, setIndex, status ->
+                    val updated = draft.exercises.toMutableList()
+                    val current = updated[exerciseIndex]
+                    updated[exerciseIndex] = current.copy(
+                        sets = current.sets.mapIndexed { currentSetIndex, set ->
+                            if (currentSetIndex == setIndex) set.copy(status = status) else set
+                        }
+                    )
+                    onChange(draft.copy(exercises = updated))
+                },
+                navController = navController,
+                onDeleteSet = { _, exerciseIndex, setIndex ->
+                    val updated = draft.exercises.toMutableList()
+                    val current = updated[exerciseIndex]
+                    if (current.sets.size > 1) {
+                        updated[exerciseIndex] = current.copy(
+                            sets = current.sets.toMutableList().apply { removeAt(setIndex) }
+                        )
+                        onChange(draft.copy(exercises = updated))
+                    }
+                },
+                exerciseSets = extended.sets,
+                workoutViewModel = workoutViewModel,
+                lang = lang
             )
         }
     }

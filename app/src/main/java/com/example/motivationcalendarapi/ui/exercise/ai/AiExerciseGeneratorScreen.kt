@@ -173,11 +173,17 @@ fun AiExerciseGeneratorScreen(
             }
 
             state.errorMessage?.let { message ->
-                item { ErrorCard(message, isNetworkLike = state.isNetworkError || state.isHighDemandError) }
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    ErrorCard(message, isNetworkLike = state.isNetworkError || state.isHighDemandError)
+                }
             }
 
             saveError?.let { message ->
-                item { ErrorCard(message) }
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    ErrorCard(message)
+                }
             }
 
             state.draft?.let { exercise ->

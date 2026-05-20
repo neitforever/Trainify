@@ -154,7 +154,10 @@ fun AiTemplateGeneratorScreen(
             }
 
             state.errorMessage?.let { message ->
-                item { ErrorCard(message, isNetworkLike = state.isNetworkError || state.isHighDemandError) }
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    ErrorCard(message, isNetworkLike = state.isNetworkError || state.isHighDemandError)
+                }
             }
 
             state.draft?.let { template ->

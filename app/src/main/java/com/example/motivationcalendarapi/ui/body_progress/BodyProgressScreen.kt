@@ -123,14 +123,16 @@ fun BodyProgressScreen(
 
                         guidelines.forEach { guideline ->
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                                verticalAlignment = Alignment.Top,
                                 modifier = Modifier.padding(vertical = 4.dp)
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_complete),
                                     contentDescription = null,
                                     tint = colorScheme.primary,
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier
+                                        .padding(top = 2.dp)
+                                        .size(16.dp)
                                 )
                                 Text(
                                     text = guideline,

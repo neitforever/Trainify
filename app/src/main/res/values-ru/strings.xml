@@ -6,9 +6,9 @@
     <string name="body_progress_track_progress">Начните отслеживать прогресс</string>
     <string name="body_progress_tracking_description">Для точного отслеживания:</string>
     <string name="measure_at_the_same_time_daily">Измеряйтесь в одно и то же время</string>
-    <string name="use_a_calibrated_scale">Используйте откалиброванные весы\n</string>
-    <string name="wear_similar_clothing">Носите похожую одежду\n</string>
-    <string name="track_weekly_for_best_results">Делайте замеры еженедельно для лучших результатов\n</string>
+    <string name="use_a_calibrated_scale">Используйте откалиброванные весы</string>
+    <string name="wear_similar_clothing">Носите похожую одежду</string>
+    <string name="track_weekly_for_best_results">Делайте замеры еженедельно для лучших результатов</string>
     <string name="add_weight">Добавить вес</string>
     <string name="add_first_measurement">Добавить первое измерение</string>
     <string name="current_weight">Текущий вес</string>

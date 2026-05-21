@@ -6,9 +6,9 @@
     <string name= "body_progress_track_progress">Пачніце адсочваць свой прагрэс</string>
     <string name= "body_progress_tracking_description">Для дакладнага адсочвання:</string>
     <string name= "measure_at_the_same_time_daily">Вымяраць адначасова штодня</string>
-    <string name= "use_a_calibrated_scale">Выкарыстоўвайце калібраваныя шалі\n</string>
-    <string name= "wear_similar_clothing">Насіце падобную вопратку\n</string>
-    <string name= "track_weekly_for_best_results">Штотыдзень Адсочвайце найлепшыя вынікі\n</string>
+    <string name= "use_a_calibrated_scale">Выкарыстоўвайце калібраваныя шалі</string>
+    <string name= "wear_similar_clothing">Насіце падобную вопратку</string>
+    <string name= "track_weekly_for_best_results">Штотыдзень Адсочвайце найлепшыя вынікі</string>
     <string name= "add_weight">Дадавайце вагу</string>
     <string name= "add_first_measurement">Дадаць першае вымярэнне</string>
     <string name= "current_weight">Бягучы вага</string>

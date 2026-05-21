@@ -6,9 +6,9 @@
     <string name="body_progress_track_progress">Start Tracking Your Progress</string>
     <string name="body_progress_tracking_description">For accurate tracking:</string>
     <string name="measure_at_the_same_time_daily">Measure at the same time daily</string>
-    <string name="use_a_calibrated_scale">Use a calibrated scale\n</string>
-    <string name="wear_similar_clothing">Wear similar clothing\n</string>
-    <string name="track_weekly_for_best_results">Track weekly for best results\n</string>
+    <string name="use_a_calibrated_scale">Use a calibrated scale</string>
+    <string name="wear_similar_clothing">Wear similar clothing</string>
+    <string name="track_weekly_for_best_results">Track weekly for best results</string>
     <string name="add_weight">Add weight</string>
     <string name="add_first_measurement">Add First Measurement</string>
     <string name="current_weight">Current weight</string>

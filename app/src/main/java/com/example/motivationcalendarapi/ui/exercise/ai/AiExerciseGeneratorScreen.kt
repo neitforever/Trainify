@@ -82,6 +82,7 @@ import java.util.UUID
 fun AiExerciseGeneratorScreen(
     navController: NavController,
     exerciseViewModel: ExerciseViewModel,
+    workoutViewModel: WorkoutViewModel,
     aiExerciseGenerationViewModel: AiExerciseGenerationViewModel,
     paddingTopValues: Dp,
     lang: String
@@ -261,6 +262,7 @@ fun AiExerciseGeneratorScreen(
                             runCatching {
                                 exerciseViewModel.exerciseRepository.insertExercise(exercise.normalizedAiExerciseForSave(lang))
                             }.onSuccess {
+                                workoutViewModel.increaseAiExerciseCreatedForRewards()
                                 aiExerciseGenerationViewModel.clearDraft()
                                 navController.popBackStack()
                             }.onFailure { error ->

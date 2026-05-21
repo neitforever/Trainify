@@ -68,6 +68,7 @@ import com.example.motivationcalendarapi.ui.exercise.SearchExerciseScreen
 import com.example.motivationcalendarapi.ui.equipment_recognition.EquipmentRecognitionScreen
 import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
 import com.example.motivationcalendarapi.ui.profile.ProfileScreen
+import com.example.motivationcalendarapi.ui.profile.rewards.RewardUnlockedOverlay
 import com.example.motivationcalendarapi.ui.settings.SettingsScreen
 import com.example.motivationcalendarapi.ui.settings.language_settings.LanguageSettingsScreen
 import com.example.motivationcalendarapi.ui.settings.theme_settings.ThemeSettingsScreen
@@ -112,6 +113,8 @@ fun NavGraph(
     val currentRoute = currentDestination?.route?.split("/")?.get(0)
     val coroutineScope = rememberCoroutineScope()
     var showCreateMenu by remember { mutableStateOf(false) }
+    val rewards = workoutViewModel.rewards.collectAsState()
+    val pendingRewardUnlockEvents = workoutViewModel.pendingRewardUnlockEvents.collectAsState()
 
 
     val userState = authViewModel.userState.collectAsState()
@@ -437,6 +440,7 @@ fun NavGraph(
                             navController = navController,
                             exerciseViewModel = exerciseViewModel,
                             recognitionViewModel = equipmentRecognitionViewModel,
+                            workoutViewModel = workoutViewModel,
                             paddingTopValues = paddingValue.calculateTopPadding(),
                             lang = lang
                         )
@@ -486,6 +490,7 @@ fun NavGraph(
                         AiExerciseGeneratorScreen(
                             navController = navHostController,
                             exerciseViewModel = exerciseViewModel,
+                            workoutViewModel = workoutViewModel,
                             aiExerciseGenerationViewModel = aiExerciseGenerationViewModel,
                             paddingTopValues = paddingValue.calculateTopPadding(),
                             lang = lang
@@ -589,6 +594,7 @@ fun NavGraph(
                         val context = LocalContext.current
                         BodyProgressScreen(
                             viewModel = bodyProgressViewModel,
+                            workoutViewModel = workoutViewModel,
                             context = context,
                             paddingValues = paddingValue.calculateTopPadding()
                         )
@@ -609,6 +615,15 @@ fun NavGraph(
                         )
                     }
                 }
+
+                RewardUnlockedOverlay(
+                    events = pendingRewardUnlockEvents.value,
+                    rewards = rewards.value,
+                    onShown = { workoutViewModel.markRewardUnlockEventShown(it) },
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = paddingValue.calculateTopPadding() + 8.dp)
+                )
             }
         }
     }

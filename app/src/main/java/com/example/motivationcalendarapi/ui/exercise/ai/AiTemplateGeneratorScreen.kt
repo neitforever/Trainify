@@ -257,6 +257,7 @@ fun AiTemplateGeneratorScreen(
                             )
                             runCatching { workoutViewModel.workoutRepository.insertTemplate(template) }
                                 .onSuccess {
+                                    workoutViewModel.increaseAiTemplateCreatedForRewards()
                                     aiTemplateGenerationViewModel.resetAfterSave()
                                     navController.popBackStack()
                                 }

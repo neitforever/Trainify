@@ -7,6 +7,10 @@ import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.Workout
 import com.google.firebase.auth.FirebaseAuth
+import com.example.motivationcalendarapi.model.reward.RewardUiModel
+import com.example.motivationcalendarapi.model.reward.RewardUnlockEventEntity
+import com.example.motivationcalendarapi.repositories.reward.RewardFirestoreRepository
+import com.example.motivationcalendarapi.repositories.reward.RewardRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
@@ -20,6 +24,8 @@ class WorkoutRepository(
 ): ViewModel() {
 
     private val currentUser get() = auth.currentUser
+
+    private val rewardRepository = RewardRepository(appDatabase, RewardFirestoreRepository(), auth)
 
 
     suspend fun insertTemplate(template: Template) {
@@ -227,6 +233,28 @@ class WorkoutRepository(
 
 
 
+    fun observeRewards(): Flow<List<RewardUiModel>> = rewardRepository.observeRewards()
+
+    fun observePendingRewardUnlockEvents(): Flow<List<RewardUnlockEventEntity>> = rewardRepository.observePendingUnlockEvents()
+
+    suspend fun initializeRewards() = rewardRepository.initializeRewards()
+
+    suspend fun syncRewardsWithFirestore() = rewardRepository.syncFromFirestore()
+
+    suspend fun evaluateDailyStepsForRewards(steps: Long?) = rewardRepository.evaluateDailySteps(steps)
+
+    suspend fun evaluateBodyProgressEntriesForRewards(count: Int) = rewardRepository.evaluateBodyProgressEntries(count)
+
+    suspend fun increaseAiExerciseCreatedForRewards() = rewardRepository.increaseAiExerciseCreated()
+
+    suspend fun increaseAiTemplateCreatedForRewards() = rewardRepository.increaseAiTemplateCreated()
+
+    suspend fun unlockHealthConnectConnectedForRewards() = rewardRepository.unlockHealthConnectConnected()
+
+    suspend fun unlockEquipmentRecognizerUsedForRewards() = rewardRepository.unlockEquipmentRecognizerUsed()
+
+    suspend fun markRewardUnlockEventShown(eventId: String) = rewardRepository.markUnlockEventShown(eventId)
+
     fun getAllWorkouts(): Flow<List<Workout>> {
         return if (currentUser != null) {
             firestoreRepo.getAllWorkouts()
@@ -242,6 +270,7 @@ class WorkoutRepository(
         } else {
             appDatabase.workoutDao().insert(workout)
         }
+        rewardRepository.evaluateAfterWorkout(workout)
     }
 
     suspend fun delete(workout: Workout) {
@@ -269,6 +298,7 @@ class WorkoutRepository(
         appDatabase.workoutDao().deleteAll()
         remoteData.forEach { appDatabase.workoutDao().insert(it) }
 
+        rewardRepository.syncFromFirestore()
         val localData = appDatabase.workoutDao().getAllWorkouts().first()
         localData.forEach { firestoreRepo.insert(it) }
     }

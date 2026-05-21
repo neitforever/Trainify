@@ -53,12 +53,14 @@ import com.example.motivationcalendarapi.ui.dialogs.AddProgressDialog
 import com.example.motivationcalendarapi.ui.dialogs.ProgressDetailDialog
 import com.example.motivationcalendarapi.utils.saveImageToInternalStorage
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
+import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import java.util.UUID
 
 
 @Composable
 fun BodyProgressScreen(
     viewModel: BodyProgressViewModel,
+    workoutViewModel: WorkoutViewModel,
     context: Context,
     paddingValues: Dp
 ) {
@@ -320,6 +322,7 @@ fun BodyProgressScreen(
                         photoPath = photoPath
                     )
                 )
+                workoutViewModel.evaluateBodyProgressEntriesForRewards(progressList.size + 1)
             }
         )
     }

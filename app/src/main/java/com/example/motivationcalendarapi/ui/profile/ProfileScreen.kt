@@ -32,6 +32,7 @@ import com.example.motivationcalendarapi.ui.profile.fragments.LegendRow
 import com.example.motivationcalendarapi.ui.profile.fragments.LogoutButton
 import com.example.motivationcalendarapi.ui.profile.fragments.ProfileHeader
 import com.example.motivationcalendarapi.ui.profile.fragments.StatsRow
+import com.example.motivationcalendarapi.ui.profile.rewards.RewardsSection
 import com.example.motivationcalendarapi.ui.profile.profile_calendar.ProfileCalendarView
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
@@ -48,6 +49,7 @@ fun ProfileScreen(
     val allWorkouts by workoutViewModel.allWorkouts.collectAsState()
     val weekReps by workoutViewModel.weekReps.collectAsState()
     val weekWeight by workoutViewModel.weekWeight.collectAsState()
+    val rewards by workoutViewModel.rewards.collectAsState()
     val context = LocalContext.current
     val healthViewModel: HealthConnectViewModel = viewModel(
         factory = HealthConnectViewModelFactory(HealthConnectRepository(context))
@@ -62,6 +64,16 @@ fun ProfileScreen(
         authViewModel.checkAuthState()
         workoutViewModel.loadWorkouts()
         healthViewModel.refresh()
+    }
+
+    LaunchedEffect(healthState.todaySteps) {
+        workoutViewModel.evaluateDailyStepsForRewards(healthState.todaySteps)
+    }
+
+    LaunchedEffect(healthState.hasPermissions) {
+        if (healthState.hasPermissions) {
+            workoutViewModel.unlockHealthConnectConnectedForRewards()
+        }
     }
 
     LaunchedEffect(lifecycleOwner) {
@@ -96,6 +108,12 @@ fun ProfileScreen(
                 HealthConnectCard(
                     state = healthState,
                     onConnectClick = { healthPermissionsLauncher.launch(healthViewModel.permissions) },
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .padding(horizontal = 4.dp)
+                )
+                RewardsSection(
+                    rewards = rewards,
                     modifier = Modifier
                         .padding(vertical = 8.dp)
                         .padding(horizontal = 4.dp)

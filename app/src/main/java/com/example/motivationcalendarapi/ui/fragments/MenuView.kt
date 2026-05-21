@@ -121,7 +121,7 @@ fun NavigationMenuView(
                     Screen.WorkoutHistory.route -> R.drawable.ic_history
                     Screen.AddWorkout.route -> R.drawable.ic_add_circle
                     Screen.ExercisesView.route -> R.drawable.ic_list
-                    Screen.EquipmentRecognizer.route -> R.drawable.ic_dumbbell
+                    Screen.EquipmentRecognizer.route -> R.drawable.ic_equipment_recognizer
                     Screen.BodyProgress.route -> R.drawable.ic_progress
                     Screen.Profile.route -> R.drawable.ic_profile
                     else -> null

@@ -138,9 +138,8 @@ class MainActivity : ComponentActivity() {
 
             }
 
-
             MotivationCalendarAPITheme(mainViewModel = mainViewModel) {
-                NavGraph(
+                    NavGraph(
                     navHostController = navController,
                     navController = navController,
                     workoutViewModel,
@@ -152,9 +151,9 @@ class MainActivity : ComponentActivity() {
                     workoutSettingsViewModel = workoutSettingsViewModel,
                     equipmentRecognitionViewModel = equipmentRecognitionViewModel,
                     aiExerciseGenerationViewModel = aiExerciseGenerationViewModel,
-                    aiTemplateGenerationViewModel = aiTemplateGenerationViewModel,
-                    lang = lang
-                )
+                        aiTemplateGenerationViewModel = aiTemplateGenerationViewModel,
+                        lang = lang
+                    )
             }
         }
     }

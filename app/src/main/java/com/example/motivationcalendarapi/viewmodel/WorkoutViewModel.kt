@@ -13,6 +13,8 @@ import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.model.reward.RewardUiModel
+import com.example.motivationcalendarapi.model.reward.RewardUnlockEventEntity
 import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.TimerDataStore
@@ -103,6 +105,55 @@ class WorkoutViewModel(
         viewModelScope.launch {
             workoutRepository.syncWithFirestore()
             workoutRepository.syncTemplatesWithFirestore()
+            workoutRepository.syncRewardsWithFirestore()
+        }
+    }
+
+    val rewards: StateFlow<List<RewardUiModel>> = workoutRepository.observeRewards()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val pendingRewardUnlockEvents: StateFlow<List<RewardUnlockEventEntity>> = workoutRepository.observePendingRewardUnlockEvents()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun evaluateDailyStepsForRewards(steps: Long?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.evaluateDailyStepsForRewards(steps)
+        }
+    }
+
+    fun markRewardUnlockEventShown(eventId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.markRewardUnlockEventShown(eventId)
+        }
+    }
+
+    fun evaluateBodyProgressEntriesForRewards(count: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.evaluateBodyProgressEntriesForRewards(count)
+        }
+    }
+
+    fun increaseAiExerciseCreatedForRewards() {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.increaseAiExerciseCreatedForRewards()
+        }
+    }
+
+    fun increaseAiTemplateCreatedForRewards() {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.increaseAiTemplateCreatedForRewards()
+        }
+    }
+
+    fun unlockHealthConnectConnectedForRewards() {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.unlockHealthConnectConnectedForRewards()
+        }
+    }
+
+    fun unlockEquipmentRecognizerUsedForRewards() {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.unlockEquipmentRecognizerUsedForRewards()
         }
     }
 
@@ -142,7 +193,9 @@ class WorkoutViewModel(
 
         viewModelScope.launch {
             workoutRepository.initializeDefaultTemplates()
+            workoutRepository.initializeRewards()
             workoutRepository.syncTemplatesWithFirestore()
+            workoutRepository.syncRewardsWithFirestore()
         }
         viewModelScope.launch {
             workoutRepository.getExerciseNotesUpdates().collect { exercises ->

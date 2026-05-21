@@ -52,6 +52,7 @@ import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.EquipmentMatchType
 import com.example.motivationcalendarapi.viewmodel.MatchedExercise
 import com.example.motivationcalendarapi.viewmodel.SelectedEquipmentImage
+import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import java.util.Locale
 
 @Composable
@@ -59,6 +60,7 @@ fun EquipmentRecognitionScreen(
     navController: NavController,
     exerciseViewModel: ExerciseViewModel,
     recognitionViewModel: EquipmentRecognitionViewModel,
+    workoutViewModel: WorkoutViewModel,
     paddingTopValues: Dp,
     lang: String
 ) {
@@ -67,6 +69,12 @@ fun EquipmentRecognitionScreen(
     val noImageError = stringResource(R.string.equipment_recognizer_select_image_first)
     androidx.compose.runtime.LaunchedEffect(allExercises, state.recognizedEquipment) {
         recognitionViewModel.restoreMatchedExercises(allExercises)
+    }
+
+    androidx.compose.runtime.LaunchedEffect(state.recognizedEquipment?.equipmentKey) {
+        if (state.recognizedEquipment != null) {
+            workoutViewModel.unlockEquipmentRecognizerUsedForRewards()
+        }
     }
 
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->

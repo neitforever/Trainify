@@ -16,6 +16,9 @@ interface WorkoutDao {
     @Query("SELECT * FROM workout_table")
     fun getAllWorkouts(): Flow<List<Workout>>
 
+    @Query("SELECT * FROM workout_table")
+    suspend fun getAllWorkoutsOnce(): List<Workout>
+
     @Query("SELECT * FROM workout_table WHERE id = :id")
     fun getWorkoutById(id: String): Workout
 

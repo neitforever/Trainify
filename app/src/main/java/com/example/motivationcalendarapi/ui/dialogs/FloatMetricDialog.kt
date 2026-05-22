@@ -13,12 +13,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -103,6 +106,15 @@ private fun FloatMetricRow(
     label: String,
     onValueChange: (Float) -> Unit
 ) {
+    var inputText by remember { mutableStateOf(formatFloat(value)) }
+    var hasFocus by remember { mutableStateOf(false) }
+
+    LaunchedEffect(value, hasFocus) {
+        if (!hasFocus) {
+            inputText = formatFloat(value)
+        }
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -110,7 +122,9 @@ private fun FloatMetricRow(
     ) {
         TextButton(
             onClick = {
-                onValueChange((value - step).coerceAtLeast(min))
+                val newValue = (value - step).coerceAtLeast(min)
+                inputText = formatFloat(newValue)
+                onValueChange(newValue)
             }
         ) {
             Text(
@@ -120,11 +134,13 @@ private fun FloatMetricRow(
         }
 
         OutlinedTextField(
-            value = formatFloat(value),
+            value = inputText,
             onValueChange = { input ->
+                inputText = input
                 val normalizedInput = input.replace(',', '.')
-                val parsedValue = normalizedInput.toFloatOrNull() ?: min
-                onValueChange(parsedValue.coerceIn(min, max))
+                normalizedInput.toFloatOrNull()?.let { parsedValue ->
+                    onValueChange(parsedValue.coerceIn(min, max))
+                }
             },
             label = {
                 Text(
@@ -135,12 +151,23 @@ private fun FloatMetricRow(
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal
             ),
-            modifier = Modifier.width(120.dp)
+            modifier = Modifier
+                .width(120.dp)
+                .onFocusChanged { focusState ->
+                    if (focusState.isFocused && !hasFocus) {
+                        inputText = ""
+                    } else if (!focusState.isFocused && hasFocus && inputText.isBlank()) {
+                        inputText = formatFloat(value)
+                    }
+                    hasFocus = focusState.isFocused
+                }
         )
 
         TextButton(
             onClick = {
-                onValueChange((value + step).coerceAtMost(max))
+                val newValue = (value + step).coerceAtMost(max)
+                inputText = formatFloat(newValue)
+                onValueChange(newValue)
             }
         ) {
             Text(

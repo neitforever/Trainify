@@ -45,6 +45,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.example.motivationcalendarapi.notifications.NotificationHelper
+import com.example.motivationcalendarapi.repositories.NotificationSettingsDataStore
+import kotlinx.coroutines.flow.first
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -88,6 +92,7 @@ fun AiExerciseGeneratorScreen(
     lang: String
 ) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val allExercises by exerciseViewModel.getAllExercises().collectAsState(initial = emptyList())
     val bodyParts by exerciseViewModel.getBodyPartsLocalized(lang).collectAsState(initial = emptyList())
     val equipmentList by exerciseViewModel.getAllEquipmentLocalized(lang).collectAsState(initial = emptyList())
@@ -220,7 +225,8 @@ fun AiExerciseGeneratorScreen(
                             lang = lang,
                             localExercises = allExercises,
                             requiredFieldsMessage = requiredFieldsMessage,
-                            highDemandMessage = highDemandMessage
+                            highDemandMessage = highDemandMessage,
+                            context = context
                         )
                     },
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -260,7 +266,8 @@ fun AiExerciseGeneratorScreen(
                         val exercise = state.draft ?: return@FloatingActionButton
                         scope.launch {
                             runCatching {
-                                exerciseViewModel.exerciseRepository.insertExercise(exercise.normalizedAiExerciseForSave(lang))
+                                val savedExercise = exercise.normalizedAiExerciseForSave(lang)
+                                exerciseViewModel.exerciseRepository.insertExercise(savedExercise)
                             }.onSuccess {
                                 workoutViewModel.increaseAiExerciseCreatedForRewards()
                                 aiExerciseGenerationViewModel.clearDraft()

@@ -69,6 +69,8 @@ import com.example.motivationcalendarapi.ui.equipment_recognition.EquipmentRecog
 import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
 import com.example.motivationcalendarapi.ui.profile.ProfileScreen
 import com.example.motivationcalendarapi.ui.profile.rewards.RewardUnlockedOverlay
+import com.example.motivationcalendarapi.ui.settings.notification_settings.NotificationSettingsScreen
+import com.example.motivationcalendarapi.viewmodel.NotificationSettingsViewModel
 import com.example.motivationcalendarapi.ui.settings.SettingsScreen
 import com.example.motivationcalendarapi.ui.settings.language_settings.LanguageSettingsScreen
 import com.example.motivationcalendarapi.ui.settings.theme_settings.ThemeSettingsScreen
@@ -105,6 +107,7 @@ fun NavGraph(
     equipmentRecognitionViewModel: EquipmentRecognitionViewModel,
     aiExerciseGenerationViewModel: AiExerciseGenerationViewModel,
     aiTemplateGenerationViewModel: AiTemplateGenerationViewModel,
+    notificationSettingsViewModel: NotificationSettingsViewModel,
     lang: String
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -132,7 +135,8 @@ fun NavGraph(
         Screen.BodyProgress,
         Screen.TemplateDetailView,
         Screen.Profile,
-        Screen.LanguageSettings
+        Screen.LanguageSettings,
+        Screen.NotificationSettings
     )
     ModalNavigationDrawer(drawerState = drawerState.value, drawerContent = {
         if (userState.value is AuthViewModel.UserState.Authenticated) {
@@ -472,6 +476,13 @@ fun NavGraph(
                     composable(Screen.WorkoutSettings.route) {
                         WorkoutSettingsScreen(
                             viewModel = workoutSettingsViewModel,
+                            paddingValues = paddingValue.calculateTopPadding()
+                        )
+                    }
+
+                    composable(Screen.NotificationSettings.route) {
+                        NotificationSettingsScreen(
+                            viewModel = notificationSettingsViewModel,
                             paddingValues = paddingValue.calculateTopPadding()
                         )
                     }

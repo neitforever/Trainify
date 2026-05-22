@@ -17,6 +17,9 @@ interface BodyProgressDao {
     @Query("SELECT * FROM BodyProgress ORDER BY timestamp DESC")
     fun getAllProgress(): Flow<List<BodyProgress>>
 
+    @Query("SELECT * FROM BodyProgress ORDER BY timestamp DESC LIMIT 1")
+    suspend fun getLastProgress(): BodyProgress?
+
     @Delete
     suspend fun delete(progress: BodyProgress)
 

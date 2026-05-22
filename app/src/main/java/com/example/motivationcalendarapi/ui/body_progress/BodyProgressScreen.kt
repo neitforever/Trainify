@@ -34,6 +34,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +47,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.notifications.NotificationHelper
+import com.example.motivationcalendarapi.repositories.NotificationSettingsDataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import com.example.motivationcalendarapi.model.BodyProgress
 import com.example.motivationcalendarapi.ui.body_progress.fragments.ProgressItem
 import com.example.motivationcalendarapi.ui.body_progress.fragments.WeightHistoryChart
@@ -68,6 +73,7 @@ fun BodyProgressScreen(
     val progressList by viewModel.allProgress.collectAsState(initial = emptyList())
     var selectedProgress by remember { mutableStateOf<BodyProgress?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
+    val notificationScope = rememberCoroutineScope()
 
     if (progressList.isEmpty()) {
         Box(
@@ -325,6 +331,11 @@ fun BodyProgressScreen(
                     )
                 )
                 workoutViewModel.evaluateBodyProgressEntriesForRewards(progressList.size + 1)
+                notificationScope.launch {
+                    if (NotificationSettingsDataStore(context).settingsFlow.first().weightProgressEnabled) {
+                        NotificationHelper.showWeightProgress(context, weight)
+                    }
+                }
             }
         )
     }

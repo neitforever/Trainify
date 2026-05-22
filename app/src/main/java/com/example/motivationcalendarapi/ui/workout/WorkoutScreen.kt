@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,6 +44,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -71,6 +75,9 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.motivationcalendarapi.notifications.WorkoutTimerNotificationService
+import com.example.motivationcalendarapi.notifications.NotificationSettings
+import com.example.motivationcalendarapi.repositories.NotificationSettingsDataStore
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.ui.dialogs.AutoDismissDialog
 import com.example.motivationcalendarapi.ui.dialogs.EndWorkoutDialog
@@ -84,11 +91,13 @@ import com.example.motivationcalendarapi.ui.workout.fragments.InActiveWorkoutScr
 import com.example.motivationcalendarapi.ui.workout.fragments.TimerBottomSheet
 import com.example.motivationcalendarapi.ui.workout.fragments.WorkoutNameTextField
 import com.example.motivationcalendarapi.utils.getStartAndEndOfCurrentWeek
+import com.example.motivationcalendarapi.utils.formatTime
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.motivationcalendar.ui.ExerciseCard
 import com.motivationcalendar.ui.PauseWorkoutDialog
 import com.motivationcalendar.ui.RepsDialog
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.motivationcalendarapi.model.getCardType
@@ -111,6 +120,7 @@ fun WorkoutScreen(
     val timerRunning by workoutViewModel.timerRunning.collectAsState()
     val isWorkoutStarted by workoutViewModel.isWorkoutStarted.collectAsState()
     val workoutName by workoutViewModel.workoutName.collectAsState()
+    val notificationSettings by remember(context) { NotificationSettingsDataStore(context).settingsFlow }.collectAsState(initial = NotificationSettings())
     val keyboardController = LocalSoftwareKeyboardController.current
     val healthViewModel: HealthConnectViewModel = viewModel(
         factory = HealthConnectViewModelFactory(HealthConnectRepository(context))
@@ -184,10 +194,25 @@ fun WorkoutScreen(
         } else {
             healthViewModel.stopHeartRateUpdates()
             healthViewModel.refresh()
+            WorkoutTimerNotificationService.stop(context)
         }
 
         onDispose {
             healthViewModel.stopHeartRateUpdates()
+        }
+    }
+
+    LaunchedEffect(isWorkoutStarted, timerRunning, notificationSettings.workoutActiveEnabled) {
+        if (isWorkoutStarted && notificationSettings.workoutActiveEnabled) {
+            WorkoutTimerNotificationService.start(context, timerValue, timerRunning)
+        } else {
+            WorkoutTimerNotificationService.stop(context)
+        }
+    }
+
+    LaunchedEffect(timerRunning) {
+        if (isWorkoutStarted && notificationSettings.workoutActiveEnabled) {
+            WorkoutTimerNotificationService.update(context, timerValue, timerRunning)
         }
     }
 
@@ -209,7 +234,6 @@ fun WorkoutScreen(
 
 
     var showTimerCompleteDialog by remember { mutableStateOf(false) }
-
     LaunchedEffect(isTimerRunning, currentTime) {
         if (isTimerRunning && currentTime > 0) {
             delay(1000L)
@@ -389,6 +413,7 @@ fun WorkoutScreen(
         } else {
             Row(
                 verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.navigationBarsPadding()
             ) {
                 FloatingActionButton(

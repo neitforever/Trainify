@@ -19,6 +19,9 @@ interface WorkoutDao {
     @Query("SELECT * FROM workout_table")
     suspend fun getAllWorkoutsOnce(): List<Workout>
 
+    @Query("SELECT * FROM workout_table ORDER BY timestamp DESC LIMIT 1")
+    suspend fun getLastWorkout(): Workout?
+
     @Query("SELECT * FROM workout_table WHERE id = :id")
     fun getWorkoutById(id: String): Workout
 

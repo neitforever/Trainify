@@ -11,4 +11,5 @@
     <color name="easy">#4CAF50</color>
     <color name="normal">#FFC107</color>
     <color name="hard">#FF0000</color>
+    <color name="primary">#FFD0BCFF</color>
 </resources>

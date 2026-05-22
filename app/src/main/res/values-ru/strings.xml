@@ -397,4 +397,54 @@
     <string name="reward_equipment_recognizer_title">Распознавание инвентаря</string>
     <string name="reward_equipment_recognizer_description">Платиновая награда за использование Equipment Recognizer</string>
 
+
+    <string name="notification_settings">Уведомления</string>
+    <string name="notifications_permission_required">Разрешение на уведомления выключено</string>
+    <string name="notifications_permission_required_description">Разрешите уведомления, чтобы получать напоминания о тренировках, ИИ-генерации и прогрессе.</string>
+    <string name="allow_notifications">Разрешить уведомления</string>
+    <string name="notification_section_workouts">Тренировки</string>
+    <string name="notification_section_ai">ИИ-генерация</string>
+    <string name="notification_section_weight_progress">Прогресс веса</string>
+    <string name="notification_workout_active_setting">Показывать уведомление во время тренировки</string>
+    <string name="notification_workout_reminder_setting">Напоминать, если тренировок не было</string>
+    <string name="notification_workout_reminder_days">Напоминать через дней</string>
+    <string name="notification_ai_exercise_setting">Уведомлять после создания ИИ-упражнения</string>
+    <string name="notification_ai_template_setting">Уведомлять после создания ИИ-шаблона</string>
+    <string name="notification_weight_progress_setting">Уведомлять после обновления веса</string>
+    <string name="notification_weight_progress_reminder_setting">Напоминать обновить прогресс веса</string>
+    <string name="notification_weight_progress_reminder_days">Напоминать о весе через дней</string>
+    <string name="notification_channel_workout_active">Активная тренировка</string>
+    <string name="notification_channel_workout_reminder">Напоминания о тренировках</string>
+    <string name="notification_channel_ai_generation">ИИ-генерация</string>
+    <string name="notification_channel_progress">Прогресс</string>
+    <string name="notification_workout_active_title">Тренировка идёт</string>
+    <string name="notification_workout_active_text">Время тренировки: %1$s</string>
+    <string name="notification_workout_reminder_title">Пора потренироваться</string>
+    <string name="notification_workout_reminder_text">Тренировок не было уже %1$d дня</string>
+    <string name="notification_ai_exercise_title">ИИ-упражнение готово</string>
+    <string name="notification_ai_exercise_text">Создано упражнение: %1$s</string>
+    <string name="notification_ai_template_title">ИИ-шаблон готов</string>
+    <string name="notification_ai_template_text">Создан шаблон тренировки: %1$s</string>
+    <string name="notification_weight_progress_title">Прогресс веса обновлён</string>
+    <string name="notification_weight_progress_text">Текущий вес: %1$s</string>
+    <string name="notification_weight_progress_reminder_title">Обновите прогресс веса</string>
+    <string name="notification_weight_progress_reminder_text">Вы не обновляли прогресс веса уже %1$d дней</string>
+    <string name="notification_preview_title">Просмотр уведомлений</string>
+    <string name="notification_preview_description">Ниже показаны карточки. Нажмите на карточку, чтобы отправить тестовое уведомление.</string>
+
+
+    <string name="notification_permission_status">System permission</string>
+    <string name="notification_permission_enabled">Уведомления разрешены</string>
+    <string name="notification_preview_exercise_name">ИИ-отжимания</string>
+    <string name="notification_preview_template_name">ИИ-тренировка верха тела</string>
+    <string name="notification_ai_exercise_failed_title">ИИ-упражнение не создано</string>
+    <string name="notification_ai_exercise_failed_text">Генерация упражнения не выполнена: %1$s</string>
+    <string name="notification_ai_template_failed_title">ИИ-шаблон не создан</string>
+    <string name="notification_ai_template_failed_text">Генерация шаблона не выполнена: %1$s</string>
+
+    <string name="notification_ai_exercise_generating_title">Генерация ИИ-упражнения</string>
+    <string name="notification_ai_exercise_generating_text">Упражнение генерируется в фоне</string>
+    <string name="notification_ai_template_generating_title">Генерация ИИ-шаблона</string>
+    <string name="notification_ai_template_generating_text">Шаблон тренировки генерируется в фоне</string>
+    <string name="ai_generation_error">Ошибка генерации</string>
 </resources>

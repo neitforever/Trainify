@@ -396,4 +396,54 @@
     <string name="reward_equipment_recognizer_title">Equipment Scanner</string>
     <string name="reward_equipment_recognizer_description">Platinum reward for using the equipment recognizer</string>
 
+
+    <string name="notification_settings">Notifications</string>
+    <string name="notifications_permission_required">Notification permission is disabled</string>
+    <string name="notifications_permission_required_description">Allow notifications to receive workout, AI generation, and progress updates.</string>
+    <string name="allow_notifications">Allow notifications</string>
+    <string name="notification_section_workouts">Workouts</string>
+    <string name="notification_section_ai">AI generation</string>
+    <string name="notification_section_weight_progress">Weight progress</string>
+    <string name="notification_workout_active_setting">Show notification while workout is active</string>
+    <string name="notification_workout_reminder_setting">Remind if there were no workouts</string>
+    <string name="notification_workout_reminder_days">Reminder after days</string>
+    <string name="notification_ai_exercise_setting">Notify when AI exercise is created</string>
+    <string name="notification_ai_template_setting">Notify when AI template is created</string>
+    <string name="notification_weight_progress_setting">Notify after weight progress update</string>
+    <string name="notification_weight_progress_reminder_setting">Remind to update weight progress</string>
+    <string name="notification_weight_progress_reminder_days">Weight reminder after days</string>
+    <string name="notification_channel_workout_active">Active workout</string>
+    <string name="notification_channel_workout_reminder">Workout reminders</string>
+    <string name="notification_channel_ai_generation">AI generation</string>
+    <string name="notification_channel_progress">Progress</string>
+    <string name="notification_workout_active_title">Workout in progress</string>
+    <string name="notification_workout_active_text">Workout time: %1$s</string>
+    <string name="notification_workout_reminder_title">Time to train</string>
+    <string name="notification_workout_reminder_text">You have not trained for %1$d days</string>
+    <string name="notification_ai_exercise_title">AI exercise is ready</string>
+    <string name="notification_ai_exercise_text">Exercise created: %1$s</string>
+    <string name="notification_ai_template_title">AI template is ready</string>
+    <string name="notification_ai_template_text">Template created: %1$s</string>
+    <string name="notification_weight_progress_title">Weight progress updated</string>
+    <string name="notification_weight_progress_text">Current weight: %1$s</string>
+    <string name="notification_weight_progress_reminder_title">Update weight progress</string>
+    <string name="notification_weight_progress_reminder_text">You have not updated weight progress for %1$d days</string>
+    <string name="notification_preview_title">Notification preview</string>
+    <string name="notification_preview_description">Preview cards below and tap a card to send a test notification.</string>
+
+
+    <string name="notification_permission_status">System permission</string>
+    <string name="notification_permission_enabled">Notifications are allowed</string>
+    <string name="notification_preview_exercise_name">AI push-up</string>
+    <string name="notification_preview_template_name">AI upper body workout</string>
+    <string name="notification_ai_exercise_failed_title">AI exercise was not created</string>
+    <string name="notification_ai_exercise_failed_text">Exercise generation failed: %1$s</string>
+    <string name="notification_ai_template_failed_title">AI template was not created</string>
+    <string name="notification_ai_template_failed_text">Template generation failed: %1$s</string>
+
+    <string name="notification_ai_exercise_generating_title">AI exercise generation</string>
+    <string name="notification_ai_exercise_generating_text">Generating exercise in background</string>
+    <string name="notification_ai_template_generating_title">AI template generation</string>
+    <string name="notification_ai_template_generating_text">Generating workout template in background</string>
+    <string name="ai_generation_error">Generation error</string>
 </resources>

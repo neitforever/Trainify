@@ -329,6 +329,7 @@ class WorkoutViewModel(
         const val START_TIME_KEY = "start_time"
         const val PAUSED_DURATION_KEY = "paused_duration"
         const val TIMER_RUNNING_KEY = "timer_running"
+        const val WORKOUT_STARTED_KEY = "workout_started"
     }
 
     private var startTime: Long
@@ -378,6 +379,7 @@ class WorkoutViewModel(
         _timerValue.value = 0
         _workoutName.value = ""
         _isWorkoutStarted.value = false
+        savedStateHandle.set(WORKOUT_STARTED_KEY, false)
         startTime = 0L
         totalPausedDuration = 0L
         _selectedExercises.value = emptyList()
@@ -505,7 +507,7 @@ class WorkoutViewModel(
     private val _workoutName = MutableStateFlow("")
     val workoutName: StateFlow<String> = _workoutName.asStateFlow()
 
-    private val _isWorkoutStarted = MutableStateFlow(false)
+    private val _isWorkoutStarted = MutableStateFlow(savedStateHandle.get<Boolean>(WORKOUT_STARTED_KEY) ?: false)
     val isWorkoutStarted: StateFlow<Boolean> = _isWorkoutStarted.asStateFlow()
 
     private val _currentWorkout = MutableStateFlow<Workout?>(null)
@@ -582,6 +584,7 @@ class WorkoutViewModel(
 
     private fun startWorkout() {
         _isWorkoutStarted.value = true
+        savedStateHandle.set(WORKOUT_STARTED_KEY, true)
         startTimer()
     }
 

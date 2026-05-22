@@ -1,11 +1,12 @@
 package com.example.motivationcalendarapi.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.motivationcalendarapi.model.Exercise
-import com.example.motivationcalendarapi.repositories.ai.AiGenerationHighDemandException
-import com.example.motivationcalendarapi.repositories.ai.AiGenerationNetworkException
-import com.example.motivationcalendarapi.repositories.ai.GeminiAiGenerationApi
+import com.example.motivationcalendarapi.notifications.AiGenerationBackgroundEvent
+import com.example.motivationcalendarapi.notifications.AiGenerationBackgroundState
+import com.example.motivationcalendarapi.notifications.AiGenerationForegroundService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,10 +26,35 @@ data class AiExerciseGenerationUiState(
 )
 
 class AiExerciseGenerationViewModel : ViewModel() {
-    private val api = GeminiAiGenerationApi()
 
     private val _uiState = MutableStateFlow(AiExerciseGenerationUiState())
     val uiState: StateFlow<AiExerciseGenerationUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            AiGenerationBackgroundState.events.collect { event ->
+                when (event) {
+                    is AiGenerationBackgroundEvent.ExerciseStarted -> {
+                        _uiState.update { it.copy(isLoading = true, errorMessage = null, isNetworkError = false, isHighDemandError = false, draft = null) }
+                    }
+                    is AiGenerationBackgroundEvent.ExerciseSuccess -> {
+                        _uiState.update { it.copy(draft = event.exercise, isLoading = false, errorMessage = null, isNetworkError = false, isHighDemandError = false) }
+                    }
+                    is AiGenerationBackgroundEvent.ExerciseFailure -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = event.message,
+                                isNetworkError = event.isNetworkError,
+                                isHighDemandError = event.isHighDemandError
+                            )
+                        }
+                    }
+                    else -> Unit
+                }
+            }
+        }
+    }
 
     fun setPrompt(value: String) {
         _uiState.update { it.copy(prompt = value, errorMessage = null, isNetworkError = false, isHighDemandError = false) }
@@ -58,7 +84,8 @@ class AiExerciseGenerationViewModel : ViewModel() {
         lang: String,
         localExercises: List<Exercise>,
         requiredFieldsMessage: String,
-        highDemandMessage: String
+        highDemandMessage: String,
+        context: Context? = null
     ) {
         val state = _uiState.value
         if (state.prompt.isBlank() || state.selectedBodyPart.isBlank() || state.selectedEquipment.isBlank() || state.difficulty.isBlank()) {
@@ -66,34 +93,21 @@ class AiExerciseGenerationViewModel : ViewModel() {
             return
         }
 
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null, isNetworkError = false, isHighDemandError = false, draft = null) }
-            runCatching {
-                api.generateExercise(
-                    prompt = state.prompt,
-                    selectedBodyPart = state.selectedBodyPart,
-                    selectedEquipment = state.selectedEquipment,
-                    levelRange = state.difficulty,
-                    lang = lang,
-                    localExercises = localExercises
-                )
-            }.onSuccess { exercise ->
-                _uiState.update { it.copy(draft = exercise, isLoading = false, isNetworkError = false, isHighDemandError = false) }
-            }.onFailure { error ->
-                val isNetworkError = error is AiGenerationNetworkException
-                val isHighDemandError = error is AiGenerationHighDemandException
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = when {
-                            isHighDemandError -> highDemandMessage
-                            else -> error.message ?: "Generation error"
-                        },
-                        isNetworkError = isNetworkError,
-                        isHighDemandError = isHighDemandError
-                    )
-                }
-            }
+        val appContext = context?.applicationContext
+        if (appContext == null) {
+            _uiState.update { it.copy(errorMessage = highDemandMessage, isNetworkError = true, isHighDemandError = false) }
+            return
         }
+
+        _uiState.update { it.copy(isLoading = true, errorMessage = null, isNetworkError = false, isHighDemandError = false, draft = null) }
+        AiGenerationForegroundService.startExercise(
+            context = appContext,
+            prompt = state.prompt,
+            bodyPart = state.selectedBodyPart,
+            equipment = state.selectedEquipment,
+            difficulty = state.difficulty,
+            lang = lang,
+            localExercises = localExercises
+        )
     }
 }

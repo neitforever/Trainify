@@ -71,6 +71,9 @@ import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
 import com.example.motivationcalendarapi.ui.template.fragments.ExerciseTemplateItem
+import com.motivationcalendar.ui.RepsDialog
+import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
+import com.example.motivationcalendarapi.ui.dialogs.FloatMetricDialog
 import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
@@ -256,6 +259,40 @@ internal fun TemplatePreviewEditor(
     workoutViewModel: WorkoutViewModel,
     onChange: (GeneratedTemplateDraft) -> Unit
 ) {
+    val minRep by workoutViewModel.minRep.collectAsState()
+    val maxRep by workoutViewModel.maxRep.collectAsState()
+    val stepRep by workoutViewModel.stepRep.collectAsState()
+    val minWeight by workoutViewModel.minWeight.collectAsState()
+    val maxWeight by workoutViewModel.maxWeight.collectAsState()
+    val stepWeight by workoutViewModel.stepWeight.collectAsState()
+    val minCardioTime by workoutViewModel.minCardioTime.collectAsState()
+    val maxCardioTime by workoutViewModel.maxCardioTime.collectAsState()
+    val stepCardioTime by workoutViewModel.stepCardioTime.collectAsState()
+    val minResistance by workoutViewModel.minResistance.collectAsState()
+    val maxResistance by workoutViewModel.maxResistance.collectAsState()
+    val stepResistance by workoutViewModel.stepResistance.collectAsState()
+    val minIncline by workoutViewModel.minIncline.collectAsState()
+    val maxIncline by workoutViewModel.maxIncline.collectAsState()
+    val stepIncline by workoutViewModel.stepIncline.collectAsState()
+
+    var currentExerciseIndex by remember { mutableStateOf(0) }
+    var currentSetIndex by remember { mutableStateOf(0) }
+    var showRepDialog by remember { mutableStateOf(false) }
+    var showWeightDialog by remember { mutableStateOf(false) }
+    var showTimeDialog by remember { mutableStateOf(false) }
+    var showResistanceDialog by remember { mutableStateOf(false) }
+    var showInclineDialog by remember { mutableStateOf(false) }
+
+    fun updateDraftSet(exerciseIndex: Int, setIndex: Int, transform: (ExerciseSet) -> ExerciseSet) {
+        val updatedExercises = draft.exercises.toMutableList()
+        val currentExercise = updatedExercises.getOrNull(exerciseIndex) ?: return
+        val updatedSets = currentExercise.sets.mapIndexed { currentSetIndex, set ->
+            if (currentSetIndex == setIndex) transform(set) else set
+        }
+        updatedExercises[exerciseIndex] = currentExercise.copy(sets = updatedSets)
+        onChange(draft.copy(exercises = updatedExercises))
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -304,34 +341,51 @@ internal fun TemplatePreviewEditor(
                 canMoveDown = index < draft.exercises.lastIndex,
                 onAddSetClick = { exerciseIndex ->
                     val updated = draft.exercises.toMutableList()
-                    val current = updated[exerciseIndex]
-                    val cardType = current.exercise.getCardType(lang)
-                    if (cardType == ExerciseCardType.STRENGTH) {
-                        val nextSet = current.sets.lastOrNull() ?: ExerciseSet(rep = 12, weight = 30f, status = SetStatus.NONE)
+                    val current = updated.getOrNull(exerciseIndex)
+                    if (current != null) {
+                        val cardType = current.exercise.getCardType(lang)
+                        val nextSet = current.sets.lastOrNull() ?: when (cardType) {
+                            ExerciseCardType.STRENGTH -> ExerciseSet(rep = minRep, weight = minWeight, status = SetStatus.NONE)
+                            ExerciseCardType.BIKE -> ExerciseSet(time = minCardioTime, resistance = minResistance, status = SetStatus.NONE)
+                            ExerciseCardType.TREADMILL -> ExerciseSet(time = minCardioTime, resistance = minResistance, incline = minIncline, status = SetStatus.NONE)
+                        }
                         updated[exerciseIndex] = current.copy(sets = current.sets + nextSet.copy(status = SetStatus.NONE))
                         onChange(draft.copy(exercises = updated))
                     }
                 },
-                onRepClick = { _, _ -> },
-                onWeightClick = { _, _ -> },
-                onTimeClick = { _, _ -> },
-                onResistanceClick = { _, _ -> },
-                onInclineClick = { _, _ -> },
+                onRepClick = { exerciseIndex, setIndex ->
+                    currentExerciseIndex = exerciseIndex
+                    currentSetIndex = setIndex
+                    showRepDialog = true
+                },
+                onWeightClick = { exerciseIndex, setIndex ->
+                    currentExerciseIndex = exerciseIndex
+                    currentSetIndex = setIndex
+                    showWeightDialog = true
+                },
+                onTimeClick = { exerciseIndex, setIndex ->
+                    currentExerciseIndex = exerciseIndex
+                    currentSetIndex = setIndex
+                    showTimeDialog = true
+                },
+                onResistanceClick = { exerciseIndex, setIndex ->
+                    currentExerciseIndex = exerciseIndex
+                    currentSetIndex = setIndex
+                    showResistanceDialog = true
+                },
+                onInclineClick = { exerciseIndex, setIndex ->
+                    currentExerciseIndex = exerciseIndex
+                    currentSetIndex = setIndex
+                    showInclineDialog = true
+                },
                 onStatusClick = { exerciseIndex, setIndex, status ->
-                    val updated = draft.exercises.toMutableList()
-                    val current = updated[exerciseIndex]
-                    updated[exerciseIndex] = current.copy(
-                        sets = current.sets.mapIndexed { currentSetIndex, set ->
-                            if (currentSetIndex == setIndex) set.copy(status = status) else set
-                        }
-                    )
-                    onChange(draft.copy(exercises = updated))
+                    updateDraftSet(exerciseIndex, setIndex) { it.copy(status = status) }
                 },
                 navController = navController,
                 onDeleteSet = { _, exerciseIndex, setIndex ->
                     val updated = draft.exercises.toMutableList()
-                    val current = updated[exerciseIndex]
-                    if (current.sets.size > 1) {
+                    val current = updated.getOrNull(exerciseIndex)
+                    if (current != null && current.sets.size > 1) {
                         updated[exerciseIndex] = current.copy(
                             sets = current.sets.toMutableList().apply { removeAt(setIndex) }
                         )
@@ -344,6 +398,81 @@ internal fun TemplatePreviewEditor(
             )
         }
     }
-}
 
+    val selectedSet = draft.exercises
+        .getOrNull(currentExerciseIndex)
+        ?.sets
+        ?.getOrNull(currentSetIndex)
+
+    RepsDialog(
+        showDialog = showRepDialog,
+        initialRep = selectedSet?.rep ?: minRep,
+        minRep = minRep,
+        maxRep = maxRep,
+        stepRep = stepRep,
+        onDismiss = { showRepDialog = false },
+        onSave = { newRep ->
+            updateDraftSet(currentExerciseIndex, currentSetIndex) { it.copy(rep = newRep) }
+            showRepDialog = false
+        }
+    )
+
+    WeightDialog(
+        showDialog = showWeightDialog,
+        initialWeight = selectedSet?.weight ?: minWeight,
+        minWeight = minWeight,
+        maxWeight = maxWeight,
+        stepWeight = stepWeight,
+        onDismiss = { showWeightDialog = false },
+        onSave = { newWeight ->
+            updateDraftSet(currentExerciseIndex, currentSetIndex) { it.copy(weight = newWeight) }
+            showWeightDialog = false
+        }
+    )
+
+    FloatMetricDialog(
+        showDialog = showTimeDialog,
+        title = stringResource(R.string.edit_time),
+        label = stringResource(R.string.time_minutes),
+        initialValue = selectedSet?.time ?: minCardioTime,
+        minValue = minCardioTime,
+        maxValue = maxCardioTime,
+        stepValue = stepCardioTime,
+        onDismiss = { showTimeDialog = false },
+        onSave = { newTime ->
+            updateDraftSet(currentExerciseIndex, currentSetIndex) { it.copy(time = newTime) }
+            showTimeDialog = false
+        }
+    )
+
+    FloatMetricDialog(
+        showDialog = showResistanceDialog,
+        title = stringResource(R.string.edit_resistance),
+        label = stringResource(R.string.resistance_level),
+        initialValue = selectedSet?.resistance ?: minResistance,
+        minValue = minResistance,
+        maxValue = maxResistance,
+        stepValue = stepResistance,
+        onDismiss = { showResistanceDialog = false },
+        onSave = { newResistance ->
+            updateDraftSet(currentExerciseIndex, currentSetIndex) { it.copy(resistance = newResistance) }
+            showResistanceDialog = false
+        }
+    )
+
+    FloatMetricDialog(
+        showDialog = showInclineDialog,
+        title = stringResource(R.string.edit_incline),
+        label = stringResource(R.string.incline_percent),
+        initialValue = selectedSet?.incline ?: minIncline,
+        minValue = minIncline,
+        maxValue = maxIncline,
+        stepValue = stepIncline,
+        onDismiss = { showInclineDialog = false },
+        onSave = { newIncline ->
+            updateDraftSet(currentExerciseIndex, currentSetIndex) { it.copy(incline = newIncline) }
+            showInclineDialog = false
+        }
+    )
+}
 

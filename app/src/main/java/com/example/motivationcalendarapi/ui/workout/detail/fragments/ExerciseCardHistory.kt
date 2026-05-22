@@ -35,8 +35,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.model.ExerciseCardType
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
+import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.ui.fragments.StatusIcon
 import com.example.motivationcalendarapi.ui.workout.fragments.NoteBottomSheet
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
@@ -59,24 +61,15 @@ fun ExerciseCardHistory(
         exercise.copy(exercise = exercise.exercise.copy(note = localNote))
     }
     var showNoteDialog by remember { mutableStateOf(false) }
-
     var showMenu by remember { mutableStateOf(false) }
+    val cardType = exercise.exercise.getCardType()
+
     val maxSet = remember(exercise.exercise.id) {
         workoutViewModel.findMaxSetForExercise(exercise.exercise.id)
     }
 
     Card(
-        modifier = modifier
-            .padding(vertical = 8.dp)
-//            .border(
-//                width = 1.dp,
-//                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-//                shape = MaterialTheme.shapes.medium
-//            ),
-//        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-//        colors = CardDefaults.cardColors(
-//            containerColor = MaterialTheme.colorScheme.surface
-//        )
+        modifier = modifier.padding(vertical = 8.dp)
     ) {
         Column(
             modifier = Modifier
@@ -118,6 +111,7 @@ fun ExerciseCardHistory(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
+
                 Box(modifier = Modifier.fillMaxHeight()) {
                     IconButton(
                         onClick = { showMenu = true },
@@ -179,7 +173,11 @@ fun ExerciseCardHistory(
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
-                                            text = stringResource(R.string.max_set_format, maxSet.weight, maxSet.rep),
+                                            text = stringResource(
+                                                R.string.max_set_format,
+                                                maxSet.weight,
+                                                maxSet.rep
+                                            ),
                                             style = MaterialTheme.typography.titleLarge,
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
@@ -192,122 +190,60 @@ fun ExerciseCardHistory(
                 }
             }
 
-            Column(verticalArrangement = Arrangement.Center) {
-                if (exerciseSets.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = stringResource(R.string.set),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.padding(bottom = 12.dp)
+            when (cardType) {
+                ExerciseCardType.STRENGTH -> {
+                    HistorySetsTable(
+                        exerciseSets = exerciseSets,
+                        columns = listOf(
+                            HistoryTableColumn(
+                                title = stringResource(R.string.rep),
+                                value = { it.rep.toString() }
+                            ),
+                            HistoryTableColumn(
+                                title = stringResource(R.string.Weight),
+                                value = { "%.1f".format(it.weight) }
                             )
-                            exerciseSets.forEachIndexed { setIndex, set ->
-                                Box(
-                                    modifier = Modifier
-                                        .padding(bottom = 8.dp)
-                                        .size(60.dp, 40.dp)
-                                        .fillMaxHeight()
-                                ) {
-                                    Text(
-                                        text = "${setIndex + 1}",
-                                        modifier = Modifier.align(Alignment.Center),
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                }
-                            }
-                        }
+                        )
+                    )
+                }
 
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = stringResource(R.string.rep),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.padding(bottom = 12.dp)
+                ExerciseCardType.BIKE -> {
+                    HistorySetsTable(
+                        exerciseSets = exerciseSets,
+                        columns = listOf(
+                            HistoryTableColumn(
+                                title = stringResource(R.string.time_minutes),
+                                value = { it.time.toString() }
+                            ),
+                            HistoryTableColumn(
+                                title = stringResource(R.string.resistance_level),
+                                value = { it.resistance.toString() }
                             )
-                            exerciseSets.forEachIndexed { setIndex, set ->
-                                Box(
-                                    modifier = Modifier
-                                        .padding(horizontal = 8.dp)
-                                        .padding(bottom = 8.dp)
-                                        .size(60.dp, 40.dp)
-                                        .fillMaxHeight()
-                                        .border(
-                                            width = 1.dp,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                            shape = MaterialTheme.shapes.small
-                                        )
-                                ) {
-                                    Text(
-                                        text = "${set.rep}",
-                                        modifier = Modifier.align(Alignment.Center),
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                }
-                            }
-                        }
+                        )
+                    )
+                }
 
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = stringResource(R.string.Weight),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.padding(bottom = 12.dp)
+                ExerciseCardType.TREADMILL -> {
+                    HistorySetsTable(
+                        exerciseSets = exerciseSets,
+                        columns = listOf(
+                            HistoryTableColumn(
+                                title = stringResource(R.string.time_minutes),
+                                value = { it.time.toString() }
+                            ),
+                            HistoryTableColumn(
+                                title = stringResource(R.string.resistance_level),
+                                value = { it.resistance.toString() }
+                            ),
+                            HistoryTableColumn(
+                                title = stringResource(R.string.incline_percent),
+                                value = { "%.1f".format(it.incline) }
                             )
-                            exerciseSets.forEachIndexed { setIndex, set ->
-                                Box(
-                                    modifier = Modifier
-                                        .padding(horizontal = 8.dp)
-                                        .padding(bottom = 8.dp)
-                                        .size(60.dp, 40.dp)
-                                        .fillMaxHeight()
-                                        .border(
-                                            width = 1.dp,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                            shape = MaterialTheme.shapes.small
-                                        )
-                                ) {
-                                    Text(
-                                        text = "%.1f".format(set.weight),
-                                        modifier = Modifier.align(Alignment.Center),
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                }
-                            }
-                        }
-
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = stringResource(R.string.status),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.padding(bottom = 12.dp)
-                            )
-                            exerciseSets.forEach { set ->
-                                Box(
-                                    modifier = Modifier
-                                        .padding(horizontal = 8.dp)
-                                        .padding(bottom = 8.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(60.dp, 40.dp)
-                                            .fillMaxHeight(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        StatusIcon(status = set.status)
-                                    }
-                                }
-                            }
-                        }
-                    }
+                        )
+                    )
                 }
             }
+
             Row(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
@@ -318,13 +254,13 @@ fun ExerciseCardHistory(
                     text = stringResource(R.string.note),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier
-                        .clickable { showNoteDialog = true },
+                    modifier = Modifier.clickable { showNoteDialog = true },
                     textAlign = TextAlign.Center
                 )
             }
         }
     }
+
     NoteBottomSheet(
         showBottomSheet = showNoteDialog,
         exercise = updatedExercise,
@@ -338,4 +274,109 @@ fun ExerciseCardHistory(
         },
         lang = lang
     )
+}
+
+private data class HistoryTableColumn(
+    val title: String,
+    val value: (ExerciseSet) -> String
+)
+
+@Composable
+private fun HistorySetsTable(
+    exerciseSets: List<ExerciseSet>,
+    columns: List<HistoryTableColumn>
+) {
+    if (exerciseSets.isEmpty()) return
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = stringResource(R.string.set),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            exerciseSets.forEachIndexed { setIndex, _ ->
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .size(60.dp, 40.dp)
+                ) {
+                    Text(
+                        text = "${setIndex + 1}",
+                        modifier = Modifier.align(Alignment.Center),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+        }
+
+        columns.forEach { column ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = column.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+
+                exerciseSets.forEach { set ->
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .padding(bottom = 8.dp)
+                            .size(60.dp, 40.dp)
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                shape = MaterialTheme.shapes.small
+                            )
+                    ) {
+                        Text(
+                            text = column.value(set),
+                            modifier = Modifier.align(Alignment.Center),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+        }
+
+        HistoryStatusColumn(exerciseSets = exerciseSets)
+    }
+}
+
+@Composable
+private fun HistoryStatusColumn(
+    exerciseSets: List<ExerciseSet>
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = stringResource(R.string.status),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
+        exerciseSets.forEach { set ->
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .padding(bottom = 8.dp)
+            ) {
+                Box(
+                    modifier = Modifier.size(60.dp, 40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    StatusIcon(status = set.status)
+                }
+            }
+        }
+    }
 }

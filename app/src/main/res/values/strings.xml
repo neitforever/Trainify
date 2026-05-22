@@ -446,4 +446,31 @@
     <string name="notification_ai_template_generating_title">AI template generation</string>
     <string name="notification_ai_template_generating_text">Generating workout template in background</string>
     <string name="ai_generation_error">Generation error</string>
+
+    <string name="permission_settings">Permissions</string>
+    <string name="permission_info_title">Application permissions</string>
+    <string name="permission_info_description">Here you can view all permissions used by Trainify. Runtime permissions can be requested from this screen. To disable an already granted permission, Android opens the system app settings.</string>
+    <string name="permission_info_runtime_line">Runtime permissions can be requested directly from this screen.</string>
+    <string name="permission_info_disable_line">Already granted permissions are disabled only through Android system settings.</string>
+    <string name="permission_info_refresh_line">Swipe down from the top of the screen to refresh permission statuses.</string>
+    <string name="permission_section_runtime">Runtime permissions</string>
+    <string name="permission_section_health_connect">Health Connect permissions</string>
+    <string name="permission_section_normal">System permissions</string>
+    <string name="permission_camera_title">Camera</string>
+    <string name="permission_camera_description">Used for the equipment recognizer and camera-based features.</string>
+    <string name="permission_notifications_title">Notifications</string>
+    <string name="permission_notifications_description">Used for workout timer, reminders, AI generation and progress updates.</string>
+    <string name="permission_gallery_title">Photos and gallery</string>
+    <string name="permission_gallery_description">Used to select images, including progress photos.</string>
+    <string name="permission_health_connect_title">Health Connect data</string>
+    <string name="permission_health_connect_description">Used to read steps, heart rate and active calories.</string>
+    <string name="permission_health_connect_description_enabled">Steps, heart rate and active calories are allowed.</string>
+    <string name="permission_health_connect_not_available">Health Connect is not available on this device.</string>
+    <string name="permission_internet_title">Internet</string>
+    <string name="permission_internet_description">Required for Firebase, authentication, synchronization and API requests. This permission is granted automatically by Android.</string>
+    <string name="permission_vibration_title">Vibration</string>
+    <string name="permission_vibration_description">Used for timer and workout feedback. This permission is granted automatically by Android.</string>
+    <string name="permission_foreground_service_title">Foreground services</string>
+    <string name="permission_foreground_service_description">Required for active workout timer and AI generation service notifications. This permission is controlled by Android.</string>
+    <string name="permission_refresh_status">Refresh permission status</string>
 </resources>

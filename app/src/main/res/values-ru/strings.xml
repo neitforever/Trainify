@@ -447,4 +447,31 @@
     <string name="notification_ai_template_generating_title">Генерация ИИ-шаблона</string>
     <string name="notification_ai_template_generating_text">Шаблон тренировки генерируется в фоне</string>
     <string name="ai_generation_error">Ошибка генерации</string>
+
+    <string name="permission_settings">Разрешения</string>
+    <string name="permission_info_title">Разрешения приложения</string>
+    <string name="permission_info_description">Здесь можно посмотреть все разрешения, которые использует Trainify. Runtime-разрешения можно запросить с этого экрана. Чтобы отключить уже выданное разрешение, Android открывает системные настройки приложения.</string>
+    <string name="permission_info_runtime_line">Runtime-разрешения можно запросить прямо с этого экрана.</string>
+    <string name="permission_info_disable_line">Уже выданные разрешения отключаются только через системные настройки Android.</string>
+    <string name="permission_info_refresh_line">Потяните экран сверху вниз, чтобы обновить статусы разрешений.</string>
+    <string name="permission_section_runtime">Runtime-разрешения</string>
+    <string name="permission_section_health_connect">Разрешения Health Connect</string>
+    <string name="permission_section_normal">Системные разрешения</string>
+    <string name="permission_camera_title">Камера</string>
+    <string name="permission_camera_description">Используется для распознавания оборудования и функций, связанных с камерой.</string>
+    <string name="permission_notifications_title">Уведомления</string>
+    <string name="permission_notifications_description">Используются для таймера тренировки, напоминаний, AI-генерации и обновлений прогресса.</string>
+    <string name="permission_gallery_title">Фото и галерея</string>
+    <string name="permission_gallery_description">Используется для выбора изображений, включая фотографии прогресса.</string>
+    <string name="permission_health_connect_title">Данные Health Connect</string>
+    <string name="permission_health_connect_description">Используется для чтения шагов, пульса и активных калорий.</string>
+    <string name="permission_health_connect_description_enabled">Доступ к шагам, пульсу и активным калориям разрешён.</string>
+    <string name="permission_health_connect_not_available">Health Connect недоступен на этом устройстве.</string>
+    <string name="permission_internet_title">Интернет</string>
+    <string name="permission_internet_description">Нужен для Firebase, авторизации, синхронизации и API-запросов. Это разрешение Android выдаёт автоматически.</string>
+    <string name="permission_vibration_title">Вибрация</string>
+    <string name="permission_vibration_description">Используется для таймера и отклика во время тренировки. Это разрешение Android выдаёт автоматически.</string>
+    <string name="permission_foreground_service_title">Foreground-сервисы</string>
+    <string name="permission_foreground_service_description">Нужны для активного таймера тренировки и уведомлений сервиса AI-генерации. Это разрешение контролируется Android.</string>
+    <string name="permission_refresh_status">Обновить статус разрешений</string>
 </resources>

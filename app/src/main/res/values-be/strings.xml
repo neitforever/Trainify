@@ -450,4 +450,31 @@
     <string name="notification_ai_template_generating_title">Генерацыя ІІ-шаблону</string>
     <string name="notification_ai_template_generating_text">Шаблон трэніроўкі генеруецца ў фоне</string>
     <string name="ai_generation_error">Памылка генерацыі</string>
+
+    <string name="permission_settings">Дазволы</string>
+    <string name="permission_info_title">Дазволы праграмы</string>
+    <string name="permission_info_description">Тут можна паглядзець усе дазволы, якія выкарыстоўвае Trainify. Runtime-дазволы можна запытаць з гэтага экрана. Каб выключыць ужо выдадзены дазвол, Android адкрывае сістэмныя налады праграмы.</string>
+    <string name="permission_info_runtime_line">Runtime-дазволы можна запытаць непасрэдна з гэтага экрана.</string>
+    <string name="permission_info_disable_line">Ужо выдадзеныя дазволы выключаюцца толькі праз сістэмныя налады Android.</string>
+    <string name="permission_info_refresh_line">Пацягніце экран зверху ўніз, каб абнавіць статусы дазволаў.</string>
+    <string name="permission_section_runtime">Runtime-дазволы</string>
+    <string name="permission_section_health_connect">Дазволы Health Connect</string>
+    <string name="permission_section_normal">Сістэмныя дазволы</string>
+    <string name="permission_camera_title">Камера</string>
+    <string name="permission_camera_description">Выкарыстоўваецца для распазнавання абсталявання і функцый, звязаных з камерай.</string>
+    <string name="permission_notifications_title">Апавяшчэнні</string>
+    <string name="permission_notifications_description">Выкарыстоўваюцца для таймера трэніроўкі, напамінаў, AI-генерацыі і абнаўленняў прагрэсу.</string>
+    <string name="permission_gallery_title">Фота і галерэя</string>
+    <string name="permission_gallery_description">Выкарыстоўваецца для выбару выяў, у тым ліку фота прагрэсу.</string>
+    <string name="permission_health_connect_title">Даныя Health Connect</string>
+    <string name="permission_health_connect_description">Выкарыстоўваецца для чытання крокаў, пульсу і актыўных калорый.</string>
+    <string name="permission_health_connect_description_enabled">Доступ да крокаў, пульсу і актыўных калорый дазволены.</string>
+    <string name="permission_health_connect_not_available">Health Connect недаступны на гэтай прыладзе.</string>
+    <string name="permission_internet_title">Інтэрнэт</string>
+    <string name="permission_internet_description">Патрэбны для Firebase, аўтарызацыі, сінхранізацыі і API-запытаў. Гэты дазвол Android выдае аўтаматычна.</string>
+    <string name="permission_vibration_title">Вібрацыя</string>
+    <string name="permission_vibration_description">Выкарыстоўваецца для таймера і водгуку падчас трэніроўкі. Гэты дазвол Android выдае аўтаматычна.</string>
+    <string name="permission_foreground_service_title">Foreground-сэрвісы</string>
+    <string name="permission_foreground_service_description">Патрэбны для актыўнага таймера трэніроўкі і апавяшчэнняў сэрвісу AI-генерацыі. Гэты дазвол кантралюецца Android.</string>
+    <string name="permission_refresh_status">Абнавіць статус дазволаў</string>
 </resources>

@@ -70,6 +70,7 @@ import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
 import com.example.motivationcalendarapi.ui.profile.ProfileScreen
 import com.example.motivationcalendarapi.ui.profile.rewards.RewardUnlockedOverlay
 import com.example.motivationcalendarapi.ui.settings.notification_settings.NotificationSettingsScreen
+import com.example.motivationcalendarapi.ui.settings.permission_settings.PermissionSettingsScreen
 import com.example.motivationcalendarapi.viewmodel.NotificationSettingsViewModel
 import com.example.motivationcalendarapi.ui.settings.SettingsScreen
 import com.example.motivationcalendarapi.ui.settings.language_settings.LanguageSettingsScreen
@@ -136,7 +137,8 @@ fun NavGraph(
         Screen.TemplateDetailView,
         Screen.Profile,
         Screen.LanguageSettings,
-        Screen.NotificationSettings
+        Screen.NotificationSettings,
+        Screen.PermissionSettings
     )
     ModalNavigationDrawer(drawerState = drawerState.value, drawerContent = {
         if (userState.value is AuthViewModel.UserState.Authenticated) {
@@ -483,6 +485,12 @@ fun NavGraph(
                     composable(Screen.NotificationSettings.route) {
                         NotificationSettingsScreen(
                             viewModel = notificationSettingsViewModel,
+                            paddingValues = paddingValue.calculateTopPadding()
+                        )
+                    }
+
+                    composable(Screen.PermissionSettings.route) {
+                        PermissionSettingsScreen(
                             paddingValues = paddingValue.calculateTopPadding()
                         )
                     }

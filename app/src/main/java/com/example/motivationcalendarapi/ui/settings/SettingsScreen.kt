@@ -42,6 +42,7 @@ fun SettingsScreen(
         Screen.WorkoutSettings,
         Screen.LanguageSettings,
         Screen.NotificationSettings,
+        Screen.PermissionSettings,
     )
 
     val context = LocalContext.current
@@ -78,6 +79,7 @@ fun SettingsScreen(
                                     Screen.WorkoutSettings -> R.drawable.ic_dumbbell
                                     Screen.LanguageSettings -> R.drawable.ic_flag
                                     Screen.NotificationSettings -> R.drawable.ic_notifications
+                                    Screen.PermissionSettings -> R.drawable.ic_permission
                                     else -> R.drawable.ic_flag
                                 }
                             ),

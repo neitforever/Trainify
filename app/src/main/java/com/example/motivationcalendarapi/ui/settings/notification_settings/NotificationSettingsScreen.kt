@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -26,7 +25,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -40,7 +43,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
@@ -68,16 +74,18 @@ fun NotificationSettingsScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        PermissionCard(
-            hasPermission = hasPermission,
-            onRequestPermission = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                } else {
-                    hasPermission = true
+        if (!hasPermission) {
+            PermissionCard(
+                hasPermission = false,
+                onRequestPermission = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        hasPermission = true
+                    }
                 }
-            }
-        )
+            )
+        }
 
         SettingsSection(title = stringResource(R.string.notification_section_workouts)) {
             NotificationSwitchRow(stringResource(R.string.notification_workout_active_setting), settings.workoutActiveEnabled, viewModel::setWorkoutActiveEnabled)
@@ -203,14 +211,72 @@ private fun DaysRow(title: String, value: Int, onMinus: () -> Unit, onPlus: () -
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(text = title, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
-            OutlinedButton(onClick = onMinus) { Text("−") }
-            Spacer(Modifier.width(8.dp))
-            Text(text = value.toString(), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.width(8.dp))
-            OutlinedButton(onClick = onPlus) { Text("+") }
+            Text(
+                text = title,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            DaysCounterButton(
+                icon = {  Icon(
+                    painter = painterResource(id = R.drawable.ic_minus),
+                    contentDescription = "Decrease days",
+                    modifier = Modifier.size(16.dp),
+                ) },
+                contentDescription = "Decrease days",
+                onClick = onMinus
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = value.toString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            DaysCounterButton(
+                icon = { Icon(
+                    painter = painterResource(id = R.drawable.ic_plus),
+                    contentDescription = "Increase days",
+                    modifier = Modifier.size(16.dp),
+                ) },
+                contentDescription = "Increase days",
+                onClick = onPlus
+            )
+        }
+    }
+}
+
+@Composable
+private fun DaysCounterButton(
+    icon: @Composable () -> Unit,
+    contentDescription: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.primary,
+        shape = CircleShape,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.28f)),
+        modifier = Modifier.size(40.dp)
+    ) {
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier
+                .size(40.dp)
+                .semantics { this.contentDescription = contentDescription }
+        ) {
+            icon()
         }
     }
 }

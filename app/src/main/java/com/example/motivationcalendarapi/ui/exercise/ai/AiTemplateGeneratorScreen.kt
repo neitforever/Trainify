@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
+import com.example.motivationcalendarapi.model.BodyPart
+import com.example.motivationcalendarapi.model.Equipment
 import com.example.motivationcalendarapi.model.ExerciseCardType
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
@@ -78,8 +80,8 @@ fun AiTemplateGeneratorScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val allExercises by exerciseViewModel.getAllExercises().collectAsState(initial = emptyList())
-    val bodyParts by exerciseViewModel.getBodyPartsLocalized(lang).collectAsState(initial = emptyList())
-    val equipmentList by exerciseViewModel.getAllEquipmentLocalized(lang).collectAsState(initial = emptyList())
+    val bodyParts = remember(lang) { BodyPart.all.map { it.getLabel(lang) } }
+    val equipmentList = remember(lang) { Equipment.all.map { it.getLabel(lang) } }
     val state by aiTemplateGenerationViewModel.uiState.collectAsState()
     val mediumDifficulty = stringResource(R.string.medium)
     val defaultTemplateName = stringResource(R.string.template)

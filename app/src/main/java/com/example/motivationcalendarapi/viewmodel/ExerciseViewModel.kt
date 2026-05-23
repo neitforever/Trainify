@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
+import com.example.motivationcalendarapi.repositories.technique.ExerciseTechniqueVideoRepository
+import com.example.motivationcalendarapi.model.technique.ExerciseTechniqueVideo
+import com.example.motivationcalendarapi.model.technique.TechniqueVideosUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,8 +16,55 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ExerciseViewModel(
-    val exerciseRepository: ExerciseRepository
+    val exerciseRepository: ExerciseRepository,
+    private val techniqueVideoRepository: ExerciseTechniqueVideoRepository
 ): ViewModel()  {
+
+    private val _techniqueVideosUiState = MutableStateFlow<TechniqueVideosUiState>(TechniqueVideosUiState.Idle)
+    val techniqueVideosUiState: StateFlow<TechniqueVideosUiState> = _techniqueVideosUiState.asStateFlow()
+
+    private val _selectedTechniqueVideo = MutableStateFlow<ExerciseTechniqueVideo?>(null)
+    val selectedTechniqueVideo: StateFlow<ExerciseTechniqueVideo?> = _selectedTechniqueVideo.asStateFlow()
+
+    fun loadTechniqueVideos(
+        exerciseId: String,
+        exerciseName: String,
+        lang: String,
+        forceRefresh: Boolean = false
+    ) {
+        if (!forceRefresh && _techniqueVideosUiState.value is TechniqueVideosUiState.Loading) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _techniqueVideosUiState.value = TechniqueVideosUiState.Loading
+            _selectedTechniqueVideo.value = null
+            try {
+                val videos = techniqueVideoRepository.getVideosForExercise(
+                    exerciseId = exerciseId,
+                    exerciseName = exerciseName,
+                    lang = lang,
+                    forceRefresh = forceRefresh
+                )
+                _techniqueVideosUiState.value = TechniqueVideosUiState.Success(videos)
+                _selectedTechniqueVideo.value = videos.firstOrNull()
+            } catch (e: Exception) {
+                Log.e("TechniqueVideos", "loadTechniqueVideos ERROR", e)
+                _techniqueVideosUiState.value = TechniqueVideosUiState.Error(
+                    e.message ?: "Не удалось загрузить видео с техникой выполнения"
+                )
+            }
+        }
+    }
+
+    fun selectTechniqueVideo(video: ExerciseTechniqueVideo) {
+        if (video.isValid()) {
+            _selectedTechniqueVideo.value = video
+        }
+    }
+
+    fun clearTechniqueVideosState() {
+        _techniqueVideosUiState.value = TechniqueVideosUiState.Idle
+        _selectedTechniqueVideo.value = null
+    }
 
     //Надо
     fun getBodyPartsLocalized(lang: String): Flow<List<String>> {

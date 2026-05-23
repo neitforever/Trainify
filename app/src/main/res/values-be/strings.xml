@@ -99,6 +99,18 @@
     <string name="available_equipment">Даступны інвентар</string>
     <string name="no_templates_found">Шаблоны не знойдзены</string>
     <string name="scroll_to_top">Пракруціць уверх</string>
+
+    <string name="technique_watch_title">Глядзець тэхніку</string>
+    <string name="technique_watch_description">Кароткія вертыкальныя відэа з дэманстрацыяй практыкавання</string>
+    <string name="technique_sheet_title">Тэхніка выканання</string>
+    <string name="technique_video_load_error">Не ўдалося загрузіць відэа з тэхнікай выканання</string>
+    <string name="technique_video_not_found">Для гэтага практыкавання пакуль не ўдалося знайсці прыдатныя YouTube Shorts.</string>
+    <string name="technique_open_youtube">Адкрыць у YouTube</string>
+    <string name="technique_refresh">Абнавіць</string>
+    <string name="technique_found_videos">Знойдзеныя відэа</string>
+    <string name="technique_youtube_shorts">YouTube Shorts</string>
+    <string name="technique_swipe_hint">Свайпайце відэа ўлева або ўправа для пераключэння</string>
+    <string name="technique_retry_search">Паўтарыць пошук</string>
 <!--Profile-->
     <string name="easy">Лёгкі</string>
     <string name="medium">Сярэдні</string>

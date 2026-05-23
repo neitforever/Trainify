@@ -2,6 +2,7 @@ package com.example.motivationcalendarapi.ui.exercise
 
 import LoadingView
 import Screen
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,6 +40,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +55,8 @@ import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.getIconForBodyPart
 import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.ui.dialogs.DeleteExerciseDialog
+import com.example.motivationcalendarapi.ui.exercise.technique.ExerciseTechniqueBottomSheet
+import com.example.motivationcalendarapi.ui.exercise.technique.TechniquePreviewCard
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -64,13 +68,16 @@ fun ExerciseDetailScreen(
     navController: NavController,
     exerciseId: String,
     viewModel: ExerciseViewModel,
-    lang: String
+    lang: String,
+    context: Context
 ) {
     val showDeleteDialog = remember { mutableStateOf(false) }
     val selectedExercise = remember { mutableStateOf<Exercise?>(null) }
     val favoriteExercises by viewModel.getFavoriteExercises().collectAsState(initial = emptyList())
+    val techniqueVideosState by viewModel.techniqueVideosUiState.collectAsState()
+    val selectedTechniqueVideo by viewModel.selectedTechniqueVideo.collectAsState()
+    var showTechniqueSheet by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
     LaunchedEffect(exerciseId) {
         coroutineScope {
             launch(Dispatchers.IO) {
@@ -438,6 +445,17 @@ fun ExerciseDetailScreen(
                     }
                 }
 
+                TechniquePreviewCard(
+                    onClick = {
+                        showTechniqueSheet = true
+                        viewModel.loadTechniqueVideos(
+                            exerciseId = exercise.id,
+                            exerciseName = exercise.getTechniqueSearchName(lang),
+                            lang = lang
+                        )
+                    }
+                )
+
                     Spacer(
                         modifier = Modifier
                             .absolutePadding(bottom = 200.dp)
@@ -445,6 +463,30 @@ fun ExerciseDetailScreen(
 
             }
         } ?: LoadingView()
+    }
+
+    if (showTechniqueSheet) {
+        selectedExercise.value?.let { exercise ->
+            ExerciseTechniqueBottomSheet(
+                exerciseName = exercise.getName(lang),
+                videosState = techniqueVideosState,
+                bodyPartIconResId = getIconForBodyPart(exercise.getBodyPart(lang)),
+                selectedVideo = selectedTechniqueVideo,
+                onVideoClick = { video -> viewModel.selectTechniqueVideo(video) },
+                onRefreshClick = {
+                    viewModel.loadTechniqueVideos(
+                        exerciseId = exercise.id,
+                        exerciseName = exercise.getTechniqueSearchName(lang),
+                        lang = lang,
+                        forceRefresh = true
+                    )
+                },
+                onDismiss = {
+                    showTechniqueSheet = false
+                    viewModel.clearTechniqueVideosState()
+                }
+            )
+        }
     }
 
     DeleteExerciseDialog (
@@ -459,4 +501,12 @@ fun ExerciseDetailScreen(
         }
     )
 
+}
+
+private fun Exercise.getTechniqueSearchName(lang: String): String {
+    return when (lang) {
+        "en" -> getName("en")
+        "ru", "be" -> getName("ru").ifBlank { getName(lang) }
+        else -> getName("en").ifBlank { getName(lang) }
+    }
 }

@@ -99,6 +99,18 @@
     <string name="available_equipment">Available Equipment</string>
     <string name="no_templates_found">No templates found</string>
     <string name="scroll_to_top">Scroll to top</string>
+
+    <string name="technique_watch_title">Watch technique</string>
+    <string name="technique_watch_description">Short vertical videos with exercise demonstration</string>
+    <string name="technique_sheet_title">Exercise technique</string>
+    <string name="technique_video_load_error">Failed to load technique videos</string>
+    <string name="technique_video_not_found">No suitable YouTube Shorts were found for this exercise yet.</string>
+    <string name="technique_open_youtube">Open in YouTube</string>
+    <string name="technique_refresh">Refresh</string>
+    <string name="technique_found_videos">Found videos</string>
+    <string name="technique_youtube_shorts">YouTube Shorts</string>
+    <string name="technique_swipe_hint">Swipe horizontally to switch between videos</string>
+    <string name="technique_retry_search">Retry search</string>
 <!--Profile-->
     <string name="easy">Easy</string>
     <string name="medium">Medium</string>

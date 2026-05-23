@@ -41,6 +41,7 @@ import com.example.motivationcalendarapi.repositories.TemplateFirestoreRepositor
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutFirestoreRepository
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
+import com.example.motivationcalendarapi.repositories.technique.ExerciseTechniqueVideoRepository
 import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
 import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.AiTemplateGenerationViewModel
@@ -137,8 +138,10 @@ class MainActivity : ComponentActivity() {
                 "be" -> "be"
                 else -> "en"
             }
+            val exerciseTechniqueVideoRepository = ExerciseTechniqueVideoRepository(db)
             val exerciseViewModel = ExerciseViewModel(
-                exerciseRepository
+                exerciseRepository,
+                exerciseTechniqueVideoRepository
             )
             val equipmentRecognitionViewModel: EquipmentRecognitionViewModel = viewModel()
             val aiExerciseGenerationViewModel: AiExerciseGenerationViewModel = viewModel()

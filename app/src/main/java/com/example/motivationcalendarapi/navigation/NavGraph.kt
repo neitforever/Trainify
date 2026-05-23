@@ -633,7 +633,8 @@ fun NavGraph(
                             navController = navController,
                             exerciseId = exerciseId ?: "",
                             viewModel = exerciseViewModel,
-                            lang = lang
+                            lang = lang,
+                            context = context
                         )
                     }
                 }

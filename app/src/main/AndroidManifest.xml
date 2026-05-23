@@ -36,6 +36,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTop"
             android:theme="@style/Theme.MotivationCalendarAPI">
             <intent-filter>

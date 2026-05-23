@@ -99,6 +99,18 @@
     <string name="available_equipment">Доступный инвентарь</string>
     <string name="no_templates_found">Шаблоны не найдены</string>
     <string name="scroll_to_top">Прокрутить вверх</string>
+
+    <string name="technique_watch_title">Смотреть технику</string>
+    <string name="technique_watch_description">Короткие вертикальные видео с демонстрацией упражнения</string>
+    <string name="technique_sheet_title">Техника выполнения</string>
+    <string name="technique_video_load_error">Не удалось загрузить видео с техникой выполнения</string>
+    <string name="technique_video_not_found">Для этого упражнения пока не удалось найти подходящие YouTube Shorts.</string>
+    <string name="technique_open_youtube">Открыть в YouTube</string>
+    <string name="technique_refresh">Обновить</string>
+    <string name="technique_found_videos">Найденные видео</string>
+    <string name="technique_youtube_shorts">YouTube Shorts</string>
+    <string name="technique_swipe_hint">Свайпайте по видео влево или вправо для переключения</string>
+    <string name="technique_retry_search">Повторить поиск</string>
 <!--Profile-->
     <string name="easy">Лёгкий</string>
     <string name="medium">Средний</string>

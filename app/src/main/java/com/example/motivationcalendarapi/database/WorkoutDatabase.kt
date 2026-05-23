@@ -11,12 +11,13 @@ import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.model.reward.RewardEntity
+import com.example.motivationcalendarapi.model.technique.ExerciseTechniqueVideoCacheEntity
 import com.example.motivationcalendarapi.model.reward.RewardUnlockEventEntity
 
 
 @Database(
-    entities = [Workout::class, Exercise::class, BodyProgress::class, Template::class, RewardEntity::class, RewardUnlockEventEntity::class],
-    version = 13,
+    entities = [Workout::class, Exercise::class, BodyProgress::class, Template::class, RewardEntity::class, RewardUnlockEventEntity::class, ExerciseTechniqueVideoCacheEntity::class],
+    version = 14,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -26,6 +27,7 @@ abstract class WorkoutDatabase : RoomDatabase() {
     abstract fun bodyProgressDao(): BodyProgressDao
     abstract fun templateDao(): TemplateDao
     abstract fun rewardDao(): RewardDao
+    abstract fun exerciseTechniqueVideoCacheDao(): ExerciseTechniqueVideoCacheDao
     companion object {
         @Volatile
         private var INSTANCE: WorkoutDatabase? = null

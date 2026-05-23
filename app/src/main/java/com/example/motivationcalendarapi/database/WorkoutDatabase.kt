@@ -16,7 +16,7 @@ import com.example.motivationcalendarapi.model.reward.RewardUnlockEventEntity
 
 @Database(
     entities = [Workout::class, Exercise::class, BodyProgress::class, Template::class, RewardEntity::class, RewardUnlockEventEntity::class],
-    version = 12,
+    version = 13,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

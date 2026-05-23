@@ -12,4 +12,5 @@ data class Workout(
     val timestamp: Long = 0,
     val averageHeartRate: Long? = null,
     val exercises: List<ExtendedExercise> = emptyList(),
+    val difficulty: DifficultyLevel? = null,
 )

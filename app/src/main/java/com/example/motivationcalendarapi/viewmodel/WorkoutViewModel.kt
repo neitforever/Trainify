@@ -17,6 +17,7 @@ import com.example.motivationcalendarapi.model.reward.RewardUiModel
 import com.example.motivationcalendarapi.model.reward.RewardUnlockEventEntity
 import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.repositories.MainRepository
+import com.example.motivationcalendarapi.repositories.ActiveWorkoutDraft
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +47,7 @@ class WorkoutViewModel(
     mainRepository: MainRepository,
 ) : ViewModel() {
 
-
+    private var isRestoringActiveWorkout = false
 
     val minCardioTime: StateFlow<Float> = mainRepository.minCardioTimeFlow
         .stateIn(viewModelScope, SharingStarted.Lazily, 0f)
@@ -87,6 +88,7 @@ class WorkoutViewModel(
             sets[setIndex] = currentSet.copy(status = newStatus)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
+            persistActiveWorkout()
         }
     }
 
@@ -173,6 +175,7 @@ class WorkoutViewModel(
             }
         }
         _exerciseSetsMap.value = updatedMap
+        persistActiveWorkout()
     }
 
     fun removeTemplateSet(templateId: String, exerciseIndex: Int, setIndex: Int) {
@@ -353,6 +356,7 @@ class WorkoutViewModel(
             _timerRunning.value = true
             savedStateHandle.set(TIMER_RUNNING_KEY, true)
             startTime = System.currentTimeMillis() - totalPausedDuration
+            persistActiveWorkout()
         }
     }
 
@@ -361,6 +365,7 @@ class WorkoutViewModel(
             _timerRunning.value = false
             savedStateHandle.set(TIMER_RUNNING_KEY, false)
             totalPausedDuration = System.currentTimeMillis() - startTime
+            persistActiveWorkout()
         }
     }
 
@@ -369,6 +374,7 @@ class WorkoutViewModel(
             _timerRunning.value = true
             savedStateHandle.set(TIMER_RUNNING_KEY, true)
             startTime = System.currentTimeMillis() - totalPausedDuration
+            persistActiveWorkout()
         }
     }
 
@@ -384,6 +390,7 @@ class WorkoutViewModel(
         totalPausedDuration = 0L
         _selectedExercises.value = emptyList()
         _exerciseSetsMap.value = emptyMap()
+        clearActiveWorkout()
     }
 
     fun getWorkoutById(id: String): Workout {
@@ -440,16 +447,102 @@ class WorkoutViewModel(
     }
 
     fun calculateWorkoutDifficulty(workout: Workout): DifficultyLevel {
-        val totalKg = calculateTotalKg(workout)
-        val totalSets = workout.exercises.sumOf { it.sets.size }
+        val validSets = workout.exercises.flatMap { exercise ->
+            exercise.sets.filter { set -> set.status != SetStatus.FAILED }
+                .map { set -> exercise.exercise.getCardType() to set }
+        }
 
-        if (totalSets == 0) return DifficultyLevel.EASY
+        if (validSets.isEmpty()) return DifficultyLevel.EASY
 
-        val avgKgPerSet = totalKg / totalSets
+        val failedSetsCount = workout.exercises.sumOf { exercise ->
+            exercise.sets.count { set -> set.status == SetStatus.FAILED }
+        }
+
+        val exerciseCount = workout.exercises.count { exercise ->
+            exercise.sets.any { set -> set.status != SetStatus.FAILED }
+        }
+
+        val durationMinutes = (workout.duration / 60f).coerceAtLeast(
+            validSets.sumOf { (_, set) -> set.time.toDouble() }.toFloat()
+        )
+
+        val strengthVolume = validSets
+            .filter { (cardType, set) ->
+                cardType == ExerciseCardType.STRENGTH && set.rep > 0 && set.weight > 0f
+            }
+            .sumOf { (_, set) -> (set.weight * set.rep).toDouble() }
+            .toFloat()
+
+        val strengthWorkingSets = validSets.count { (cardType, set) ->
+            cardType == ExerciseCardType.STRENGTH && set.rep > 0
+        }
+
+        val cardioLoadMinutes = validSets.sumOf { (cardType, set) ->
+            when (cardType) {
+                ExerciseCardType.BIKE -> {
+                    val resistanceMultiplier = 1.0 + (set.resistance.coerceAtLeast(0f) / 10f)
+                    set.time.coerceAtLeast(0f).toDouble() * resistanceMultiplier
+                }
+                ExerciseCardType.TREADMILL -> {
+                    val speedMultiplier = 1.0 + (set.resistance.coerceAtLeast(0f) / 8f)
+                    val inclineMultiplier = 1.0 + (set.incline.coerceAtLeast(0f) / 20f)
+                    set.time.coerceAtLeast(0f).toDouble() * speedMultiplier * inclineMultiplier
+                }
+                ExerciseCardType.STRENGTH -> 0.0
+            }
+        }.toFloat()
+
+        val durationScore = when {
+            durationMinutes >= 75f -> 3
+            durationMinutes >= 45f -> 2
+            durationMinutes >= 20f -> 1
+            else -> 0
+        }
+
+        val exerciseScore = when {
+            exerciseCount >= 7 -> 2
+            exerciseCount >= 4 -> 1
+            else -> 0
+        }
+
+        val strengthScore = when {
+            strengthVolume >= 8_000f || strengthWorkingSets >= 18 -> 3
+            strengthVolume >= 3_500f || strengthWorkingSets >= 10 -> 2
+            strengthVolume >= 800f || strengthWorkingSets >= 4 -> 1
+            else -> 0
+        }
+
+        val cardioScore = when {
+            cardioLoadMinutes >= 55f -> 3
+            cardioLoadMinutes >= 30f -> 2
+            cardioLoadMinutes >= 12f -> 1
+            else -> 0
+        }
+
+        val heartRateScore = when {
+            workout.averageHeartRate == null -> 0
+            workout.averageHeartRate >= 160L -> 3
+            workout.averageHeartRate >= 135L -> 2
+            workout.averageHeartRate >= 110L -> 1
+            else -> 0
+        }
+
+        val failedSetsScore = when {
+            failedSetsCount >= 5 -> 2
+            failedSetsCount >= 2 -> 1
+            else -> 0
+        }
+
+        val mixedWorkoutBonus = if (strengthScore > 0 && cardioScore > 0) 1 else 0
+        val loadScore = if (strengthScore > cardioScore) strengthScore else cardioScore
+        val totalScore = durationScore + exerciseScore + loadScore + heartRateScore + failedSetsScore + mixedWorkoutBonus
 
         return when {
-            avgKgPerSet > 400f -> DifficultyLevel.HARD
-            avgKgPerSet > 200f -> DifficultyLevel.NORMAL
+            strengthVolume >= 10_000f -> DifficultyLevel.HARD
+            cardioLoadMinutes >= 70f -> DifficultyLevel.HARD
+            workout.averageHeartRate != null && workout.averageHeartRate >= 165L && durationMinutes >= 20f -> DifficultyLevel.HARD
+            totalScore >= 7 -> DifficultyLevel.HARD
+            totalScore >= 3 -> DifficultyLevel.NORMAL
             else -> DifficultyLevel.EASY
         }
     }
@@ -530,6 +623,29 @@ class WorkoutViewModel(
 
 
     init {
+        viewModelScope.launch {
+            val draft = timerDataStore.activeWorkoutFlow.first()
+            if (draft.isStarted) {
+                isRestoringActiveWorkout = true
+                _isWorkoutStarted.value = true
+                savedStateHandle.set(WORKOUT_STARTED_KEY, true)
+                _timerRunning.value = draft.isRunning
+                savedStateHandle.set(TIMER_RUNNING_KEY, draft.isRunning)
+                startTime = draft.startTime
+                totalPausedDuration = draft.totalPausedDuration
+                _workoutName.value = draft.workoutName
+                _selectedExercises.value = draft.selectedExercises
+                _exerciseSetsMap.value = draft.exerciseSetsMap
+
+                _timerValue.value = if (draft.isRunning && draft.startTime > 0L) {
+                    ((System.currentTimeMillis() - draft.startTime) / 1000L).toInt().coerceAtLeast(0)
+                } else {
+                    (draft.totalPausedDuration / 1000L).toInt().coerceAtLeast(0)
+                }
+                isRestoringActiveWorkout = false
+            }
+        }
+
         if (_timerRunning.value) {
             startTime = System.currentTimeMillis() - totalPausedDuration
         }
@@ -560,6 +676,31 @@ class WorkoutViewModel(
         loadWorkouts()
     }
 
+    private fun persistActiveWorkout() {
+        if (isRestoringActiveWorkout) return
+        viewModelScope.launch(Dispatchers.IO) {
+            if (_isWorkoutStarted.value) {
+                timerDataStore.saveActiveWorkoutDraft(
+                    ActiveWorkoutDraft(
+                        isStarted = _isWorkoutStarted.value,
+                        isRunning = _timerRunning.value,
+                        startTime = startTime,
+                        totalPausedDuration = totalPausedDuration,
+                        workoutName = _workoutName.value,
+                        selectedExercises = _selectedExercises.value,
+                        exerciseSetsMap = _exerciseSetsMap.value
+                    )
+                )
+            }
+        }
+    }
+
+    private fun clearActiveWorkout() {
+        viewModelScope.launch(Dispatchers.IO) {
+            timerDataStore.clearActiveWorkoutDraft()
+        }
+    }
+
     fun checkForExistingWorkout() {
         if (workoutsToday.value.isNotEmpty()) {
             _showOverwriteDialog.value = true
@@ -586,6 +727,7 @@ class WorkoutViewModel(
         _isWorkoutStarted.value = true
         savedStateHandle.set(WORKOUT_STARTED_KEY, true)
         startTimer()
+        persistActiveWorkout()
     }
 
 //    val testWorkouts = listOf(
@@ -713,17 +855,22 @@ class WorkoutViewModel(
 
     fun setWorkoutName(name: String) {
         _workoutName.value = name
+        persistActiveWorkout()
     }
 
 
     fun getWorkoutStartTime(): Long = startTime
 
     fun saveWorkout(exercises: List<ExtendedExercise>, averageHeartRate: Long? = null) {
+        val savedWorkoutName = workoutName.value
+        val savedDuration = timerValue.value
+        val savedTimestamp = System.currentTimeMillis()
+
         viewModelScope.launch {
             val workout = Workout(
-                name = workoutName.value,
-                duration = timerValue.value,
-                timestamp = System.currentTimeMillis(),
+                name = savedWorkoutName,
+                duration = savedDuration,
+                timestamp = savedTimestamp,
                 averageHeartRate = averageHeartRate,
                 exercises = exercises
             )
@@ -759,6 +906,7 @@ class WorkoutViewModel(
             listOf(ExerciseSet(rep = 0, weight = 0f))
         }
         _exerciseSetsMap.value = updatedMap
+        persistActiveWorkout()
     }
 
     fun updateRep(exerciseIndex: Int, setIndex: Int, newRep: Int) {
@@ -768,6 +916,7 @@ class WorkoutViewModel(
             sets[setIndex] = sets[setIndex].copy(rep = newRep)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
+            persistActiveWorkout()
         }
     }
 
@@ -778,6 +927,7 @@ class WorkoutViewModel(
             sets[setIndex] = sets[setIndex].copy(weight = newWeight)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
+            persistActiveWorkout()
         }
     }
 
@@ -805,6 +955,7 @@ class WorkoutViewModel(
 
         _selectedExercises.value = updatedExercises
         _exerciseSetsMap.value = updatedMap
+        persistActiveWorkout()
     }
 
     val minRep: StateFlow<Int> = mainRepository.minRepFlow
@@ -833,6 +984,7 @@ class WorkoutViewModel(
             sets[setIndex] = sets[setIndex].copy(time = newTime)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
+            persistActiveWorkout()
         }
     }
 
@@ -844,6 +996,7 @@ class WorkoutViewModel(
             sets[setIndex] = sets[setIndex].copy(resistance = newResistance)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
+            persistActiveWorkout()
         }
     }
 
@@ -855,6 +1008,7 @@ class WorkoutViewModel(
             sets[setIndex] = sets[setIndex].copy(incline = newIncline)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
+            persistActiveWorkout()
         }
     }
 
@@ -901,6 +1055,7 @@ class WorkoutViewModel(
             sets.add(newSet)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
+            persistActiveWorkout()
         }
     }
 
@@ -918,6 +1073,7 @@ class WorkoutViewModel(
                     _exerciseSetsMap.value = updatedMap
                 }
             }
+            persistActiveWorkout()
         }
     }
 

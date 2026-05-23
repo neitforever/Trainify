@@ -68,7 +68,9 @@ import com.example.motivationcalendarapi.ui.exercise.SearchExerciseScreen
 import com.example.motivationcalendarapi.ui.equipment_recognition.EquipmentRecognitionScreen
 import com.example.motivationcalendarapi.ui.fragments.NavigationMenuView
 import com.example.motivationcalendarapi.ui.profile.ProfileScreen
+import com.example.motivationcalendarapi.ui.profile.rewards.RewardDetailsBottomSheet
 import com.example.motivationcalendarapi.ui.profile.rewards.RewardUnlockedOverlay
+import com.example.motivationcalendarapi.model.reward.RewardUiModel
 import com.example.motivationcalendarapi.ui.settings.notification_settings.NotificationSettingsScreen
 import com.example.motivationcalendarapi.ui.settings.permission_settings.PermissionSettingsScreen
 import com.example.motivationcalendarapi.viewmodel.NotificationSettingsViewModel
@@ -119,6 +121,7 @@ fun NavGraph(
     var showCreateMenu by remember { mutableStateOf(false) }
     val rewards = workoutViewModel.rewards.collectAsState()
     val pendingRewardUnlockEvents = workoutViewModel.pendingRewardUnlockEvents.collectAsState()
+    var selectedUnlockedReward by remember { mutableStateOf<RewardUiModel?>(null) }
 
 
     val userState = authViewModel.userState.collectAsState()
@@ -639,10 +642,18 @@ fun NavGraph(
                     events = pendingRewardUnlockEvents.value,
                     rewards = rewards.value,
                     onShown = { workoutViewModel.markRewardUnlockEventShown(it) },
+                    onRewardClick = { reward, _ -> selectedUnlockedReward = reward },
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .padding(top = paddingValue.calculateTopPadding() + 8.dp)
                 )
+
+                selectedUnlockedReward?.let { reward ->
+                    RewardDetailsBottomSheet(
+                        reward = reward,
+                        onDismiss = { selectedUnlockedReward = null }
+                    )
+                }
             }
         }
     }

@@ -1,12 +1,5 @@
 package com.example.motivationcalendarapi.ui.profile.rewards
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,8 +46,7 @@ fun RewardsSection(
 
     Card(
         modifier = modifier
-            .fillMaxWidth()
-            .animateContentSize(animationSpec = tween(durationMillis = 260)),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
@@ -79,17 +71,7 @@ fun RewardsSection(
                 onRewardClick = { selectedReward = it }
             )
 
-            AnimatedVisibility(
-                visible = expanded && hasHiddenRewards,
-                enter = expandVertically(
-                    animationSpec = tween(durationMillis = 280),
-                    expandFrom = Alignment.Top
-                ) + fadeIn(tween(durationMillis = 180)),
-                exit = shrinkVertically(
-                    animationSpec = tween(durationMillis = 240),
-                    shrinkTowards = Alignment.Top
-                ) + fadeOut(tween(durationMillis = 140))
-            ) {
+            if (expanded && hasHiddenRewards) {
                 Column {
                     Spacer(modifier = Modifier.height(18.dp))
                     RewardsGrid(

@@ -6,15 +6,17 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,19 +41,26 @@ fun RewardUnlockedOverlay(
     events: List<RewardUnlockEventEntity>,
     rewards: List<RewardUiModel>,
     onShown: (String) -> Unit,
+    onRewardClick: (RewardUiModel, RewardUnlockEventEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val event = events.firstOrNull()
     val reward = event?.let { current -> rewards.firstOrNull { it.entity.rewardId == current.rewardId } }
     var visible by remember(event?.eventId) { mutableStateOf(false) }
+    var handledEventId by remember(event?.eventId) { mutableStateOf<String?>(null) }
+
+    fun hideAndMarkShown(currentEvent: RewardUnlockEventEntity) {
+        if (handledEventId == currentEvent.eventId) return
+        handledEventId = currentEvent.eventId
+        visible = false
+        onShown(currentEvent.eventId)
+    }
 
     LaunchedEffect(event?.eventId) {
         if (event != null) {
             visible = true
-            delay(2200)
-            visible = false
-            delay(1000)
-            onShown(event.eventId)
+            delay(3200)
+            hideAndMarkShown(event)
         }
     }
 
@@ -67,15 +77,19 @@ fun RewardUnlockedOverlay(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    shape = RoundedCornerShape(22.dp),
+                        .padding(horizontal = 16.dp, vertical = 14.dp)
+                        .clickable {
+                            hideAndMarkShown(event)
+                            onRewardClick(reward, event)
+                        },
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                            .padding(start = 14.dp, top = 12.dp, end = 6.dp, bottom = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
@@ -97,6 +111,15 @@ fun RewardUnlockedOverlay(
                                 text = event.tier.toTierDisplayName(),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        IconButton(
+                            onClick = { hideAndMarkShown(event) }
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_close),
+                                contentDescription = stringResource(R.string.close),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }

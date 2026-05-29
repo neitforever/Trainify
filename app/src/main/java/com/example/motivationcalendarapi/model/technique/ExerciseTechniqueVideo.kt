@@ -7,6 +7,9 @@ data class ExerciseTechniqueVideo(
     val thumbnailUrl: String = "",
     val youtubeUrl: String = "",
     val source: String = "youtube",
+    val relevanceScore: Int = 0,
+    val durationSeconds: Int = 0,
+    val viewCount: Long = 0L,
     val cachedAtMillis: Long = 0L
 ) {
     fun isValid(): Boolean = YOUTUBE_VIDEO_ID_REGEX.matches(videoId)
@@ -15,6 +18,8 @@ data class ExerciseTechniqueVideo(
         private val YOUTUBE_VIDEO_ID_REGEX = Regex("^[a-zA-Z0-9_-]{11}$")
 
         fun buildShortsUrl(videoId: String): String = "https://www.youtube.com/shorts/$videoId"
+
+        fun buildWatchUrl(videoId: String): String = "https://www.youtube.com/watch?v=$videoId"
 
         fun extractYoutubeVideoId(url: String): String? {
             val patterns = listOf(

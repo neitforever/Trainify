@@ -68,7 +68,11 @@ class ExerciseTechniqueVideoApi {
                 channelTitle = item.get("channelTitle")?.asString.orEmpty(),
                 thumbnailUrl = item.get("thumbnailUrl")?.asString.orEmpty(),
                 youtubeUrl = item.get("youtubeUrl")?.asString
-                    ?: ExerciseTechniqueVideo.buildShortsUrl(videoId),
+                    ?: ExerciseTechniqueVideo.buildWatchUrl(videoId),
+                source = item.get("source")?.asString ?: "youtube",
+                relevanceScore = item.get("relevanceScore")?.asInt ?: 0,
+                durationSeconds = item.get("durationSeconds")?.asInt ?: 0,
+                viewCount = item.get("viewCount")?.asLong ?: 0L,
                 cachedAtMillis = now
             )
             video.takeIf { it.isValid() }

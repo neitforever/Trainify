@@ -53,6 +53,9 @@ class ExerciseTechniqueVideoCacheDataSource(
                 thumbnailUrl = map["thumbnailUrl"] as? String ?: "",
                 youtubeUrl = map["youtubeUrl"] as? String ?: "",
                 source = map["source"] as? String ?: "youtube",
+                relevanceScore = (map["relevanceScore"] as? Number)?.toInt() ?: 0,
+                durationSeconds = (map["durationSeconds"] as? Number)?.toInt() ?: 0,
+                viewCount = (map["viewCount"] as? Number)?.toLong() ?: 0L,
                 cachedAtMillis = (map["cachedAtMillis"] as? Number)?.toLong() ?: cachedAtMillis
             ).takeIf { it.isValid() }
         }
@@ -114,6 +117,9 @@ class ExerciseTechniqueVideoCacheDataSource(
                     "thumbnailUrl" to video.thumbnailUrl,
                     "youtubeUrl" to video.youtubeUrl,
                     "source" to video.source,
+                    "relevanceScore" to video.relevanceScore,
+                    "durationSeconds" to video.durationSeconds,
+                    "viewCount" to video.viewCount,
                     "cachedAtMillis" to cachedAtMillis
                 )
             }

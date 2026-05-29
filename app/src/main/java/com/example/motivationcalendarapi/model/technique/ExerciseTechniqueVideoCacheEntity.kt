@@ -15,6 +15,6 @@ data class ExerciseTechniqueVideoCacheEntity(
     val pendingSync: Boolean = false
 ) {
     companion object {
-        fun buildCacheKey(exerciseId: String, lang: String): String = "${exerciseId}_$lang"
+        fun buildCacheKey(exerciseId: String, lang: String): String = "${exerciseId}_${lang}_v2"
     }
 }

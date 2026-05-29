@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.repositories.ExerciseRepository
+import com.example.motivationcalendarapi.repositories.ai.ExerciseSelectionSuggestionRepository
 import com.example.motivationcalendarapi.repositories.technique.ExerciseTechniqueVideoRepository
 import com.example.motivationcalendarapi.model.technique.ExerciseTechniqueVideo
 import com.example.motivationcalendarapi.model.technique.TechniqueVideosUiState
@@ -14,11 +15,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicInteger
 
 class ExerciseViewModel(
     val exerciseRepository: ExerciseRepository,
-    private val techniqueVideoRepository: ExerciseTechniqueVideoRepository
+    private val techniqueVideoRepository: ExerciseTechniqueVideoRepository,
+    private val selectionSuggestionRepository: ExerciseSelectionSuggestionRepository = ExerciseSelectionSuggestionRepository()
 ): ViewModel()  {
+
+    private val bodyPartSuggestionRequestVersion = AtomicInteger(0)
+    private val equipmentSuggestionRequestVersion = AtomicInteger(0)
 
     private val _techniqueVideosUiState = MutableStateFlow<TechniqueVideosUiState>(TechniqueVideosUiState.Idle)
     val techniqueVideosUiState: StateFlow<TechniqueVideosUiState> = _techniqueVideosUiState.asStateFlow()
@@ -340,6 +346,112 @@ class ExerciseViewModel(
         }
     }
 
+
+
+    private val _suggestedBodyPartKey = MutableStateFlow<String?>(null)
+    val suggestedBodyPartKey: StateFlow<String?> = _suggestedBodyPartKey.asStateFlow()
+
+    private val _suggestedEquipmentKey = MutableStateFlow<String?>(null)
+    val suggestedEquipmentKey: StateFlow<String?> = _suggestedEquipmentKey.asStateFlow()
+
+    private val _isLoadingBodyPartSuggestion = MutableStateFlow(false)
+    val isLoadingBodyPartSuggestion: StateFlow<Boolean> = _isLoadingBodyPartSuggestion.asStateFlow()
+
+    private val _isLoadingEquipmentSuggestion = MutableStateFlow(false)
+    val isLoadingEquipmentSuggestion: StateFlow<Boolean> = _isLoadingEquipmentSuggestion.asStateFlow()
+
+    fun clearBodyPartSuggestion() {
+        bodyPartSuggestionRequestVersion.incrementAndGet()
+        _suggestedBodyPartKey.value = null
+        _isLoadingBodyPartSuggestion.value = false
+    }
+
+    fun clearEquipmentSuggestion() {
+        equipmentSuggestionRequestVersion.incrementAndGet()
+        _suggestedEquipmentKey.value = null
+        _isLoadingEquipmentSuggestion.value = false
+    }
+
+    fun requestBodyPartSuggestion(
+        exerciseName: String,
+        lang: String,
+        options: List<com.example.motivationcalendarapi.model.LocalizedOption>
+    ) {
+        requestSelectionSuggestion(
+            exerciseName = exerciseName,
+            lang = lang,
+            options = options,
+            selectionType = "body_part",
+            loadingState = _isLoadingBodyPartSuggestion,
+            resultState = _suggestedBodyPartKey,
+            requestVersion = bodyPartSuggestionRequestVersion
+        )
+    }
+
+    fun requestEquipmentSuggestion(
+        exerciseName: String,
+        lang: String,
+        options: List<com.example.motivationcalendarapi.model.LocalizedOption>
+    ) {
+        requestSelectionSuggestion(
+            exerciseName = exerciseName,
+            lang = lang,
+            options = options,
+            selectionType = "equipment",
+            loadingState = _isLoadingEquipmentSuggestion,
+            resultState = _suggestedEquipmentKey,
+            requestVersion = equipmentSuggestionRequestVersion
+        )
+    }
+
+    private fun requestSelectionSuggestion(
+        exerciseName: String,
+        lang: String,
+        options: List<com.example.motivationcalendarapi.model.LocalizedOption>,
+        selectionType: String,
+        loadingState: MutableStateFlow<Boolean>,
+        resultState: MutableStateFlow<String?>,
+        requestVersion: AtomicInteger
+    ) {
+        val normalizedName = exerciseName.trim()
+        val currentRequestVersion = requestVersion.incrementAndGet()
+        resultState.value = null
+        if (normalizedName.isBlank()) {
+            loadingState.value = false
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            loadingState.value = true
+            try {
+                val suggestedKey = when (selectionType) {
+                    "body_part" -> selectionSuggestionRepository.suggestBodyPart(
+                        exerciseName = normalizedName,
+                        lang = lang,
+                        options = options
+                    )
+                    "equipment" -> selectionSuggestionRepository.suggestEquipment(
+                        exerciseName = normalizedName,
+                        lang = lang,
+                        options = options
+                    )
+                    else -> null
+                }
+                if (requestVersion.get() == currentRequestVersion) {
+                    resultState.value = suggestedKey
+                }
+            } catch (e: Exception) {
+                Log.e("ExerciseAiSuggestion", "requestSelectionSuggestion ERROR type=$selectionType", e)
+                if (requestVersion.get() == currentRequestVersion) {
+                    resultState.value = null
+                }
+            } finally {
+                if (requestVersion.get() == currentRequestVersion) {
+                    loadingState.value = false
+                }
+            }
+        }
+    }
 
     fun deleteExercise(id: String) {
         viewModelScope.launch(Dispatchers.IO) {

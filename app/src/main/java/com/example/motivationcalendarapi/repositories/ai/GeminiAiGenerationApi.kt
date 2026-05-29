@@ -94,6 +94,39 @@ class GeminiAiGenerationApi {
         parseTemplate(result, allowedExercises)
     }
 
+
+    suspend fun suggestExerciseSelection(
+        exerciseName: String,
+        selectionType: String,
+        lang: String,
+        options: List<SelectionSuggestionOption>
+    ): String? = withContext(Dispatchers.IO) {
+        val url = BuildConfig.GEMINI_SELECTION_SUGGESTION_URL
+        if (url.isBlank()) error("GEMINI_SELECTION_SUGGESTION_URL is empty in local.properties")
+
+        val safeExerciseName = exerciseName.trim()
+        if (safeExerciseName.isBlank() || options.isEmpty()) return@withContext null
+
+        val modelPrompt = buildSelectionSuggestionPrompt(
+            exerciseName = safeExerciseName,
+            selectionType = selectionType,
+            lang = lang,
+            options = options
+        )
+        logLarge("suggestExerciseSelection.prompt", modelPrompt)
+
+        val request = buildGeminiRequest(
+            modelPrompt,
+            temperature = 0.1
+        )
+        logLarge("suggestExerciseSelection.requestBody", request)
+
+        val responseText = post(url, request)
+        val result = parseCandidateJson(responseText, "suggestExerciseSelection")
+        val selectedKey = result.get("selectedKey")?.asString?.trim().orEmpty()
+        selectedKey.takeIf { key -> options.any { it.key == key } }
+    }
+
     private fun buildGeminiRequest(prompt: String, temperature: Double): String {
         val root = JsonObject()
         root.add("contents", JsonArray().apply {
@@ -108,6 +141,42 @@ class GeminiAiGenerationApi {
             addProperty("response_mime_type", "application/json")
         })
         return gson.toJson(root)
+    }
+
+
+    private fun buildSelectionSuggestionPrompt(
+        exerciseName: String,
+        selectionType: String,
+        lang: String,
+        options: List<SelectionSuggestionOption>
+    ): String {
+        val normalizedType = when (selectionType) {
+            "body_part" -> "body part / primary muscle group"
+            "equipment" -> "equipment"
+            else -> selectionType
+        }
+        val catalog = options.joinToString("\n") { option ->
+            "- key=${option.key}; en='${option.en}'; ru='${option.ru}'; be='${option.be}'"
+        }
+
+        return """
+            You help choose the best $normalizedType for a fitness exercise.
+            Exercise name: $exerciseName
+            User language: $lang
+
+            Available options. You MUST choose exactly one key from this list:
+            $catalog
+
+            Rules:
+            - Return ONLY compact valid JSON. No markdown.
+            - Do not invent keys.
+            - If the exercise name is ambiguous, choose the most common fitness meaning.
+            - Prefer the primary trained muscle group for body_part.
+            - Prefer the most typical required equipment for equipment.
+
+            JSON schema:
+            {"selectedKey":"existing_key"}
+        """.trimIndent()
     }
 
     private fun buildExercisePrompt(
@@ -433,3 +502,11 @@ data class GeneratedTemplateDraft(
 class AiGenerationNetworkException(message: String? = null, cause: Throwable? = null) : Exception(message, cause)
 
 class AiGenerationHighDemandException(cause: Throwable? = null) : Exception(cause)
+
+
+data class SelectionSuggestionOption(
+    val key: String,
+    val en: String,
+    val ru: String,
+    val be: String
+)

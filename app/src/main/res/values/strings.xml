@@ -485,4 +485,9 @@
     <string name="permission_foreground_service_title">Foreground services</string>
     <string name="permission_foreground_service_description">Required for active workout timer and AI generation service notifications. This permission is controlled by Android.</string>
     <string name="permission_refresh_status">Refresh permission status</string>
+    <string name="ai_recommended_short">AI</string>
+    <string name="selection_ai_help_title">AI selection tip</string>
+    <string name="ai_recommended">AI recommended</string>
+    <string name="body_part_selection_ai_hint">The AI badge marks the muscle group that best matches the exercise name. Your selected option stays first in the list.</string>
+    <string name="equipment_selection_ai_hint">The AI badge marks the equipment that best matches the exercise name. Your selected option stays first in the list.</string>
 </resources>

@@ -486,4 +486,9 @@
     <string name="permission_foreground_service_title">Foreground-сервисы</string>
     <string name="permission_foreground_service_description">Нужны для активного таймера тренировки и уведомлений сервиса AI-генерации. Это разрешение контролируется Android.</string>
     <string name="permission_refresh_status">Обновить статус разрешений</string>
+    <string name="ai_recommended_short">AI</string>
+    <string name="selection_ai_help_title">Подсказка AI</string>
+    <string name="ai_recommended">Рекомендовано AI</string>
+    <string name="body_part_selection_ai_hint">Бейдж AI показывает группу мышц, которая лучше всего подходит к названию упражнения. Выбранный вариант остаётся первым в списке.</string>
+    <string name="equipment_selection_ai_hint">Бейдж AI показывает оборудование, которое лучше всего подходит к названию упражнения. Выбранный вариант остаётся первым в списке.</string>
 </resources>

@@ -2,18 +2,22 @@ package com.example.motivationcalendarapi.ui.exercise
 
 import Screen
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CutCornerShape
@@ -41,12 +45,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseCatalog
+import com.example.motivationcalendarapi.model.LocalizedOption
 import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.ui.dialogs.ErrorDialog
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
@@ -61,6 +69,7 @@ fun EquipmentSelectionScreen(
     lang: String
 ) {
     val tempExercise by viewModel.tempExercise.collectAsState()
+    val suggestedEquipmentKey by viewModel.suggestedEquipmentKey.collectAsState()
     val showErrorDialog = remember { mutableStateOf(false) }
 
     var existingExercise by remember(exerciseId) { mutableStateOf<Exercise?>(null) }
@@ -70,6 +79,19 @@ fun EquipmentSelectionScreen(
     }
 
     val sourceExercise = if (tempExercise?.id == exerciseId) tempExercise else existingExercise
+    val exerciseName = sourceExercise?.getName(lang).orEmpty()
+        .ifBlank { sourceExercise?.getName("en").orEmpty() }
+
+    LaunchedEffect(exerciseId, exerciseName, lang) {
+        viewModel.clearEquipmentSuggestion()
+        if (exerciseName.isNotBlank()) {
+            viewModel.requestEquipmentSuggestion(
+                exerciseName = exerciseName,
+                lang = lang,
+                options = ExerciseCatalog.equipment
+            )
+        }
+    }
 
     val selectedKeyState = remember(sourceExercise?.id, sourceExercise?.equipmentLocalized) {
         mutableStateOf(
@@ -79,7 +101,31 @@ fun EquipmentSelectionScreen(
         )
     }
 
+    val orderedEquipmentOptions = remember(selectedKeyState.value, suggestedEquipmentKey) {
+        prioritizeSelectionOptions(
+            options = ExerciseCatalog.equipment,
+            selectedKey = selectedKeyState.value,
+            suggestedKey = suggestedEquipmentKey
+        )
+    }
+
     val context = LocalContext.current
+
+    fun saveSelectedEquipment() {
+        val selectedOption = ExerciseCatalog.equipment.firstOrNull { it.key == selectedKeyState.value }
+        if (selectedOption == null) {
+            showErrorDialog.value = true
+            return
+        }
+
+        if (tempExercise?.id == exerciseId) {
+            viewModel.updateTempExercise { it.copy(equipmentLocalized = selectedOption.localized) }
+        } else {
+            viewModel.updateExerciseEquipment(exerciseId, selectedOption.localized)
+        }
+
+        navController.popBackStack()
+    }
 
     ErrorDialog(
         showError = showErrorDialog.value,
@@ -103,11 +149,7 @@ fun EquipmentSelectionScreen(
                     }
                 },
                 title = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 4.dp)
-                    ) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(start = 4.dp)) {
                         Text(
                             text = Screen.EquipmentSelection.getTitle(context),
                             style = MaterialTheme.typography.displaySmall,
@@ -117,31 +159,7 @@ fun EquipmentSelectionScreen(
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = {
-                            val selectedOption = ExerciseCatalog.equipment.firstOrNull {
-                                it.key == selectedKeyState.value
-                            }
-
-                            if (selectedOption == null) {
-                                showErrorDialog.value = true
-                                return@IconButton
-                            }
-
-                            if (tempExercise?.id == exerciseId) {
-                                viewModel.updateTempExercise {
-                                    it.copy(equipmentLocalized = selectedOption.localized)
-                                }
-                            } else {
-                                viewModel.updateExerciseEquipment(
-                                    id = exerciseId,
-                                    newEquipment = selectedOption.localized
-                                )
-                            }
-
-                            navController.popBackStack()
-                        }
-                    ) {
+                    IconButton(onClick = { saveSelectedEquipment() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_save),
                             contentDescription = stringResource(R.string.save),
@@ -165,82 +183,171 @@ fun EquipmentSelectionScreen(
                 .padding(horizontal = 12.dp, vertical = 16.dp)
         ) {
             item {
-                Text(
-                    text = stringResource(R.string.available_equipment),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                Text(
-                    text = stringResource(R.string.barbell_dumbbells),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                SelectionInfoCard(
+                    title = stringResource(R.string.selection_ai_help_title),
+                    description = stringResource(R.string.equipment_selection_ai_hint),
+                    modifier = Modifier.padding(bottom = 18.dp)
                 )
             }
 
-            items(ExerciseCatalog.equipment) { option ->
-                val isSelected = option.key == selectedKeyState.value
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp)
-                        .clickable { selectedKeyState.value = option.key },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (isSelected) {
-                            MaterialTheme.colorScheme.secondaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.surfaceVariant
-                        }
-                    ),
-                    border = BorderStroke(
-                        width = if (isSelected) 2.dp else 1.dp,
-                        color = if (isSelected) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                        }
-                    )
+            items(orderedEquipmentOptions.chunked(3)) { rowOptions ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(
-                                id = getIconForEquipment(option.localized["en"].orEmpty())
-                            ),
-                            contentDescription = option.getLabel(lang),
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(26.dp)
+                    rowOptions.forEach { option ->
+                        EquipmentSelectionCard(
+                            option = option,
+                            lang = lang,
+                            isSelected = option.key == selectedKeyState.value,
+                            isAiSuggested = option.key == suggestedEquipmentKey,
+                            onClick = {
+                                if (option.key == selectedKeyState.value) {
+                                    saveSelectedEquipment()
+                                } else {
+                                    selectedKeyState.value = option.key
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
                         )
-
-                        Text(
-                            text = option.getLabel(lang),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                        RadioButton(
-                            selected = isSelected,
-                            onClick = { selectedKeyState.value = option.key }
-                        )
+                    }
+                    repeat(3 - rowOptions.size) {
+                        Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             }
 
-            item {
-                Spacer(
-                    modifier = Modifier.absolutePadding(bottom = 200.dp)
+            item { Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp)) }
+        }
+    }
+}
+
+@Composable
+private fun EquipmentSelectionCard(
+    option: LocalizedOption,
+    lang: String,
+    isSelected: Boolean,
+    isAiSuggested: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val label = option.getLabel(lang).replaceFirstChar { firstChar ->
+        if (firstChar.isLowerCase()) firstChar.titlecase() else firstChar.toString()
+    }
+
+    val containerColor = when {
+        isSelected -> MaterialTheme.colorScheme.secondaryContainer
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+    val borderColor = when {
+        isSelected -> MaterialTheme.colorScheme.primary
+        isAiSuggested -> MaterialTheme.colorScheme.tertiary
+        else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+    }
+    val titleColor = when {
+        isSelected -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+    Card(
+        modifier = modifier
+            .height(126.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = BorderStroke(
+            width = if (isSelected || isAiSuggested) 2.dp else 1.dp,
+            color = borderColor
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 6.dp, vertical = 8.dp)
+        ) {
+            Row(
+                modifier = Modifier.align(Alignment.TopEnd),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                if (isAiSuggested) {
+                    Box(
+                        modifier = Modifier
+                            .height(20.dp)
+                            .widthIn(min = 28.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.tertiary,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .padding(horizontal = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.ai_recommended_short),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            maxLines = 1,
+                            overflow = TextOverflow.Clip,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                RadioButton(
+                    selected = isSelected,
+                    onClick = onClick,
+                    modifier = Modifier.size(28.dp)
                 )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = getIconForEquipment(option.localized["en"].orEmpty())),
+                    contentDescription = label,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(30.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = titleColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
             }
         }
     }
+}
+
+private fun prioritizeSelectionOptions(
+    options: List<LocalizedOption>,
+    selectedKey: String?,
+    suggestedKey: String?
+): List<LocalizedOption> {
+    val pinnedKeys = listOfNotNull(
+        selectedKey?.takeIf { it.isNotBlank() },
+        suggestedKey?.takeIf { it.isNotBlank() && it != selectedKey }
+    )
+    val pinned = pinnedKeys.mapNotNull { key -> options.firstOrNull { it.key == key } }
+    val rest = options.filterNot { option -> pinnedKeys.contains(option.key) }
+    return pinned + rest
 }

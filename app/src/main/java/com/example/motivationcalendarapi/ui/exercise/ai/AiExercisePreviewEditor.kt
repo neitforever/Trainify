@@ -58,13 +58,13 @@ import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseCardType
+import com.example.motivationcalendarapi.model.ExerciseCatalog
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.model.getIconForBodyPart
-import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.repositories.ai.GeminiAiGenerationApi
 import com.example.motivationcalendarapi.repositories.ai.GeneratedTemplateDraft
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
@@ -111,10 +111,11 @@ internal fun ExercisePreviewEditor(
             title = stringResource(R.string.body_part),
             selected = exercise.getBodyPart(lang).ifBlank { selectedBodyPart },
             iconRes = getIconForBodyPart(exercise.getBodyPart(lang).ifBlank { selectedBodyPart }),
-            options = allExercises.map { it.getBodyPart(lang) }.filter { it.isNotBlank() }.distinct().sorted(),
+            optionGroups = ExerciseCatalog.groupedBodyPartLabels(lang),
             optionIcon = { getIconForBodyPart(it) },
             onSelected = { selected ->
-                val bodyMap = allExercises.firstOrNull { it.getBodyPart(lang) == selected }?.bodyPartLocalized
+                val bodyMap = ExerciseCatalog.bodyParts.firstOrNull { it.getLabel(lang) == selected }?.localized
+                    ?: allExercises.firstOrNull { it.getBodyPart(lang) == selected }?.bodyPartLocalized
                     ?: mapOf("en" to selected, "ru" to selected, "be" to selected)
                 onChange(exercise.copy(bodyPartLocalized = bodyMap))
             }
@@ -123,11 +124,12 @@ internal fun ExercisePreviewEditor(
         PreviewBodyEquipmentCard(
             title = stringResource(R.string.equipment),
             selected = exercise.getEquipment(lang).ifBlank { selectedEquipment },
-            iconRes = getIconForEquipment(exercise.getEquipment(lang).ifBlank { selectedEquipment }),
-            options = allExercises.map { it.getEquipment(lang) }.filter { it.isNotBlank() }.distinct().sorted(),
-            optionIcon = { getIconForEquipment(it) },
+            iconRes = safeEquipmentIcon(exercise.getEquipment(lang).ifBlank { selectedEquipment }),
+            optionGroups = ExerciseCatalog.groupedEquipmentLabels(lang),
+            optionIcon = { safeEquipmentIcon(it) },
             onSelected = { selected ->
-                val equipmentMap = allExercises.firstOrNull { it.getEquipment(lang) == selected }?.equipmentLocalized
+                val equipmentMap = ExerciseCatalog.equipment.firstOrNull { it.getLabel(lang) == selected }?.localized
+                    ?: allExercises.firstOrNull { it.getEquipment(lang) == selected }?.equipmentLocalized
                     ?: mapOf("en" to selected, "ru" to selected, "be" to selected)
                 onChange(exercise.copy(equipmentLocalized = equipmentMap))
             }
@@ -197,7 +199,7 @@ internal fun PreviewBodyEquipmentCard(
     title: String,
     selected: String,
     iconRes: Int,
-    options: List<String>,
+    optionGroups: List<Pair<String, List<String>>>,
     optionIcon: (String) -> Int,
     onSelected: (String) -> Unit
 ) {
@@ -218,10 +220,11 @@ internal fun PreviewBodyEquipmentCard(
         )
 
         AnimatedVisibility(visible = expanded) {
-            InlineOptionsList(
-                options = options,
+            GroupedInlineOptionsList(
+                optionGroups = optionGroups,
                 optionIcon = optionIcon,
-                optionContainerColor = MaterialTheme.colorScheme.surface,
+                optionContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                selectedOptions = listOf(selected).filter { it.isNotBlank() },
                 onSelected = { option ->
                     onSelected(option)
                     expanded = false
@@ -238,7 +241,7 @@ internal fun PreviewCardTypeCard(selected: String, onSelected: (String) -> Unit)
         title = stringResource(R.string.exercise_type),
         selected = selected,
         iconRes = cardTypeIcon(selected),
-        options = options,
+        optionGroups = listOf("" to options),
         optionIcon = { cardTypeIcon(it) },
         onSelected = onSelected
     )

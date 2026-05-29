@@ -78,6 +78,11 @@ import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import kotlinx.coroutines.launch
 import java.util.UUID
 
+
+internal fun String.withFirstUppercase(): String = replaceFirstChar { char ->
+    if (char.isLowerCase()) char.titlecase() else char.toString()
+}
+
 @Composable
 internal fun SelectorRowWithIcon(
     title: String,
@@ -86,11 +91,13 @@ internal fun SelectorRowWithIcon(
     isFilled: Boolean,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    options: List<String>,
+    optionGroups: List<Pair<String, List<String>>>,
     optionIcon: (String) -> Int,
     onSelected: (String) -> Unit,
     optionContainerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant,
-    enabled: Boolean = true
+    selectedOption: String = "",
+    enabled: Boolean = true,
+    supportingText: String? = null
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
@@ -108,6 +115,14 @@ internal fun SelectorRowWithIcon(
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface
         )
+        supportingText?.takeIf { it.isNotBlank() }?.let { text ->
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         SelectableHeaderCard(
             value = value,
@@ -119,10 +134,11 @@ internal fun SelectorRowWithIcon(
         )
 
         AnimatedVisibility(visible = expanded && enabled) {
-            InlineOptionsList(
-                options = options,
+            GroupedInlineOptionsList(
+                optionGroups = optionGroups,
                 optionIcon = optionIcon,
                 optionContainerColor = optionContainerColor,
+                selectedOptions = listOf(selectedOption).filter { it.isNotBlank() },
                 onSelected = { option ->
                     onSelected(option)
                     onExpandedChange(false)
@@ -449,7 +465,7 @@ internal fun SelectableHeaderCard(
                 modifier = Modifier.size(22.dp).padding(end = 8.dp)
             )
             Text(
-                text = value,
+                text = value.withFirstUppercase(),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 maxLines = 2,
@@ -468,48 +484,118 @@ internal fun SelectableHeaderCard(
     }
 }
 
+
 @Composable
 internal fun InlineOptionsList(
     options: List<String>,
     optionIcon: (String) -> Int,
     optionContainerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant,
+    selectedOptions: List<String> = emptyList(),
+    onSelected: (String) -> Unit
+) {
+    GroupedInlineOptionsList(
+        optionGroups = listOf("" to options),
+        optionIcon = optionIcon,
+        optionContainerColor = optionContainerColor,
+        selectedOptions = selectedOptions,
+        onSelected = onSelected
+    )
+}
+
+@Composable
+internal fun GroupedInlineOptionsList(
+    optionGroups: List<Pair<String, List<String>>>,
+    optionIcon: (String) -> Int,
+    optionContainerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant,
+    selectedOptions: List<String> = emptyList(),
     onSelected: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        options.forEach { option ->
-            Card(
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = optionContainerColor),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onSelected(option) }
-            ) {
+        optionGroups.forEach { (groupTitle, options) ->
+            if (groupTitle.isNotBlank()) {
+                Text(
+                    text = groupTitle,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp, start = 2.dp)
+                )
+            }
+
+            options.chunked(2).forEach { rowOptions ->
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(id = optionIcon(option)),
-                        contentDescription = option,
-                        modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        text = option,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
-                    )
+                    rowOptions.forEach { option ->
+                        CompactAiOptionCard(
+                            option = option,
+                            iconRes = optionIcon(option),
+                            containerColor = optionContainerColor,
+                            isSelected = selectedOptions.contains(option),
+                            onClick = { onSelected(option) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (rowOptions.size == 1) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CompactAiOptionCard(
+    option: String,
+    iconRes: Int,
+    containerColor: androidx.compose.ui.graphics.Color,
+    isSelected: Boolean = false,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else containerColor
+        ),
+        border = BorderStroke(
+            width = if (isSelected) 2.dp else 1.dp,
+            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+        ),
+        modifier = modifier
+            .height(82.dp)
+            .clickable { onClick() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp, vertical = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = option,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = option.withFirstUppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 2,
+                overflow = TextOverflow.Clip,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

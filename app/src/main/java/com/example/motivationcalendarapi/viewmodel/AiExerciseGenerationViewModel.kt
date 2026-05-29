@@ -80,6 +80,10 @@ class AiExerciseGenerationViewModel : ViewModel() {
         _uiState.update { it.copy(draft = null, errorMessage = null, isNetworkError = false, isHighDemandError = false) }
     }
 
+    fun resetForm() {
+        _uiState.value = AiExerciseGenerationUiState()
+    }
+
     fun generate(
         lang: String,
         localExercises: List<Exercise>,
@@ -88,7 +92,7 @@ class AiExerciseGenerationViewModel : ViewModel() {
         context: Context? = null
     ) {
         val state = _uiState.value
-        if (state.prompt.isBlank() || state.selectedBodyPart.isBlank() || state.selectedEquipment.isBlank() || state.difficulty.isBlank()) {
+        if (state.prompt.isBlank() || state.selectedBodyPart.isBlank() || state.difficulty.isBlank()) {
             _uiState.update { it.copy(errorMessage = requiredFieldsMessage, isNetworkError = false, isHighDemandError = false) }
             return
         }

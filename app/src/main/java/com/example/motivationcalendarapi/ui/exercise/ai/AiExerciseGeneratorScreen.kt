@@ -62,15 +62,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
-import com.example.motivationcalendarapi.model.BodyPart
-import com.example.motivationcalendarapi.model.Equipment
+import com.example.motivationcalendarapi.model.ExerciseCatalog
 import com.example.motivationcalendarapi.model.ExerciseCardType
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.getIconForBodyPart
-import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.repositories.ai.GeminiAiGenerationApi
 import com.example.motivationcalendarapi.repositories.ai.GeneratedTemplateDraft
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
@@ -96,8 +94,12 @@ fun AiExerciseGeneratorScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val allExercises by exerciseViewModel.getAllExercises().collectAsState(initial = emptyList())
-    val bodyParts = remember(lang) { BodyPart.all.map { it.getLabel(lang) } }
-    val equipmentList = remember(lang) { Equipment.all.map { it.getLabel(lang) } }
+    val bodyPartGroups = remember(lang) { ExerciseCatalog.groupedBodyPartLabels(lang) }
+    val equipmentAutoLabel = stringResource(R.string.ai_choose_equipment)
+    val aiSelectionGroupTitle = stringResource(R.string.ai_selection_group_title)
+    val equipmentGroups = remember(lang, equipmentAutoLabel, aiSelectionGroupTitle) {
+        listOf(aiSelectionGroupTitle to listOf(equipmentAutoLabel)) + ExerciseCatalog.groupedEquipmentLabels(lang)
+    }
     val state by aiExerciseGenerationViewModel.uiState.collectAsState()
     var bodyPartExpanded by remember { mutableStateOf(false) }
     var equipmentExpanded by remember { mutableStateOf(false) }
@@ -147,8 +149,9 @@ fun AiExerciseGeneratorScreen(
                         isFilled = state.selectedBodyPart.isNotBlank(),
                         expanded = bodyPartExpanded,
                         onExpandedChange = { if (inputEnabled) bodyPartExpanded = it },
-                        options = bodyParts,
+                        optionGroups = bodyPartGroups,
                         optionIcon = { option -> getIconForBodyPart(option) },
+                        selectedOption = state.selectedBodyPart,
                         onSelected = { aiExerciseGenerationViewModel.setBodyPart(it) },
                         enabled = inputEnabled
                     )
@@ -158,14 +161,17 @@ fun AiExerciseGeneratorScreen(
                 item {
                     SelectorRowWithIcon(
                         title = stringResource(R.string.equipment),
-                        value = state.selectedEquipment.ifBlank { stringResource(R.string.not_set) },
-                        iconRes = if (state.selectedEquipment.isNotBlank()) getIconForEquipment(state.selectedEquipment) else R.drawable.ic_dumbbell,
-                        isFilled = state.selectedEquipment.isNotBlank(),
+                        value = state.selectedEquipment.ifBlank { equipmentAutoLabel },
+                        iconRes = safeEquipmentIcon(state.selectedEquipment, equipmentAutoLabel),
+                        isFilled = true,
                         expanded = equipmentExpanded,
                         onExpandedChange = { if (inputEnabled) equipmentExpanded = it },
-                        options = equipmentList,
-                        optionIcon = { option -> getIconForEquipment(option) },
-                        onSelected = { aiExerciseGenerationViewModel.setEquipment(it) },
+                        optionGroups = equipmentGroups,
+                        optionIcon = { option -> safeEquipmentIcon(option, equipmentAutoLabel) },
+                        selectedOption = state.selectedEquipment.ifBlank { equipmentAutoLabel },
+                        onSelected = { option ->
+                            aiExerciseGenerationViewModel.setEquipment(if (isAiChooseOption(option, equipmentAutoLabel)) "" else option)
+                        },
                         enabled = inputEnabled
                     )
                 }
@@ -272,7 +278,7 @@ fun AiExerciseGeneratorScreen(
                                 exerciseViewModel.exerciseRepository.insertExercise(savedExercise)
                             }.onSuccess {
                                 workoutViewModel.increaseAiExerciseCreatedForRewards()
-                                aiExerciseGenerationViewModel.clearDraft()
+                                aiExerciseGenerationViewModel.resetForm()
                                 navController.popBackStack()
                             }.onFailure { error ->
                                 saveError = error.message

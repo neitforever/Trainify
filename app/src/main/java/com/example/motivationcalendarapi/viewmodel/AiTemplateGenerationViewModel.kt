@@ -99,6 +99,10 @@ class AiTemplateGenerationViewModel : ViewModel() {
         }
     }
 
+    fun clearEquipment() {
+        _uiState.update { it.copy(selectedEquipment = emptyList(), errorMessage = null, isNetworkError = false, isHighDemandError = false) }
+    }
+
     fun setExerciseRange(min: Int, max: Int) {
         val safeMin = min.coerceIn(1, 15)
         val safeMax = max.coerceIn(safeMin, 15)
@@ -151,7 +155,7 @@ class AiTemplateGenerationViewModel : ViewModel() {
         context: Context? = null
     ) {
         val state = _uiState.value
-        if (state.prompt.isBlank() || state.selectedBodyParts.isEmpty() || state.selectedEquipment.isEmpty() || state.difficulty.isBlank()) {
+        if (state.prompt.isBlank() || state.selectedBodyParts.isEmpty() || state.difficulty.isBlank()) {
             _uiState.update { it.copy(errorMessage = requiredFieldsMessage, isNetworkError = false, isHighDemandError = false) }
             return
         }

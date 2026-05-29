@@ -352,16 +352,16 @@
     <string name="create_ai_template_description">Сгенерировать шаблон тренировки</string>
     <string name="target">Целевая мышца</string>
     <string name="secondary_muscles">Вторичные мышцы</string>
-    <string name="ai_generation_required_fields">Заполните описание, группы мышц, оборудование и сложность.</string>
+    <string name="ai_generation_required_fields">Заполните описание, группу мышц и сложность.</string>
     <string name="ai_exercise_help_title">Что умеет генерация упражнения через ИИ?</string>
-    <string name="ai_exercise_help_item_1">Создаёт новое упражнение по вашему запросу, выбранной группе мышц и оборудованию.</string>
-    <string name="ai_exercise_help_item_2">Использует локальные упражнения как пример и заполняет поля на русском, английском и белорусском языках.</string>
-    <string name="ai_exercise_help_item_3">После генерации каждый блок можно отредактировать перед сохранением.</string>
+    <string name="ai_exercise_help_item_1">Создаёт новое упражнение по вашему запросу и выбранной группе мышц.</string>
+    <string name="ai_exercise_help_item_2">Используйте «Пусть ИИ выберет», чтобы модель сама выбрала оборудование из списка приложения.</string>
+    <string name="ai_exercise_help_item_3">Группированные карточки помогают быстрее найти нужную группу мышц и оборудование перед генерацией.</string>
     <string name="exercise_type">Тип упражнения</string>
     <string name="ai_template_help_title">Что умеет генерация шаблона через ИИ</string>
-    <string name="ai_template_help_item_1">Составляет тренировку только из упражнений, сохранённых в приложении.</string>
-    <string name="ai_template_help_item_2">Учитывает выбранные группы мышц, оборудование и сложность.</string>
-    <string name="ai_template_help_item_3">Подбирает подходящее количество упражнений и подходов.</string>
+    <string name="ai_template_help_item_1">Создаёт шаблон тренировки только из упражнений, сохранённых в приложении.</string>
+    <string name="ai_template_help_item_2">Группы мышц и оборудование можно раскрывать или скрывать; в заголовке видно количество выбранных карточек.</string>
+    <string name="ai_template_help_item_3">Оборудование можно выбрать вручную или оставить вариант «Пусть ИИ выберет».</string>
     <string name="exercise_count_range">Количество упражнений</string>
     <string name="selected_exercise_count_range">От %1$d до %2$d упражнений</string>
 
@@ -489,6 +489,11 @@
     <string name="ai_recommended_short">AI</string>
     <string name="selection_ai_help_title">Подсказка AI</string>
     <string name="ai_recommended">Рекомендовано AI</string>
-    <string name="body_part_selection_ai_hint">Бейдж AI показывает группу мышц, которая лучше всего подходит к названию упражнения. Выбранный вариант остаётся первым в списке.</string>
-    <string name="equipment_selection_ai_hint">Бейдж AI показывает оборудование, которое лучше всего подходит к названию упражнения. Выбранный вариант остаётся первым в списке.</string>
+    <string name="body_part_selection_ai_hint">Группированные карточки оставляют группы мышц в понятных разделах. Бейдж AI показывает рекомендацию для текущего упражнения.</string>
+    <string name="equipment_selection_ai_hint">Группированные карточки держат похожее оборудование рядом. Бейдж AI показывает рекомендацию для текущего упражнения.</string>
+    <string name="equipment_optional_title">Оборудование</string>
+    <string name="ai_choose_equipment">Пусть ИИ выберет</string>
+    <string name="equipment_optional_hint">Выберите оборудование вручную или оставьте выбор ИИ.</string>
+    <string name="ai_selection_group_title">Выбор ИИ</string>
+    <string name="selected_items_count">Выбрано: %1$d</string>
 </resources>

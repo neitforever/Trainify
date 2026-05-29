@@ -355,16 +355,16 @@
     <string name="create_ai_template_description">Згенераваць шаблон трэніроўкі</string>
     <string name="target">Мэтавая мышца</string>
     <string name="secondary_muscles">Другасныя мышцы</string>
-    <string name="ai_generation_required_fields">Запоўніце апісанне, групы мышцаў, абсталяванне і складанасць.</string>
+    <string name="ai_generation_required_fields">Запоўніце апісанне, групу мышцаў і складанасць.</string>
     <string name="ai_exercise_help_title">Што ўмее генерацыя практыкавання праз ШІ?</string>
-    <string name="ai_exercise_help_item_1">Стварае новае практыкаванне па вашым запыце, выбранай групе мышцаў і абсталяванні.</string>
-    <string name="ai_exercise_help_item_2">Выкарыстоўвае лакальныя практыкаванні як прыклад і запаўняе палі на рускай, англійскай і беларускай мовах.</string>
-    <string name="ai_exercise_help_item_3">Пасля генерацыі кожны блок можна адрэдагаваць перад захаваннем.</string>
+    <string name="ai_exercise_help_item_1">Стварае новае практыкаванне па вашым запыце і выбранай групе мышцаў.</string>
+    <string name="ai_exercise_help_item_2">Выкарыстоўвайце «Няхай AI выбера», каб мадэль сама выбрала абсталяванне са спісу праграмы.</string>
+    <string name="ai_exercise_help_item_3">Згрупаваныя карткі дапамагаюць хутчэй знайсці патрэбную групу мышцаў і абсталяванне перад генерацыяй.</string>
     <string name="exercise_type">Тып практыкавання</string>
     <string name="ai_template_help_title">Што ўмее генерацыя шаблона праз ІІ</string>
-    <string name="ai_template_help_item_1">Складае трэніроўку толькі з практыкаванняў, захаваных у дадатку.</string>
-    <string name="ai_template_help_item_2">Улічвае выбраныя групы мышцаў, абсталяванне і складанасць.</string>
-    <string name="ai_template_help_item_3">Падбірае падыходную колькасць практыкаванняў і падыходаў.</string>
+    <string name="ai_template_help_item_1">Стварае шаблон трэніроўкі толькі з практыкаванняў, захаваных у праграме.</string>
+    <string name="ai_template_help_item_2">Групы мышцаў і абсталяванне можна раскрываць або хаваць; у загалоўку бачна колькасць выбраных картак.</string>
+    <string name="ai_template_help_item_3">Абсталяванне можна выбраць уручную або пакінуць «Няхай AI выбера».</string>
     <string name="exercise_count_range">Колькасць практыкаванняў</string>
     <string name="selected_exercise_count_range">Ад %1$d да %2$d практыкаванняў</string>
 
@@ -492,6 +492,11 @@
     <string name="ai_recommended_short">AI</string>
     <string name="selection_ai_help_title">Падказка AI</string>
     <string name="ai_recommended">Рэкамендавана AI</string>
-    <string name="body_part_selection_ai_hint">Бэйдж AI паказвае групу мышцаў, якая лепш за ўсё адпавядае назве практыкавання. Выбраны варыянт застаецца першым у спісе.</string>
-    <string name="equipment_selection_ai_hint">Бэйдж AI паказвае інвентар, які лепш за ўсё адпавядае назве практыкавання. Выбраны варыянт застаецца першым у спісе.</string>
+    <string name="body_part_selection_ai_hint">Згрупаваныя карткі пакідаюць групы мышцаў у зразумелых раздзелах. Бэйдж AI паказвае рэкамендацыю для бягучага практыкавання.</string>
+    <string name="equipment_selection_ai_hint">Згрупаваныя карткі трымаюць падобнае абсталяванне побач. Бэйдж AI паказвае рэкамендацыю для бягучага практыкавання.</string>
+    <string name="equipment_optional_title">Абсталяванне</string>
+    <string name="ai_choose_equipment">Няхай AI выбера</string>
+    <string name="equipment_optional_hint">Выберыце абсталяванне ўручную або пакіньце выбар ШІ.</string>
+    <string name="ai_selection_group_title">Выбар AI</string>
+    <string name="selected_items_count">Выбрана: %1$d</string>
 </resources>

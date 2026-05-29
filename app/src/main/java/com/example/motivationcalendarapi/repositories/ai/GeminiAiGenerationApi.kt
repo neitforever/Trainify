@@ -3,6 +3,7 @@ package com.example.motivationcalendarapi.repositories.ai
 import android.util.Log
 import com.example.motivationcalendarapi.BuildConfig
 import com.example.motivationcalendarapi.model.Exercise
+import com.example.motivationcalendarapi.model.Equipment
 import com.example.motivationcalendarapi.model.ExerciseCardType
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.getCardType
@@ -187,42 +188,60 @@ class GeminiAiGenerationApi {
         lang: String,
         exercises: List<Exercise>
     ): String {
-        val catalog = exercises.joinToString("\n") { exercise ->
-            "- id=${exercise.id}; en='${exercise.getName("en")}'; ru='${exercise.getName("ru")}'; be='${exercise.getName("be")}'; bodyPart='${exercise.getBodyPart(lang)}'; equipment='${exercise.getEquipment(lang)}'; cardType='${exercise.cardType}'"
-        }
-        return """
-            You generate ONE new exercise for a fitness Android app.
-            The app supports exactly these languages: en, ru, be.
-            User language: $lang.
-            User request: $userPrompt
-            Selected body part: $selectedBodyPart
-            Selected equipment: $selectedEquipment
-            User selected difficulty/load range: $levelRange
+        val currentLang = lang.takeIf { it in listOf("en", "ru", "be") } ?: "en"
+        val existingNames = exercises
+            .filter { exercise ->
+                val bodyPart = exercise.getBodyPart(currentLang)
+                val equipment = exercise.getEquipment(currentLang)
+                bodyPart.equals(selectedBodyPart, ignoreCase = true) ||
+                        (selectedEquipment.isNotBlank() && equipment.equals(selectedEquipment, ignoreCase = true))
+            }
+            .ifEmpty { exercises }
+            .mapIndexed { index, exercise ->
+                val localizedName = exercise.getName(currentLang).ifBlank { exercise.getName("en") }
+                "${index + 1}. ${localizedName} / ${exercise.getName("en")}"
+            }
+            .distinct()
+            .take(80)
+            .joinToString("\n")
 
-            Existing local exercises for style and duplication control:
-            $catalog
+        val equipmentCatalog = Equipment.all.joinToString("\n") { equipment ->
+            val names = equipment.toLocalizedMap()
+            "- en='${names["en"]}'; ru='${names["ru"]}'; be='${names["be"]}'"
+        }
+        val equipmentRule = if (selectedEquipment.isBlank()) {
+            "Equipment is optional: choose exactly ONE most suitable equipment from the available equipment list below and put it into equipmentLocalized."
+        } else {
+            "Required equipment: $selectedEquipment. Use this equipment in equipmentLocalized."
+        }
+
+        return """
+            Generate ONE new fitness exercise.
+            Language for user-facing style: $currentLang.
+            User request: $userPrompt
+            Required body part: $selectedBodyPart
+            $equipmentRule
+            Difficulty/load range: $levelRange
+
+            Available equipment. If equipment is optional, choose only one item from this list:
+            $equipmentCatalog
+
+            Avoid duplicating these existing exercise names:
+            $existingNames
 
             Rules:
             - Return ONLY compact valid JSON. No markdown.
-            - Generate a NEW exercise, not an exact duplicate of existing exercises.
-            - Use the selected body part and selected equipment.
-            - Choose cardType correctly: STRENGTH, BIKE, or TREADMILL.
-            - If the equipment/body part is cardio-related, choose BIKE or TREADMILL only when appropriate; otherwise choose STRENGTH.
-            - Fill all localized fields for en, ru, be.
-            - Instructions must contain 3 to 5 clear safe steps for every language.
+            - The generated exercise must use the required body part.
+            - If equipment was not selected by the user, infer the most appropriate equipment from the exercise concept and the available equipment list.
+            - Do not invent equipment outside the available equipment list.
+            - Fill en, ru, be fields.
+            - Choose cardType: STRENGTH, BIKE, or TREADMILL.
+            - Use BIKE/TREADMILL only for cardio-machine exercises; otherwise use STRENGTH.
+            - Instructions: 3 to 5 short safe steps per language.
             - secondaryMusclesLocalized may be empty arrays.
 
             JSON schema:
-            {
-              "nameLocalized":{"en":"","ru":"","be":""},
-              "bodyPartLocalized":{"en":"","ru":"","be":""},
-              "equipmentLocalized":{"en":"","ru":"","be":""},
-              "targetLocalized":{"en":"","ru":"","be":""},
-              "secondaryMusclesLocalized":{"en":[""],"ru":[""],"be":[""]},
-              "cardType":"STRENGTH",
-              "instructionsLocalized":{"en":[""],"ru":[""],"be":[""]},
-              "note":""
-            }
+            {"nameLocalized":{"en":"","ru":"","be":""},"bodyPartLocalized":{"en":"","ru":"","be":""},"equipmentLocalized":{"en":"","ru":"","be":""},"targetLocalized":{"en":"","ru":"","be":""},"secondaryMusclesLocalized":{"en":[""],"ru":[""],"be":[""]},"cardType":"STRENGTH","instructionsLocalized":{"en":[""],"ru":[""],"be":[""]},"note":""}
         """.trimIndent()
     }
 
@@ -236,6 +255,11 @@ class GeminiAiGenerationApi {
         lang: String,
         allowedExercises: List<Exercise>
     ): String {
+        val equipmentRule = if (selectedEquipment.isEmpty()) {
+            "Selected equipment: Let AI choose. Use any suitable equipment from the allowed local exercises; do not invent new equipment."
+        } else {
+            "Selected equipment: ${selectedEquipment.joinToString()}. Select exercises according to this equipment list."
+        }
         val catalog = allowedExercises.joinToString("\n") { exercise ->
             "- id=${exercise.id}; en='${exercise.getName("en")}'; ru='${exercise.getName("ru")}'; be='${exercise.getName("be")}'; bodyPart='${exercise.getBodyPart(lang)}'; equipment='${exercise.getEquipment(lang)}'; cardType='${exercise.cardType}'"
         }
@@ -244,7 +268,7 @@ class GeminiAiGenerationApi {
             User language: $lang.
             User request: $userPrompt
             Selected body parts: ${selectedBodyParts.joinToString()}
-            Selected equipment: ${selectedEquipment.joinToString()}
+            $equipmentRule
             Selected difficulty: $difficulty
             Required exercise count range: from $minExercises to $maxExercises exercises
 
@@ -255,7 +279,9 @@ class GeminiAiGenerationApi {
             - Return ONLY compact valid JSON. No markdown.
             - Do NOT invent exercises.
             - Use only exerciseId values from the allowed list.
-            - Select exercises according to selected body parts and equipment.
+            - Select exercises according to selected body parts.
+            - If equipment was selected manually, respect that equipment list.
+            - If equipment is set to Let AI choose, choose suitable equipment from the allowed local exercises only.
             - Do not add abs/cardio/warmup unless requested.
             - Use at most ONE cardio exercise in the whole template.
             - Generate from $minExercises to $maxExercises exercises.
@@ -383,7 +409,7 @@ class GeminiAiGenerationApi {
             id = UUID.randomUUID().toString(),
             nameLocalized = json.stringMap("nameLocalized"),
             bodyPartLocalized = json.stringMap("bodyPartLocalized").ensureNotBlank(selectedBodyPart),
-            equipmentLocalized = json.stringMap("equipmentLocalized").ensureNotBlank(selectedEquipment),
+            equipmentLocalized = json.stringMap("equipmentLocalized").ensureNotBlank(selectedEquipment.ifBlank { Equipment.BodyWeight.getLabel("en") }),
             targetLocalized = json.stringMap("targetLocalized"),
             secondaryMusclesLocalized = json.stringListMap("secondaryMusclesLocalized"),
             cardType = cardType,

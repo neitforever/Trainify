@@ -1,7 +1,7 @@
 const ROUTES = {
   "/recognize-equipment": "gemini-2.5-flash",
-  "/generate-exercise": "gemma-4-31b-it",
-  "/generate-template": "gemma-4-31b-it",
+  "/generate-exercise": "gemini-3-flash-preview",
+  "/generate-template": "gemini-3.5-flash",
   "/suggest-exercise-selection": "gemini-3.1-flash-lite"
 };
 

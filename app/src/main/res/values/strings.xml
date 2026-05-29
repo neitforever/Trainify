@@ -351,16 +351,16 @@
     <string name="create_ai_template_description">Generate workout template</string>
     <string name="target">Target muscle</string>
     <string name="secondary_muscles">Secondary muscles</string>
-    <string name="ai_generation_required_fields">Fill in the description, muscle groups, equipment and difficulty.</string>
+    <string name="ai_generation_required_fields">Fill in the description, muscle group and difficulty.</string>
     <string name="ai_exercise_help_title">What can AI exercise generation do?</string>
-    <string name="ai_exercise_help_item_1">Creates a new exercise from your request, selected muscle group and equipment.</string>
-    <string name="ai_exercise_help_item_2">Uses local exercises as a reference and fills English, Russian and Belarusian fields.</string>
-    <string name="ai_exercise_help_item_3">After generation you can edit each block before saving.</string>
+    <string name="ai_exercise_help_item_1">Creates a new exercise from your request and selected muscle group.</string>
+    <string name="ai_exercise_help_item_2">Use “Let AI choose” to let the model select equipment from the app list.</string>
+    <string name="ai_exercise_help_item_3">Grouped cards make it easier to find muscle groups and equipment before generation.</string>
     <string name="exercise_type">Exercise type</string>
     <string name="ai_template_help_title">What AI template generation can do</string>
-    <string name="ai_template_help_item_1">Build a workout only from exercises saved in the app.</string>
-    <string name="ai_template_help_item_2">Respect selected muscle groups, equipment and difficulty.</string>
-    <string name="ai_template_help_item_3">Choose a suitable number of exercises and sets.</string>
+    <string name="ai_template_help_item_1">Builds a workout template only from exercises saved in the app.</string>
+    <string name="ai_template_help_item_2">You can expand or hide muscle and equipment groups; the header shows how many cards are selected.</string>
+    <string name="ai_template_help_item_3">Equipment can be selected manually or left as “Let AI choose”.</string>
     <string name="exercise_count_range">Exercise count</string>
     <string name="selected_exercise_count_range">From %1$d to %2$d exercises</string>
 
@@ -488,6 +488,11 @@
     <string name="ai_recommended_short">AI</string>
     <string name="selection_ai_help_title">AI selection tip</string>
     <string name="ai_recommended">AI recommended</string>
-    <string name="body_part_selection_ai_hint">The AI badge marks the muscle group that best matches the exercise name. Your selected option stays first in the list.</string>
-    <string name="equipment_selection_ai_hint">The AI badge marks the equipment that best matches the exercise name. Your selected option stays first in the list.</string>
+    <string name="body_part_selection_ai_hint">Grouped cards keep muscle groups in predictable sections. The AI badge marks the suggested group for the current exercise.</string>
+    <string name="equipment_selection_ai_hint">Grouped cards keep similar equipment together. The AI badge marks the suggested equipment for the current exercise.</string>
+    <string name="equipment_optional_title">Equipment</string>
+    <string name="ai_choose_equipment">Let AI choose</string>
+    <string name="equipment_optional_hint">Choose equipment manually or leave it to AI.</string>
+    <string name="ai_selection_group_title">AI selection</string>
+    <string name="selected_items_count">Selected: %1$d</string>
 </resources>

@@ -50,8 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
-import com.example.motivationcalendarapi.model.BodyPart
-import com.example.motivationcalendarapi.model.Equipment
+import com.example.motivationcalendarapi.model.ExerciseCatalog
 import com.example.motivationcalendarapi.model.ExerciseCardType
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
@@ -59,7 +58,6 @@ import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.model.getIconForBodyPart
-import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.ui.template.fragments.AddExerciseTemplate
 import com.example.motivationcalendarapi.viewmodel.AiTemplateGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
@@ -80,8 +78,7 @@ fun AiTemplateGeneratorScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val allExercises by exerciseViewModel.getAllExercises().collectAsState(initial = emptyList())
-    val bodyParts = remember(lang) { BodyPart.all.map { it.getLabel(lang) } }
-    val equipmentList = remember(lang) { Equipment.all.map { it.getLabel(lang) } }
+    val bodyPartGroups = remember(lang) { ExerciseCatalog.groupedBodyPartLabels(lang) }
     val state by aiTemplateGenerationViewModel.uiState.collectAsState()
     val mediumDifficulty = stringResource(R.string.medium)
     val defaultTemplateName = stringResource(R.string.template)
@@ -89,6 +86,16 @@ fun AiTemplateGeneratorScreen(
     val highDemandMessage = stringResource(R.string.gemini_high_demand_message)
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showExerciseSheet by remember { mutableStateOf(false) }
+    var bodyPartSectionExpanded by remember { mutableStateOf(false) }
+    var equipmentSectionExpanded by remember { mutableStateOf(false) }
+    val bodyPartExerciseCounts = remember(allExercises, lang) {
+        allExercises.groupingBy { it.getBodyPart(lang) }.eachCount()
+    }
+    val equipmentAutoLabel = stringResource(R.string.ai_choose_equipment)
+    val aiSelectionGroupTitle = stringResource(R.string.ai_selection_group_title)
+    val equipmentGroupsWithAi = remember(lang, equipmentAutoLabel, aiSelectionGroupTitle) {
+        listOf(aiSelectionGroupTitle to listOf(equipmentAutoLabel)) + ExerciseCatalog.groupedEquipmentLabels(lang)
+    }
     val inputEnabled = !state.isLoading
 
     LaunchedEffect(mediumDifficulty) {
@@ -123,22 +130,33 @@ fun AiTemplateGeneratorScreen(
                 item {
                     MultiChoiceCardsSectionState(
                         title = stringResource(R.string.body_part),
-                        options = bodyParts,
+                        optionGroups = bodyPartGroups,
                         selected = state.selectedBodyParts,
                         iconForOption = { getIconForBodyPart(it) },
                         onToggle = aiTemplateGenerationViewModel::toggleBodyPart,
-                        enabled = inputEnabled
+                        enabled = inputEnabled,
+                        expanded = bodyPartSectionExpanded,
+                        onExpandedChange = { bodyPartSectionExpanded = it },
+                        exerciseCounts = bodyPartExerciseCounts
                     )
                 }
 
                 item {
                     MultiChoiceCardsSectionState(
                         title = stringResource(R.string.equipment),
-                        options = equipmentList,
-                        selected = state.selectedEquipment,
-                        iconForOption = { getIconForEquipment(it) },
-                        onToggle = aiTemplateGenerationViewModel::toggleEquipment,
-                        enabled = inputEnabled
+                        optionGroups = equipmentGroupsWithAi,
+                        selected = if (state.selectedEquipment.isEmpty()) listOf(equipmentAutoLabel) else state.selectedEquipment,
+                        iconForOption = { option -> safeEquipmentIcon(option, equipmentAutoLabel) },
+                        onToggle = { option ->
+                            if (isAiChooseOption(option, equipmentAutoLabel)) {
+                                aiTemplateGenerationViewModel.clearEquipment()
+                            } else {
+                                aiTemplateGenerationViewModel.toggleEquipment(option)
+                            }
+                        },
+                        enabled = inputEnabled,
+                        expanded = equipmentSectionExpanded,
+                        onExpandedChange = { equipmentSectionExpanded = it }
                     )
                 }
 

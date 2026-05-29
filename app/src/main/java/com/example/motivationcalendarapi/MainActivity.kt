@@ -168,9 +168,10 @@ class MainActivity : ComponentActivity() {
             }
 
 
-            val googleAuthClient = GoogleAuthClient(context = this)
-            val authViewModel =
+            val googleAuthClient = remember { GoogleAuthClient(context = this@MainActivity) }
+            val authViewModel = remember(googleAuthClient) {
                 AuthViewModel(googleAuthClient, bodyProgressRepository, workoutRepository)
+            }
             val userState = authViewModel.userState.collectAsState()
 
             LaunchedEffect(currentNotificationDestination, userState.value) {

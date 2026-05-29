@@ -60,8 +60,13 @@ class AuthViewModel(
             _userState.value = UserState.Loading
             val success = authClient.signIn()
             if (success) {
-                syncLocalDataToFirestore()
-                checkAuthState()
+                val user = authClient.getCurrentUser()
+                if (user != null) {
+                    _userState.value = UserState.Authenticated(user)
+                    runCatching { syncLocalDataToFirestore() }
+                } else {
+                    checkAuthState()
+                }
             } else {
                 _userState.value = UserState.Error("Ошибка авторизации")
             }

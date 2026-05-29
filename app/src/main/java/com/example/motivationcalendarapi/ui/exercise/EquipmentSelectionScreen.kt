@@ -55,6 +55,7 @@ import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseCatalog
 import com.example.motivationcalendarapi.model.LocalizedOption
+import com.example.motivationcalendarapi.model.LocalizedOptionGroup
 import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.ui.dialogs.ErrorDialog
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
@@ -101,11 +102,12 @@ fun EquipmentSelectionScreen(
         )
     }
 
-    val orderedEquipmentOptions = remember(selectedKeyState.value, suggestedEquipmentKey) {
-        prioritizeSelectionOptions(
-            options = ExerciseCatalog.equipment,
+    val optionSections = remember(selectedKeyState.value, suggestedEquipmentKey, lang) {
+        groupedPrioritizedSelectionOptions(
+            groups = ExerciseCatalog.equipmentGroups,
             selectedKey = selectedKeyState.value,
-            suggestedKey = suggestedEquipmentKey
+            suggestedKey = suggestedEquipmentKey,
+            lang = lang
         )
     }
 
@@ -190,29 +192,35 @@ fun EquipmentSelectionScreen(
                 )
             }
 
-            items(orderedEquipmentOptions.chunked(3)) { rowOptions ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    rowOptions.forEach { option ->
-                        EquipmentSelectionCard(
-                            option = option,
-                            lang = lang,
-                            isSelected = option.key == selectedKeyState.value,
-                            isAiSuggested = option.key == suggestedEquipmentKey,
-                            onClick = {
-                                if (option.key == selectedKeyState.value) {
-                                    saveSelectedEquipment()
-                                } else {
-                                    selectedKeyState.value = option.key
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    repeat(3 - rowOptions.size) {
-                        Spacer(modifier = Modifier.weight(1f))
+            optionSections.forEach { section ->
+                if (section.title.isNotBlank()) {
+                    item { SelectionGroupTitle(section.title) }
+                }
+
+                items(section.options.chunked(3)) { rowOptions ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowOptions.forEach { option ->
+                            EquipmentSelectionCard(
+                                option = option,
+                                lang = lang,
+                                isSelected = option.key == selectedKeyState.value,
+                                isAiSuggested = option.key == suggestedEquipmentKey,
+                                onClick = {
+                                    if (option.key == selectedKeyState.value) {
+                                        saveSelectedEquipment()
+                                    } else {
+                                        selectedKeyState.value = option.key
+                                    }
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        repeat(3 - rowOptions.size) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
                 }
             }
@@ -327,8 +335,8 @@ private fun EquipmentSelectionCard(
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = titleColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 2,
+                    overflow = TextOverflow.Clip,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -336,18 +344,4 @@ private fun EquipmentSelectionCard(
             }
         }
     }
-}
-
-private fun prioritizeSelectionOptions(
-    options: List<LocalizedOption>,
-    selectedKey: String?,
-    suggestedKey: String?
-): List<LocalizedOption> {
-    val pinnedKeys = listOfNotNull(
-        selectedKey?.takeIf { it.isNotBlank() },
-        suggestedKey?.takeIf { it.isNotBlank() && it != selectedKey }
-    )
-    val pinned = pinnedKeys.mapNotNull { key -> options.firstOrNull { it.key == key } }
-    val rest = options.filterNot { option -> pinnedKeys.contains(option.key) }
-    return pinned + rest
 }

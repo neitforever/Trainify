@@ -56,6 +56,7 @@ import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.ExerciseCatalog
 import com.example.motivationcalendarapi.model.LocalizedOption
+import com.example.motivationcalendarapi.model.LocalizedOptionGroup
 import com.example.motivationcalendarapi.model.getIconForBodyPart
 import com.example.motivationcalendarapi.ui.dialogs.ErrorDialog
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
@@ -102,11 +103,12 @@ fun BodyPartSelectionScreen(
         )
     }
 
-    val orderedBodyPartOptions = remember(selectedKeyState.value, suggestedBodyPartKey) {
-        prioritizeSelectionOptions(
-            options = ExerciseCatalog.bodyParts,
+    val optionSections = remember(selectedKeyState.value, suggestedBodyPartKey, lang) {
+        groupedPrioritizedSelectionOptions(
+            groups = ExerciseCatalog.bodyPartGroups,
             selectedKey = selectedKeyState.value,
-            suggestedKey = suggestedBodyPartKey
+            suggestedKey = suggestedBodyPartKey,
+            lang = lang
         )
     }
 
@@ -191,29 +193,35 @@ fun BodyPartSelectionScreen(
                 )
             }
 
-            items(orderedBodyPartOptions.chunked(3)) { rowOptions ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    rowOptions.forEach { option ->
-                        BodyPartSelectionCard(
-                            option = option,
-                            lang = lang,
-                            isSelected = option.key == selectedKeyState.value,
-                            isAiSuggested = option.key == suggestedBodyPartKey,
-                            onClick = {
-                                if (option.key == selectedKeyState.value) {
-                                    saveSelectedBodyPart()
-                                } else {
-                                    selectedKeyState.value = option.key
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    repeat(3 - rowOptions.size) {
-                        Spacer(modifier = Modifier.weight(1f))
+            optionSections.forEach { section ->
+                if (section.title.isNotBlank()) {
+                    item { SelectionGroupTitle(section.title) }
+                }
+
+                items(section.options.chunked(3)) { rowOptions ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowOptions.forEach { option ->
+                            BodyPartSelectionCard(
+                                option = option,
+                                lang = lang,
+                                isSelected = option.key == selectedKeyState.value,
+                                isAiSuggested = option.key == suggestedBodyPartKey,
+                                onClick = {
+                                    if (option.key == selectedKeyState.value) {
+                                        saveSelectedBodyPart()
+                                    } else {
+                                        selectedKeyState.value = option.key
+                                    }
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        repeat(3 - rowOptions.size) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
                 }
             }
@@ -328,8 +336,8 @@ private fun BodyPartSelectionCard(
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = titleColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 2,
+                    overflow = TextOverflow.Clip,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -337,18 +345,4 @@ private fun BodyPartSelectionCard(
             }
         }
     }
-}
-
-private fun prioritizeSelectionOptions(
-    options: List<LocalizedOption>,
-    selectedKey: String?,
-    suggestedKey: String?
-): List<LocalizedOption> {
-    val pinnedKeys = listOfNotNull(
-        selectedKey?.takeIf { it.isNotBlank() },
-        suggestedKey?.takeIf { it.isNotBlank() && it != selectedKey }
-    )
-    val pinned = pinnedKeys.mapNotNull { key -> options.firstOrNull { it.key == key } }
-    val rest = options.filterNot { option -> pinnedKeys.contains(option.key) }
-    return pinned + rest
 }

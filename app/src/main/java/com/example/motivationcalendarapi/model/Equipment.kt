@@ -100,5 +100,7 @@ sealed class Equipment(
 }
 
 fun getIconForEquipment(equipment: String): Int {
-    return Equipment.fromString(equipment).iconResId
+    if (equipment.isBlank()) return Equipment.Unknown.iconResId
+    return runCatching { Equipment.fromString(equipment).iconResId }
+        .getOrDefault(Equipment.Unknown.iconResId)
 }

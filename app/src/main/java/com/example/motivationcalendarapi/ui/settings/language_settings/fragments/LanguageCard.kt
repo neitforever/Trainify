@@ -21,18 +21,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 
 @Composable
 fun LanguageCard(
-    title: String, languageCode: String, isSelected: Boolean, onClick: () -> Unit
+    title: String,
+    languageCode: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    topPadding: Dp = 12.dp
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(top = 12.dp),
+            .padding(top = topPadding),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {

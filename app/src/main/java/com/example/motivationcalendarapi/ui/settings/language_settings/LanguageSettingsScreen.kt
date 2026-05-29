@@ -3,7 +3,9 @@ package com.example.motivationcalendarapi.ui.settings.language_settings
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -35,6 +37,8 @@ fun LanguageSettingsScreen(
             .padding(horizontal = 8.dp)
             .padding(top = paddingValues)
     ) {
+        Spacer(modifier = Modifier.height(12.dp))
+
         LanguageCard(
             title = stringResource(R.string.russian),
             languageCode = "ru",

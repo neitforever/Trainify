@@ -128,10 +128,11 @@ fun PermissionSettingsScreen(paddingValues: Dp) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 12.dp)
-                .padding(top = 12.dp)
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+            Spacer(modifier = Modifier.height(12.dp))
+
         PermissionInfoCard()
 
         PermissionSection(title = stringResource(R.string.permission_section_runtime)) {

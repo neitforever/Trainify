@@ -48,10 +48,13 @@ fun WorkoutSettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .padding(horizontal = 16.dp)
             .padding(top = paddingValues)
+            .padding(bottom = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
+        Spacer(modifier = Modifier.height(12.dp))
+
         SettingsSection(title = stringResource(R.string.repetitions_configuration)) {
             NumberSettingItem(
                 title = stringResource(R.string.minimum_reps),

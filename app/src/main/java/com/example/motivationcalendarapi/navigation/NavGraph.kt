@@ -27,6 +27,7 @@ import com.example.motivationcalendarapi.ui.exercise.ai.AiTemplateGeneratorScree
 import com.example.motivationcalendarapi.ui.exercise.ai.AiExerciseGeneratorScreen
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -212,6 +213,7 @@ fun NavGraph(
 
                     if (it.route == currentRoute && it.route != Screen.Auth.route) {
                         TopAppBar(
+                windowInsets = WindowInsets(top = 20.dp),
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = MaterialTheme.colorScheme.background,
                                 titleContentColor = MaterialTheme.colorScheme.primary,

@@ -53,12 +53,14 @@ fun SettingsScreen(
             .padding(horizontal = 8.dp)
             .padding(top = paddingValues)
     ) {
+        Spacer(modifier = Modifier.height(12.dp))
+
         items.forEachIndexed { index, screen ->
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { navController.navigate(screen.route) }
-                    .padding(top = 12.dp),
+                    .padding(top = if (index == 0) 0.dp else 12.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = MaterialTheme.shapes.medium,
                 tonalElevation = 2.dp)

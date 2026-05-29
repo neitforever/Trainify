@@ -70,10 +70,12 @@ fun NotificationSettingsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 12.dp)
-            .padding(top = paddingValues + 12.dp)
+            .padding(top = paddingValues)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        Spacer(modifier = Modifier.height(12.dp))
+
         if (!hasPermission) {
             PermissionCard(
                 hasPermission = false,

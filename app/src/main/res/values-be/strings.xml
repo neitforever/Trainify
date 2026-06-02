@@ -499,4 +499,7 @@
     <string name="equipment_optional_hint">Выберыце абсталяванне ўручную або пакіньце выбар ШІ.</string>
     <string name="ai_selection_group_title">Выбар AI</string>
     <string name="selected_items_count">Выбрана: %1$d</string>
+
+    <string name="workouts_for_date">Трэніроўкі за %1$s</string>
+    <string name="select_workout_to_view">Выберыце трэніроўку</string>
 </resources>

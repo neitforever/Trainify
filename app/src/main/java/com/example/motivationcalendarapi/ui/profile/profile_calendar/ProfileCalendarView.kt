@@ -14,13 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.ui.profile.fragments.ProfileMonthCalendar
+import com.example.motivationcalendarapi.utils.groupByLocalDate
+import com.example.motivationcalendarapi.utils.rank
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
-import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.ZoneId
 
 @Composable
 fun ProfileCalendarView(
@@ -36,12 +37,12 @@ fun ProfileCalendarView(
         currentDate.withDayOfMonth(1)
     )
 
-
     val workoutDifficulties = remember(workouts) {
-        workouts.associate { workout ->
-            Instant.ofEpochMilli(workout.timestamp)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate() to workoutViewModel.calculateWorkoutDifficulty(workout)
+        workouts.groupByLocalDate().mapValues { (_, dayWorkouts) ->
+            dayWorkouts
+                .map { workout -> workoutViewModel.calculateWorkoutDifficulty(workout) }
+                .maxByOrNull { difficulty -> difficulty.rank() }
+                ?: DifficultyLevel.EASY
         }
     }
 

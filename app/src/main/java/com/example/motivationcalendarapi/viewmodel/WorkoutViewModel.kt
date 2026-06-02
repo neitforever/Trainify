@@ -724,21 +724,25 @@ class WorkoutViewModel(
     }
 
     fun checkForExistingWorkout() {
-        if (workoutsToday.value.isNotEmpty()) {
-            _showOverwriteDialog.value = true
-        } else {
-            startWorkout()
-        }
+        startNewWorkoutForToday()
     }
 
     fun confirmOverwrite() {
-        viewModelScope.launch {
-            workoutsToday.value.forEach { workout ->
-                workoutRepository.delete(workout)
-            }
-            _showOverwriteDialog.value = false
-            startWorkout()
-        }
+        _showOverwriteDialog.value = false
+        startNewWorkoutForToday()
+    }
+
+    private fun startNewWorkoutForToday() {
+        _showOverwriteDialog.value = false
+        _timerRunning.value = false
+        savedStateHandle.set(TIMER_RUNNING_KEY, false)
+        _timerValue.value = 0
+        _workoutName.value = ""
+        startTime = 0L
+        totalPausedDuration = 0L
+        _selectedExercises.value = emptyList()
+        _exerciseSetsMap.value = emptyMap()
+        startWorkout()
     }
 
     fun dismissOverwriteDialog() {
@@ -889,12 +893,15 @@ class WorkoutViewModel(
         val savedTimestamp = System.currentTimeMillis()
 
         viewModelScope.launch {
-            val workout = Workout(
+            val workoutWithoutDifficulty = Workout(
                 name = savedWorkoutName,
                 duration = savedDuration,
                 timestamp = savedTimestamp,
                 averageHeartRate = averageHeartRate,
                 exercises = exercises
+            )
+            val workout = workoutWithoutDifficulty.copy(
+                difficulty = calculateWorkoutDifficulty(workoutWithoutDifficulty)
             )
             workoutRepository.insertWorkout(workout)
             resetWorkout()

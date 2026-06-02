@@ -121,7 +121,13 @@ fun ExerciseDetailScreen(
             }, actions = {
                 selectedExercise.value?.let { exercise ->
                     val isFavorite = favoriteExercises.any { it.id == exercise.id }
-                    IconButton(onClick = { viewModel.toggleFavorite(exercise) }) {
+                    IconButton(
+                        onClick = {
+                            val updatedExercise = exercise.copy(favorite = isFavorite)
+                            viewModel.toggleFavorite(updatedExercise)
+                            selectedExercise.value = exercise.copy(favorite = !isFavorite)
+                        }
+                    ) {
                         Icon(
                             painter = painterResource(
                                 id = if (isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border

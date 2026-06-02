@@ -96,6 +96,31 @@ class GeminiAiGenerationApi {
     }
 
 
+    suspend fun translateTemplateName(
+        name: String,
+        sourceLang: String
+    ): Map<String, String> = withContext(Dispatchers.IO) {
+        val url = BuildConfig.GEMINI_TRANSLATION_URL
+        if (url.isBlank()) error("GEMINI_TRANSLATION_URL is empty in local.properties")
+
+        val trimmedName = name.trim()
+        if (trimmedName.isBlank()) return@withContext emptyMap()
+
+        val modelPrompt = buildTemplateNameTranslationPrompt(trimmedName, sourceLang)
+        logLarge("translateTemplateName.prompt", modelPrompt)
+
+        val request = buildGeminiRequest(
+            modelPrompt,
+            temperature = 0.05
+        )
+        logLarge("translateTemplateName.requestBody", request)
+
+        val responseText = post(url, request)
+        val result = parseCandidateJson(responseText, "translateTemplateName")
+        result.stringMap("nameLocalized").ensureNotBlank(trimmedName)
+    }
+
+
     suspend fun suggestExerciseSelection(
         exerciseName: String,
         selectionType: String,
@@ -144,6 +169,32 @@ class GeminiAiGenerationApi {
         return gson.toJson(root)
     }
 
+
+
+    private fun buildTemplateNameTranslationPrompt(name: String, sourceLang: String): String {
+        val normalizedLang = when (sourceLang.lowercase(Locale.ROOT)) {
+            "ru" -> "ru"
+            "be", "by" -> "be"
+            "en" -> "en"
+            else -> "en"
+        }
+
+        return """
+            Translate a user-created workout template name into three UI languages.
+            Source language code: $normalizedLang
+            Source name: $name
+
+            Requirements:
+            - Return ONLY compact valid JSON. No markdown.
+            - Preserve the meaning and fitness context.
+            - Do not add explanations, emojis, quotes, or extra words.
+            - Use natural short template names for a fitness app.
+            - If the name contains a proper noun, brand, or untranslatable token, preserve it.
+
+            JSON schema:
+            {"nameLocalized":{"en":"","ru":"","be":""}}
+        """.trimIndent()
+    }
 
     private fun buildSelectionSuggestionPrompt(
         exerciseName: String,

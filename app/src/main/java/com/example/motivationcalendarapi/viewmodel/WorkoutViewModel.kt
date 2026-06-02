@@ -20,6 +20,7 @@ import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.ActiveWorkoutDraft
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
+import com.example.motivationcalendarapi.repositories.ai.GeminiAiGenerationApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -46,6 +47,8 @@ class WorkoutViewModel(
     private val timerDataStore: TimerDataStore,
     mainRepository: MainRepository,
 ) : ViewModel() {
+
+    private val geminiAiGenerationApi = GeminiAiGenerationApi()
 
     private var isRestoringActiveWorkout = false
 
@@ -235,23 +238,21 @@ class WorkoutViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val template = workoutRepository.getTemplateById(templateId).first() ?: return@launch
+            val normalizedLang = normalizeLanguageCode(lang)
+            val trimmedName = newName.trim()
 
-            val normalizedLang = when (lang.lowercase()) {
-                "ru" -> "ru"
-                "be", "by" -> "be"
-                "en" -> "en"
-                else -> "en"
+            val updatedNameLocalized = try {
+                geminiAiGenerationApi.translateTemplateName(trimmedName, normalizedLang)
+            } catch (e: Exception) {
+                android.util.Log.e("WorkoutDebug", "translate template name failed", e)
+                template.nameLocalized.toMutableMap().apply {
+                    this[normalizedLang] = trimmedName
+                }
             }
 
-            val updatedNameLocalized = template.nameLocalized.toMutableMap().apply {
-                this[normalizedLang] = newName
-            }
-
-            val updatedTemplate = template.copy(
-                nameLocalized = updatedNameLocalized
+            workoutRepository.updateTemplate(
+                template.copy(nameLocalized = updatedNameLocalized)
             )
-
-            workoutRepository.updateTemplate(updatedTemplate)
         }
     }
 
@@ -299,12 +300,8 @@ class WorkoutViewModel(
         templateName: String,
         lang: String
     ) {
-        val normalizedLang = when (lang.lowercase()) {
-            "ru" -> "ru"
-            "be" -> "be"
-            "en" -> "en"
-            else -> "en"
-        }
+        val normalizedLang = normalizeLanguageCode(lang)
+        val trimmedName = templateName.trim()
 
         val templateExercises = workout.exercises.map { extendedExercise ->
             extendedExercise.copy(
@@ -314,17 +311,42 @@ class WorkoutViewModel(
             )
         }
 
-        val template = Template(
-            name = "",
-            nameLocalized = mapOf(
-                normalizedLang to templateName
-            ),
-            exercises = templateExercises,
-            timestamp = System.currentTimeMillis()
-        )
-
         viewModelScope.launch(Dispatchers.IO) {
+            val nameLocalized = try {
+                geminiAiGenerationApi.translateTemplateName(trimmedName, normalizedLang)
+            } catch (e: Exception) {
+                android.util.Log.e("WorkoutDebug", "translate template name failed", e)
+                fallbackTemplateNameLocalization(trimmedName, normalizedLang)
+            }
+
+            val template = Template(
+                name = "",
+                nameLocalized = nameLocalized,
+                exercises = templateExercises,
+                timestamp = System.currentTimeMillis()
+            )
+
             workoutRepository.insertTemplate(template)
+        }
+    }
+
+    private fun normalizeLanguageCode(lang: String): String {
+        return when (lang.lowercase()) {
+            "ru" -> "ru"
+            "be", "by" -> "be"
+            "en" -> "en"
+            else -> "en"
+        }
+    }
+
+    private fun fallbackTemplateNameLocalization(name: String, lang: String): Map<String, String> {
+        val normalizedLang = normalizeLanguageCode(lang)
+        return mapOf(
+            "en" to name,
+            "ru" to name,
+            "be" to name
+        ).toMutableMap().apply {
+            this[normalizedLang] = name
         }
     }
 

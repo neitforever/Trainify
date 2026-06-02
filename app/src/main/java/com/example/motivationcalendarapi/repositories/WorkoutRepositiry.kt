@@ -13,6 +13,8 @@ import com.example.motivationcalendarapi.repositories.reward.RewardFirestoreRepo
 import com.example.motivationcalendarapi.repositories.reward.RewardRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.delay
+import android.util.Log
 
 
 class WorkoutRepository(
@@ -68,7 +70,7 @@ class WorkoutRepository(
             }
 
             println("Starting sync...")
-            val remote = templateFirestoreRepo.getAllTemplatesOnce()
+            val remote = templateFirestoreRepo.getAllTemplatesOnce(waitForAuth = true)
             println("Remote templates: ${remote.size}")
 
             val local = appDatabase.templateDao().getAllTemplates().first()
@@ -115,6 +117,24 @@ class WorkoutRepository(
         }
         return merged
     }
+    private suspend fun getUserTemplatesWithRetries(): List<Template> {
+        val delays = listOf(0L, 1_500L, 3_000L, 5_000L)
+
+        delays.forEachIndexed { index, delayMillis ->
+            if (delayMillis > 0L) delay(delayMillis)
+
+            val userTemplates = templateFirestoreRepo.getAllTemplatesOnce(waitForAuth = true)
+            Log.d(
+                "FirestoreFallback",
+                "User templates attempt=${index + 1} count=${userTemplates.size} uid=${currentUser?.uid}"
+            )
+
+            if (userTemplates.isNotEmpty()) return userTemplates
+        }
+
+        return emptyList()
+    }
+
     suspend fun initializeDefaultTemplates() {
         try {
             val localTemplates = appDatabase.templateDao()
@@ -123,30 +143,42 @@ class WorkoutRepository(
 
             if (localTemplates.isNotEmpty()) return
 
-            val remoteUserTemplates = if (currentUser != null) {
-                templateFirestoreRepo.getAllTemplatesOnce()
-            } else {
-                emptyList()
-            }
+            val remoteUserTemplates = getUserTemplatesWithRetries()
 
             if (remoteUserTemplates.isNotEmpty()) {
                 appDatabase.templateDao().insertAll(remoteUserTemplates)
                 return
             }
 
+            Log.d(
+                "FirestoreFallback",
+                "User templates are still empty after retries. Root fallback will run after extra delay. uid=${currentUser?.uid}"
+            )
+            delay(5_000L)
+
+            val finalUserTemplates = templateFirestoreRepo.getAllTemplatesOnce(waitForAuth = true)
+            Log.d(
+                "FirestoreFallback",
+                "Final user templates check before root. count=${finalUserTemplates.size} uid=${currentUser?.uid}"
+            )
+            if (finalUserTemplates.isNotEmpty()) {
+                appDatabase.templateDao().insertAll(finalUserTemplates)
+                return
+            }
+
             val defaultTemplates = templateFirestoreRepo.getDefaultTemplatesOnce()
+            Log.d("FirestoreFallback", "Load root templates count=${defaultTemplates.size}")
 
             if (defaultTemplates.isEmpty()) return
 
             appDatabase.templateDao().insertAll(defaultTemplates)
 
-            if (currentUser != null) {
-                templateFirestoreRepo.saveDefaultTemplatesForUser(defaultTemplates)
-            }
         } catch (e: Exception) {
             println("initializeDefaultTemplates error: ${e.message}")
         }
     }
+
+    suspend fun reloadTemplatesFromFirestoreIfRoomEmpty() = initializeDefaultTemplates()
 
     suspend fun updateTemplateSet(templateId: String, exerciseIndex: Int, setIndex: Int, newSet: ExerciseSet) {
         val template = appDatabase.templateDao().getTemplateById(templateId).first()

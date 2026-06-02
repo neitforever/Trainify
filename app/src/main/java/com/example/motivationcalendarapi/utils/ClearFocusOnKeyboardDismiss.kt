@@ -1,4 +1,4 @@
-package com.example.motivationcalendarapi.ui.common
+package com.example.motivationcalendarapi.utils
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime

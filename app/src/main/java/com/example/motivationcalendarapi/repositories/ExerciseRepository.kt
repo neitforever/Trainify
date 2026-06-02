@@ -7,6 +7,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
+import android.util.Log
 import java.util.Locale
 
 class ExerciseRepository(
@@ -46,19 +48,59 @@ class ExerciseRepository(
 
     private val currentUser get() = auth.currentUser
 
+    private suspend fun getUserExercisesWithRetries(): List<Exercise> {
+        val delays = listOf(0L, 1_500L, 3_000L, 5_000L)
+
+        delays.forEachIndexed { index, delayMillis ->
+            if (delayMillis > 0L) delay(delayMillis)
+
+            val userExercises = firestoreRepo.getUserExercisesOnce(waitForAuth = true)
+            Log.d(
+                "FirestoreFallback",
+                "User exercises attempt=${index + 1} count=${userExercises.size} uid=${auth.currentUser?.uid}"
+            )
+
+            if (userExercises.isNotEmpty()) return userExercises
+        }
+
+        return emptyList()
+    }
+
     suspend fun initializeExercises() = withContext(Dispatchers.IO) {
         val localCount = appDatabase.exerciseDao().getExerciseCount()
+        if (localCount != 0) return@withContext
 
-        if (localCount == 0) {
-            val localizedExercises = firestoreRepo.getLocalizedExercises()
-
-            if (auth.currentUser != null) {
-                firestoreRepo.saveLocalizedExercisesForUser(localizedExercises)
-            }
-
-            appDatabase.exerciseDao().insertAllExercises(localizedExercises)
+        val userExercises = getUserExercisesWithRetries()
+        if (userExercises.isNotEmpty()) {
+            appDatabase.exerciseDao().insertAllExercises(userExercises)
+            return@withContext
         }
+
+        Log.d(
+            "FirestoreFallback",
+            "User exercises are still empty after retries. Root fallback will run after extra delay. uid=${auth.currentUser?.uid}"
+        )
+        delay(5_000L)
+
+        val finalUserExercises = firestoreRepo.getUserExercisesOnce(waitForAuth = true)
+        Log.d(
+            "FirestoreFallback",
+            "Final user exercises check before root. count=${finalUserExercises.size} uid=${auth.currentUser?.uid}"
+        )
+        if (finalUserExercises.isNotEmpty()) {
+            appDatabase.exerciseDao().insertAllExercises(finalUserExercises)
+            return@withContext
+        }
+
+        val rootExercises = firestoreRepo.getRootExercisesOnce()
+        Log.d("FirestoreFallback", "Load root exercises count=${rootExercises.size}")
+        if (rootExercises.isEmpty()) return@withContext
+
+        appDatabase.exerciseDao().insertAllExercises(rootExercises)
+
     }
+
+    suspend fun reloadExercisesFromFirestoreIfRoomEmpty() = initializeExercises()
 
     suspend fun insertExercise(exercise: Exercise) = withContext(Dispatchers.IO) {
         if (currentUser != null) {
@@ -104,7 +146,7 @@ class ExerciseRepository(
     suspend fun syncExercisesWithFirestore() = withContext(Dispatchers.IO) {
         if (currentUser == null) return@withContext
 
-        val remoteExercises = firestoreRepo.getAllExercisesOnce()
+        val remoteExercises = firestoreRepo.getUserExercisesOnce(waitForAuth = true)
         val localExercises = appDatabase.exerciseDao().getAllExercisesOnce()
 
         val updatedExercises = remoteExercises.map { remote ->
@@ -120,7 +162,7 @@ class ExerciseRepository(
     suspend fun syncMissingExercisesFromFirestore() = withContext(Dispatchers.IO) {
         if (currentUser == null) return@withContext
 
-        val remoteExercises = firestoreRepo.getAllExercisesOnce()
+        val remoteExercises = firestoreRepo.getUserExercisesOnce(waitForAuth = true)
         val localExercises = appDatabase.exerciseDao().getAllExercisesOnce()
         val localIds = localExercises.map { it.id }.toSet()
 

@@ -142,7 +142,7 @@ fun NavGraph(
         Screen.Profile,
         Screen.LanguageSettings,
         Screen.NotificationSettings,
-        Screen.PermissionSettings
+        Screen.PermissionSettings,
     )
     ModalNavigationDrawer(drawerState = drawerState.value, drawerContent = {
         if (userState.value is AuthViewModel.UserState.Authenticated) {
@@ -213,7 +213,7 @@ fun NavGraph(
 
                     if (it.route == currentRoute && it.route != Screen.Auth.route) {
                         TopAppBar(
-                windowInsets = WindowInsets(top = 20.dp),
+                windowInsets = WindowInsets(top = 32.dp),
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = MaterialTheme.colorScheme.background,
                                 titleContentColor = MaterialTheme.colorScheme.primary,

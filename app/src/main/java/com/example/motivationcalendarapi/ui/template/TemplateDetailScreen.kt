@@ -6,8 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -143,8 +143,7 @@ fun TemplateDetailScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .padding(bottom = paddingValues.calculateBottomPadding())
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                     .padding(top = paddingTopValues)
             ) {
                 item {
@@ -290,7 +289,7 @@ fun TemplateDetailScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp))
+                    Spacer(modifier = Modifier.height(200.dp))
                 }
             }
 

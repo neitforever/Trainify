@@ -139,7 +139,7 @@ fun BodyPartSelectionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets(top = 20.dp),
+                windowInsets = WindowInsets(top = 32.dp),
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.primary,

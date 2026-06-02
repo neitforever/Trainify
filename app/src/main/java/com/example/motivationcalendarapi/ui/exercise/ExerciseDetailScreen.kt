@@ -94,7 +94,7 @@ fun ExerciseDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets(top = 20.dp),colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                windowInsets = WindowInsets(top = 32.dp),colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 titleContentColor = MaterialTheme.colorScheme.primary,
             ), navigationIcon = {

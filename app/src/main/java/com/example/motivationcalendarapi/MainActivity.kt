@@ -38,7 +38,7 @@ import com.example.motivationcalendarapi.viewmodel.NotificationSettingsViewModel
 import com.example.motivationcalendarapi.viewmodel.NotificationSettingsViewModelFactory
 import com.example.motivationcalendarapi.repositories.MainRepository
 import com.example.motivationcalendarapi.repositories.TemplateFirestoreRepository
-import com.example.motivationcalendarapi.ui.common.ClearFocusOnKeyboardDismiss
+import com.example.motivationcalendarapi.utils.ClearFocusOnKeyboardDismiss
 import com.example.motivationcalendarapi.repositories.TimerDataStore
 import com.example.motivationcalendarapi.repositories.WorkoutFirestoreRepository
 import com.example.motivationcalendarapi.repositories.WorkoutRepository

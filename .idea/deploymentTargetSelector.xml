@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="Trainify">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-05-29T18:12:43.249898Z">
+        <DropdownSelection timestamp="2026-06-01T12:46:13.344315Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Default" identifier="serial=192.168.0.16:40371;connection=f1d28571" />
+              <DeviceId pluginId="Default" identifier="serial=192.168.0.16:42211;connection=180ecf8d" />
             </handle>
           </Target>
         </DropdownSelection>

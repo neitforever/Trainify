@@ -61,7 +61,7 @@ fun SearchExerciseScreen(
 
     Scaffold(topBar = {
         TopAppBar(
-                windowInsets = WindowInsets(top = 20.dp),colors = TopAppBarDefaults.topAppBarColors(
+                windowInsets = WindowInsets(top = 32.dp),colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             titleContentColor = MaterialTheme.colorScheme.primary,
         ), title = {

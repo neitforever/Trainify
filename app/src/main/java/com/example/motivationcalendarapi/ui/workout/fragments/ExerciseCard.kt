@@ -64,7 +64,11 @@ fun ExerciseCard(
     canMoveDown: Boolean,
     workoutViewModel: WorkoutViewModel,
     navController: NavController,
-    lang: String
+    lang: String,
+    onDeleteExercise: (() -> Unit)? = null,
+    onSetStatusClick: ((Int, Int, SetStatus) -> Unit)? = null,
+    onDeleteSetClick: ((Int, Int) -> Unit)? = null,
+    showMaxSetMenu: Boolean = true
 ) {
     val isExpanded = remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
@@ -77,8 +81,8 @@ fun ExerciseCard(
 
     val cardType = exercise.exercise.getCardType(lang)
 
-    val maxSet = remember(exercise.exercise.id) {
-        workoutViewModel.findMaxSetForExercise(exercise.exercise.id)
+    val maxSet = remember(exercise.exercise.id, showMaxSetMenu) {
+        if (showMaxSetMenu) workoutViewModel.findMaxSetForExercise(exercise.exercise.id) else null
     }
 
     LaunchedEffect(currentNote) {
@@ -179,7 +183,7 @@ fun ExerciseCard(
                                 )
                             }
                         }, onClick = {
-                            workoutViewModel.removeExercise(index)
+                            onDeleteExercise?.invoke() ?: workoutViewModel.removeExercise(index)
                             showMenu = false
                         })
                         DropdownMenuItem(text = {
@@ -245,7 +249,9 @@ fun ExerciseCard(
                     exerciseSets = exerciseSets,
                     onRepClick = onRepClick,
                     onWeightClick = onWeightClick,
-                    workoutViewModel = workoutViewModel
+                    workoutViewModel = workoutViewModel,
+                    onSetStatusClick = onSetStatusClick,
+                    onDeleteSetClick = onDeleteSetClick
                 )
             }
 
@@ -255,7 +261,9 @@ fun ExerciseCard(
                     exerciseSets = exerciseSets,
                     onTimeClick = onTimeClick,
                     onResistanceClick = onResistanceClick,
-                    workoutViewModel = workoutViewModel
+                    workoutViewModel = workoutViewModel,
+                    onSetStatusClick = onSetStatusClick,
+                    onDeleteSetClick = onDeleteSetClick
                 )
             }
 
@@ -266,7 +274,9 @@ fun ExerciseCard(
                     onTimeClick = onTimeClick,
                     onResistanceClick = onResistanceClick,
                     onInclineClick = onInclineClick,
-                    workoutViewModel = workoutViewModel
+                    workoutViewModel = workoutViewModel,
+                    onSetStatusClick = onSetStatusClick,
+                    onDeleteSetClick = onDeleteSetClick
                 )
             }
         }
@@ -343,7 +353,9 @@ private fun StrengthSetsTable(
     exerciseSets: List<ExerciseSet>,
     onRepClick: (Int, Int) -> Unit,
     onWeightClick: (Int, Int) -> Unit,
-    workoutViewModel: WorkoutViewModel
+    workoutViewModel: WorkoutViewModel,
+    onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
+    onDeleteSetClick: ((Int, Int) -> Unit)?
 ) {
     SetsTable(
         index = index,
@@ -360,7 +372,9 @@ private fun StrengthSetsTable(
                 onClick = onWeightClick
             )
         ),
-        workoutViewModel = workoutViewModel
+        workoutViewModel = workoutViewModel,
+        onSetStatusClick = onSetStatusClick,
+        onDeleteSetClick = onDeleteSetClick
     )
 }
 
@@ -370,7 +384,9 @@ private fun BikeSetsTable(
     exerciseSets: List<ExerciseSet>,
     onTimeClick: (Int, Int) -> Unit,
     onResistanceClick: (Int, Int) -> Unit,
-    workoutViewModel: WorkoutViewModel
+    workoutViewModel: WorkoutViewModel,
+    onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
+    onDeleteSetClick: ((Int, Int) -> Unit)?
 ) {
     SetsTable(
         index = index,
@@ -387,7 +403,9 @@ private fun BikeSetsTable(
                 onClick = onResistanceClick
             )
         ),
-        workoutViewModel = workoutViewModel
+        workoutViewModel = workoutViewModel,
+        onSetStatusClick = onSetStatusClick,
+        onDeleteSetClick = onDeleteSetClick
     )
 }
 
@@ -398,7 +416,9 @@ private fun TreadmillSetsTable(
     onTimeClick: (Int, Int) -> Unit,
     onResistanceClick: (Int, Int) -> Unit,
     onInclineClick: (Int, Int) -> Unit,
-    workoutViewModel: WorkoutViewModel
+    workoutViewModel: WorkoutViewModel,
+    onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
+    onDeleteSetClick: ((Int, Int) -> Unit)?
 ) {
     SetsTable(
         index = index,
@@ -420,7 +440,9 @@ private fun TreadmillSetsTable(
                 onClick = onInclineClick
             )
         ),
-        workoutViewModel = workoutViewModel
+        workoutViewModel = workoutViewModel,
+        onSetStatusClick = onSetStatusClick,
+        onDeleteSetClick = onDeleteSetClick
     )
 }
 
@@ -435,7 +457,9 @@ private fun SetsTable(
     index: Int,
     exerciseSets: List<ExerciseSet>,
     columns: List<TableColumn>,
-    workoutViewModel: WorkoutViewModel
+    workoutViewModel: WorkoutViewModel,
+    onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
+    onDeleteSetClick: ((Int, Int) -> Unit)?
 ) {
     if (exerciseSets.isEmpty()) return
 
@@ -505,7 +529,9 @@ private fun SetsTable(
         StatusColumn(
             exerciseIndex = index,
             exerciseSets = exerciseSets,
-            workoutViewModel = workoutViewModel
+            workoutViewModel = workoutViewModel,
+            onSetStatusClick = onSetStatusClick,
+            onDeleteSetClick = onDeleteSetClick
         )
     }
 }
@@ -514,7 +540,9 @@ private fun SetsTable(
 private fun StatusColumn(
     exerciseIndex: Int,
     exerciseSets: List<ExerciseSet>,
-    workoutViewModel: WorkoutViewModel
+    workoutViewModel: WorkoutViewModel,
+    onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
+    onDeleteSetClick: ((Int, Int) -> Unit)?
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
@@ -554,7 +582,11 @@ private fun StatusColumn(
                             )
                         },
                         onClick = {
-                            workoutViewModel.updateSetStatus(
+                            onSetStatusClick?.invoke(
+                                exerciseIndex,
+                                setIndex,
+                                SetStatus.WARMUP
+                            ) ?: workoutViewModel.updateSetStatus(
                                 exerciseIndex,
                                 setIndex,
                                 SetStatus.WARMUP
@@ -571,7 +603,11 @@ private fun StatusColumn(
                             )
                         },
                         onClick = {
-                            workoutViewModel.updateSetStatus(
+                            onSetStatusClick?.invoke(
+                                exerciseIndex,
+                                setIndex,
+                                SetStatus.FAILED
+                            ) ?: workoutViewModel.updateSetStatus(
                                 exerciseIndex,
                                 setIndex,
                                 SetStatus.FAILED
@@ -588,7 +624,11 @@ private fun StatusColumn(
                             )
                         },
                         onClick = {
-                            workoutViewModel.updateSetStatus(
+                            onSetStatusClick?.invoke(
+                                exerciseIndex,
+                                setIndex,
+                                SetStatus.COMPLETED
+                            ) ?: workoutViewModel.updateSetStatus(
                                 exerciseIndex,
                                 setIndex,
                                 SetStatus.COMPLETED
@@ -606,7 +646,10 @@ private fun StatusColumn(
                                 )
                             },
                             onClick = {
-                                workoutViewModel.removeExerciseSet(
+                                onDeleteSetClick?.invoke(
+                                    exerciseIndex,
+                                    setIndex
+                                ) ?: workoutViewModel.removeExerciseSet(
                                     exerciseIndex,
                                     setIndex
                                 )

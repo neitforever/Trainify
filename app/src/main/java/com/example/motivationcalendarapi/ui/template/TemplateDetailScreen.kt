@@ -143,7 +143,7 @@ fun TemplateDetailScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                    .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
                     .padding(top = paddingTopValues)
             ) {
                 item {

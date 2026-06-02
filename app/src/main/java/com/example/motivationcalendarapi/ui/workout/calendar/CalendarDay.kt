@@ -60,7 +60,7 @@ fun CalendarDay(
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(3.dp)
+                        .padding(4.dp)
                         .clip(MaterialTheme.shapes.extraSmall)
                         .background(MaterialTheme.colorScheme.primary)
                         .size(12.dp),

@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -41,6 +42,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -56,12 +59,16 @@ import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.model.getIconForBodyPart
 import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.ui.dialogs.DeleteExerciseDialog
+import com.example.motivationcalendarapi.ui.exercise.analysis.ExerciseAnalysisSection
 import com.example.motivationcalendarapi.ui.exercise.technique.ExerciseTechniqueBottomSheet
 import com.example.motivationcalendarapi.ui.exercise.technique.TechniquePreviewCard
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
+import com.example.motivationcalendarapi.viewmodel.analysis.ExerciseAnalysisViewModel
+import com.example.motivationcalendarapi.model.getCardType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -69,7 +76,10 @@ fun ExerciseDetailScreen(
     navController: NavController,
     exerciseId: String,
     viewModel: ExerciseViewModel,
+    analysisViewModel: ExerciseAnalysisViewModel,
+    drawerState: MutableState<DrawerState>,
     lang: String,
+    currentLocale: Locale,
     context: Context
 ) {
     val showDeleteDialog = remember { mutableStateOf(false) }
@@ -78,6 +88,7 @@ fun ExerciseDetailScreen(
     val techniqueVideosState by viewModel.techniqueVideosUiState.collectAsState()
     val selectedTechniqueVideo by viewModel.selectedTechniqueVideo.collectAsState()
     var showTechniqueSheet by remember { mutableStateOf(false) }
+    val topBarScope = rememberCoroutineScope()
 
     LaunchedEffect(exerciseId) {
         coroutineScope {
@@ -98,11 +109,19 @@ fun ExerciseDetailScreen(
                 containerColor = MaterialTheme.colorScheme.background,
                 titleContentColor = MaterialTheme.colorScheme.primary,
             ), navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
+                IconButton(
+                    onClick = {
+                        topBarScope.launch {
+                            drawerState.value.open()
+                        }
+                    },
+                    modifier = Modifier.size(48.dp)
+                ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_back),
-                        contentDescription = stringResource(R.string.back),
-                        tint = MaterialTheme.colorScheme.onBackground
+                        painter = painterResource(id = R.drawable.ic_menu),
+                        contentDescription = stringResource(R.string.menu),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(42.dp)
                     )
                 }
             }, title = {
@@ -462,6 +481,14 @@ fun ExerciseDetailScreen(
                             lang = lang
                         )
                     }
+                )
+
+                ExerciseAnalysisSection(
+                    exerciseId = exercise.id,
+                    cardType = exercise.getCardType(),
+                    lang = lang,
+                    currentLocale = currentLocale,
+                    viewModel = analysisViewModel
                 )
 
                     Spacer(

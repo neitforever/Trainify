@@ -86,6 +86,7 @@ import com.example.motivationcalendarapi.viewmodel.AiTemplateGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
+import com.example.motivationcalendarapi.viewmodel.analysis.ExerciseAnalysisViewModel
 import com.example.motivationcalendarapi.viewmodel.EquipmentRecognitionViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
@@ -94,6 +95,7 @@ import com.example.motivationcalendarapi.ui.workout.detail.WorkoutHistoryDetailS
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.motivationcalendar.ui.WorkoutHistoryScreen
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -103,6 +105,7 @@ fun NavGraph(
     navController: NavController,
     workoutViewModel: WorkoutViewModel,
     exerciseViewModel: ExerciseViewModel,
+    exerciseAnalysisViewModel: ExerciseAnalysisViewModel,
     mainViewModel: MainViewModel,
     drawerState: MutableState<DrawerState>,
     authViewModel: AuthViewModel,
@@ -116,6 +119,7 @@ fun NavGraph(
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val context = LocalContext.current
+    val currentLocale = context.resources.configuration.locales[0] ?: Locale.getDefault()
     val currentDestination = currentBackStackEntry?.destination
     val currentRoute = currentDestination?.route?.split("/")?.get(0)
     val coroutineScope = rememberCoroutineScope()
@@ -635,7 +639,10 @@ fun NavGraph(
                             navController = navController,
                             exerciseId = exerciseId ?: "",
                             viewModel = exerciseViewModel,
+                            analysisViewModel = exerciseAnalysisViewModel,
+                            drawerState = drawerState,
                             lang = lang,
+                            currentLocale = currentLocale,
                             context = context
                         )
                     }

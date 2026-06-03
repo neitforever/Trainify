@@ -44,6 +44,7 @@ import com.example.motivationcalendarapi.repositories.WorkoutFirestoreRepository
 import com.example.motivationcalendarapi.repositories.WorkoutRepository
 import com.example.motivationcalendarapi.repositories.technique.ExerciseTechniqueVideoRepository
 import com.example.motivationcalendarapi.repositories.ai.ExerciseSelectionSuggestionRepository
+import com.example.motivationcalendarapi.repositories.analysis.ExerciseAnalysisRepository
 import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
 import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.AiTemplateGenerationViewModel
@@ -51,6 +52,8 @@ import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModelFactory
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
+import com.example.motivationcalendarapi.viewmodel.analysis.ExerciseAnalysisViewModel
+import com.example.motivationcalendarapi.viewmodel.analysis.ExerciseAnalysisViewModelFactory
 import com.example.motivationcalendarapi.viewmodel.EquipmentRecognitionViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.example.motivationcalendarapi.viewmodel.MainViewModelFactory
@@ -147,6 +150,13 @@ class MainActivity : ComponentActivity() {
                 exerciseTechniqueVideoRepository,
                 exerciseSelectionSuggestionRepository
             )
+            val exerciseAnalysisRepository = ExerciseAnalysisRepository(
+                workoutRepository = workoutRepository,
+                bodyProgressRepository = bodyProgressRepository
+            )
+            val exerciseAnalysisViewModel: ExerciseAnalysisViewModel = viewModel(
+                factory = ExerciseAnalysisViewModelFactory(exerciseAnalysisRepository)
+            )
             val equipmentRecognitionViewModel: EquipmentRecognitionViewModel = viewModel()
             val aiExerciseGenerationViewModel: AiExerciseGenerationViewModel = viewModel()
             val aiTemplateGenerationViewModel: AiTemplateGenerationViewModel = viewModel()
@@ -201,6 +211,7 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     workoutViewModel,
                     exerciseViewModel,
+                    exerciseAnalysisViewModel,
                     mainViewModel,
                     drawerState,
                     authViewModel,

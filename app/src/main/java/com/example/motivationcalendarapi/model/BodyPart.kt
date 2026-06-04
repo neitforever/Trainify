@@ -24,7 +24,6 @@ sealed class BodyPart(
     object Adductors : BodyPart(R.drawable.ic_body_upper_legs, "adductors", "adductors", "приводящие мышцы бедра", "прыводзячыя мышцы сцягна")
     object Biceps : BodyPart(R.drawable.ic_body_upper_arms, "biceps", "biceps", "бицепс", "біцэпс")
     object Calves : BodyPart(R.drawable.ic_body_lower_legs, "calves", "calves", "икры", "ікры")
-    object CardiovascularSystem : BodyPart(R.drawable.ic_body_cardio, "cardiovascular system", "cardiovascular system", "сердечно-сосудистая система", "сардэчна-сасудзістая сістэма")
     object Delts : BodyPart(R.drawable.ic_body_shoulders, "delts", "delts", "дельты", "дэльты")
     object Forearms : BodyPart(R.drawable.ic_body_upper_arms, "forearms", "forearms", "предплечья", "перадплеччы")
     object Glutes : BodyPart(R.drawable.ic_body_upper_legs, "glutes", "glutes", "ягодицы", "ягадзіцы")
@@ -54,7 +53,7 @@ sealed class BodyPart(
     companion object {
         val all: List<BodyPart> = listOf(
             Waist, Back, Chest, UpperLegs, UpperArms, Shoulders, LowerArms, LowerLegs, Cardio, Neck,
-            Abductors, Abs, Adductors, Biceps, Calves, CardiovascularSystem, Delts, Forearms,
+            Abductors, Abs, Adductors, Biceps, Calves, Delts, Forearms,
             Glutes, Hamstrings, Lats, Pectorals, Quads, Spine, Traps, Triceps, UpperBack
         )
 

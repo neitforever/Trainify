@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -184,9 +187,11 @@ fun BodyPartSelectionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .navigationBarsPadding()
-                .padding(innerPadding)
                 .padding(horizontal = 12.dp, vertical = 16.dp)
         ) {
+            item{
+                Spacer(modifier = Modifier.padding(innerPadding))
+            }
             item {
                 SelectionInfoCard(
                     title = stringResource(R.string.selection_ai_help_title),
@@ -200,9 +205,12 @@ fun BodyPartSelectionScreen(
                     item { SelectionGroupTitle(section.title) }
                 }
 
-                items(section.options.chunked(3)) { rowOptions ->
+                items(section.options.chunked(2)) { rowOptions ->
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Min)
+                            .padding(bottom = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         rowOptions.forEach { option ->
@@ -221,7 +229,7 @@ fun BodyPartSelectionScreen(
                                 modifier = Modifier.weight(1f)
                             )
                         }
-                        repeat(3 - rowOptions.size) {
+                        repeat(2 - rowOptions.size) {
                             Spacer(modifier = Modifier.weight(1f))
                         }
                     }
@@ -262,7 +270,8 @@ private fun BodyPartSelectionCard(
 
     Card(
         modifier = modifier
-            .height(126.dp)
+            .heightIn(min = 100.dp)
+            .fillMaxHeight()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
@@ -319,8 +328,9 @@ private fun BodyPartSelectionCard(
 
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 10.dp),
+                    .align(Alignment.Center)
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -338,8 +348,6 @@ private fun BodyPartSelectionCard(
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = titleColor,
-                    maxLines = 2,
-                    overflow = TextOverflow.Clip,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )

@@ -47,7 +47,7 @@ object ExerciseCatalog {
         LocalizedOptionGroup(
             key = "cardio",
             title = mapOf("en" to "Cardio", "ru" to "Кардио", "be" to "Кардыё"),
-            options = listOf(BodyPart.Cardio, BodyPart.CardiovascularSystem).map(::bodyPartOption)
+            options = listOf(BodyPart.Cardio).map(::bodyPartOption)
         )
     )
 
@@ -69,7 +69,7 @@ object ExerciseCatalog {
         ),
         LocalizedOptionGroup(
             key = "strength_machines",
-            title = mapOf("en" to "Strength machines", "ru" to "Силовые тренажёры", "be" to "Сілавыя трэнажоры"),
+            title = mapOf("en" to "Strength machines", "ru" to "Силовое оборудование", "be" to "Сілавое абсталяванне"),
             options = listOf(Equipment.SmithMachine, Equipment.Hammer, Equipment.LeverageMachine, Equipment.PecDeckMachine, Equipment.SeatedRowMachine, Equipment.AbductorAdductorMachine, Equipment.LegPress, Equipment.LegCurlMachine, Equipment.LegExtensionMachine, Equipment.CalfMachine, Equipment.AbdominalCrunch, Equipment.HipThrustMachine).map(::equipmentOption)
         ),
         LocalizedOptionGroup(
@@ -79,8 +79,8 @@ object ExerciseCatalog {
         ),
         LocalizedOptionGroup(
             key = "cardio",
-            title = mapOf("en" to "Cardio machines", "ru" to "Кардиотренажёры", "be" to "Кардыятрэнажоры"),
-            options = listOf(Equipment.Treadmill, Equipment.Bike, Equipment.StationaryBike, Equipment.EllipticalMachine, Equipment.SkiergMachine, Equipment.StepmillMachine).map(::equipmentOption)
+            title = mapOf("en" to "Cardio machines", "ru" to "Кардиооборудование", "be" to "Кардыяабсталяванне"),
+            options = listOf(Equipment.Treadmill, Equipment.Bike, Equipment.EllipticalMachine, Equipment.SkiergMachine, Equipment.StepmillMachine).map(::equipmentOption)
         ),
         LocalizedOptionGroup(
             key = "functional",

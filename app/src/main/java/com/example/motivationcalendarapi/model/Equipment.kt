@@ -15,7 +15,7 @@ sealed class Equipment(
     object Weighted : Equipment(R.drawable.ic_equipment_body_weight, "weighted", "weighted", "утяжеленный", "утяжараны")
     object Hammer : Equipment(R.drawable.ic_equipment_hammer_machine, "hammer", "hammer", "хамер", "хамер")
     object BosuBall : Equipment(R.drawable.ic_equipment_bosu_ball, "bosu ball", "bosu ball", "мяч босу", "мяч босу")
-    object SmithMachine : Equipment(R.drawable.ic_equipment_smith_machine, "smith machine", "smith machine", "тренажер Смита", "трэнажор Сміта")
+    object SmithMachine : Equipment(R.drawable.ic_equipment_smith_machine, "smith machine", "smith machine", "Смита", "Сміта")
     object MedicineBall : Equipment(R.drawable.ic_equipment_medicine_ball, "medicine ball", "medicine ball", "медицинский мяч", "медыцынскі мяч")
     object StabilityBall : Equipment(R.drawable.ic_equipment_stability_ball, "stability ball", "stability ball", "фитбол", "фітбол")
     object Kettlebell : Equipment(R.drawable.ic_equipment_kettlebell, "kettlebell", "kettlebell", "гиря", "гіра")
@@ -27,22 +27,21 @@ sealed class Equipment(
     object EzBarbell : Equipment(R.drawable.ic_equipment_barbell_z, "ez barbell", "ez barbell", "EZ-штанга", "EZ-штанга")
     object TrapBar : Equipment(R.drawable.ic_equipment_trap_bar, "trap bar", "trap bar", "трап-гриф", "трап-грыф")
     object WheelRoller : Equipment(R.drawable.ic_equipment_wheel_roller, "wheel roller", "wheel roller", "ролик для пресса", "ролік для прэса")
-    object LeverageMachine : Equipment(R.drawable.ic_equipment_leverage_machine, "leverage machine", "leverage machine", "рычажный тренажер", "рычагавы трэнажор")
-    object PecDeckMachine : Equipment(R.drawable.ic_equipment_pec_deck_machine, "pec deck machine", "pec deck machine", "тренажер бабочка", "трэнажор матылёк")
-    object SeatedRowMachine : Equipment(R.drawable.ic_equipment_seated_row_machine, "seated row machine", "seated row machine", "тренажер для тяги на спину", "трэнажор для цягі на спіну")
-    object AbductorAdductorMachine : Equipment(R.drawable.ic_equipment_pec_deck_machine, "abductor/adductor machine", "abductor/adductor machine", "тренажер для отведения/приведения бедра", "трэнажор для адвядзення/прывядзення сцягна")
-    object LegCurlMachine : Equipment(R.drawable.ic_equipment_leg_curl, "leg curl machine", "leg curl machine", "тренажер для сгибания ног", "трэнажор для згінання ног")
-    object LegExtensionMachine : Equipment(R.drawable.ic_equipment_leg_curl, "leg extension machine", "leg extension machine", "тренажер для разгибания ног", "трэнажор для разгінання ног")
-    object CalfMachine : Equipment(R.drawable.ic_equipment_calf_machine, "calf machine", "calf machine", "тренажер для икр", "трэнажор для лытак")
-    object AbdominalCrunch : Equipment(R.drawable.ic_equipment_abdominal_crunch, "abdominal_crunch", "abdominal crunch", "тренажер для пресса", "трэнажор для прэса")
-    object HipThrustMachine : Equipment(R.drawable.ic_equipment_bench, "hip thrust machine", "hip thrust machine", "тренажер для ягодичного моста", "трэнажор для ягадзічнага маста")
+    object LeverageMachine : Equipment(R.drawable.ic_equipment_leverage_machine, "leverage machine", "leverage machine", "рычажный", "рычагавы")
+    object PecDeckMachine : Equipment(R.drawable.ic_equipment_pec_deck_machine, "pec deck machine", "pec deck machine", "бабочка", "матылёк")
+    object SeatedRowMachine : Equipment(R.drawable.ic_equipment_seated_row_machine, "seated row machine", "seated row machine", "тяга на спину", "цяга на спіну")
+    object AbductorAdductorMachine : Equipment(R.drawable.ic_equipment_pec_deck_machine, "abductor/adductor machine", "abductor/adductor machine", "отведение и приведение бедра", "адвядзенне і прывядзенне сцягна")
+    object LegCurlMachine : Equipment(R.drawable.ic_equipment_leg_curl, "leg curl machine", "leg curl machine", "сгибание ног", "згінанне ног")
+    object LegExtensionMachine : Equipment(R.drawable.ic_equipment_leg_curl, "leg extension machine", "leg extension machine", "разгибание ног", "разгінанне ног")
+    object CalfMachine : Equipment(R.drawable.ic_equipment_calf_machine, "calf machine", "calf machine", "икры", "лыткі")
+    object AbdominalCrunch : Equipment(R.drawable.ic_equipment_abdominal_crunch, "abdominal_crunch", "abdominal crunch", "пресс", "прэс")
+    object HipThrustMachine : Equipment(R.drawable.ic_equipment_bench, "hip thrust machine", "hip thrust machine", "ягодичный мост", "ягадзічны мост")
     object OlympicBarbell : Equipment(R.drawable.ic_equipment_olympic_barbell, "olympic barbell", "olympic barbell", "олимпийская штанга", "алімпійская штанга")
     object Treadmill : Equipment(R.drawable.ic_card_treadmill, "treadmill", "treadmill", "беговая дорожка", "бегавая дарожка")
-    object Bike : Equipment(R.drawable.ic_card_bike, "bike", "bike", "велотренажер", "велатрэнажор")
-    object EllipticalMachine : Equipment(R.drawable.ic_equipment_elliptical_machine, "elliptical machine", "elliptical machine", "эллиптический тренажер", "эліптычны трэнажор")
+    object Bike : Equipment(R.drawable.ic_card_bike, "bike", "bike", "велосипед", "веласіпед")
+    object EllipticalMachine : Equipment(R.drawable.ic_equipment_elliptical_machine, "elliptical machine", "elliptical machine", "эллиптический", "эліптычны")
     object Roller : Equipment(R.drawable.ic_equipment_wheel_roller, "roller", "roller", "ролик", "ролік")
-    object SkiergMachine : Equipment(R.drawable.ic_equipment_skierg_machine, "skierg machine", "skierg machine", "лыжный тренажер", "лыжны трэнажор")
-    object StationaryBike : Equipment(R.drawable.ic_card_bike, "stationary bike", "stationary bike", "стационарный велосипед", "стацыянарны веласіпед")
+    object SkiergMachine : Equipment(R.drawable.ic_equipment_skierg_machine, "skierg machine", "skierg machine", "лыжный", "лыжны")
     object StepmillMachine : Equipment(R.drawable.ic_equipment_stepmill_machine, "stepmill machine", "stepmill machine", "степпер", "стэпер")
     object Tire : Equipment(R.drawable.ic_equipment_tire, "tire", "tire", "покрышка", "пакрышка")
     object ResistanceBand : Equipment(R.drawable.ic_equipment_band, "resistance band", "resistance band", "резиновая лента", "рэзінавая стужка")
@@ -69,7 +68,7 @@ sealed class Equipment(
             PecDeckMachine, SeatedRowMachine, AbductorAdductorMachine, LegCurlMachine,
             LegExtensionMachine, CalfMachine, AbdominalCrunch, HipThrustMachine,
             OlympicBarbell, Treadmill, Bike, EllipticalMachine, Roller, SkiergMachine,
-            StationaryBike, StepmillMachine, Tire, ResistanceBand
+            StepmillMachine, Tire, ResistanceBand
         )
 
         fun fromString(value: String): Equipment {

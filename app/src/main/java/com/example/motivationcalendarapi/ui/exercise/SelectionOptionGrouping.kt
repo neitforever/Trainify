@@ -16,13 +16,16 @@ data class SelectionOptionSection(
 )
 
 @Composable
-fun SelectionGroupTitle(title: String) {
+fun SelectionGroupTitle(
+    title: String,
+    modifier: Modifier = Modifier
+) {
     Text(
         text = title,
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+        modifier = modifier.padding(top = 8.dp, bottom = 8.dp)
     )
 }
 

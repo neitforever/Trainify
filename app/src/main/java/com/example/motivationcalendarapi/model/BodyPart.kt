@@ -51,16 +51,16 @@ sealed class BodyPart(
     )
 
     companion object {
-        val all: List<BodyPart> = listOf(
+        val all: List<BodyPart> = listOfNotNull(
             Waist, Back, Chest, UpperLegs, UpperArms, Shoulders, LowerArms, LowerLegs, Cardio, Neck,
             Abductors, Abs, Adductors, Biceps, Calves, Delts, Forearms,
             Glutes, Hamstrings, Lats, Pectorals, Quads, Spine, Traps, Triceps, UpperBack
         )
 
-        fun fromString(value: String): BodyPart {
-            val normalized = value.trim().lowercase()
+        fun fromString(value: String?): BodyPart {
+            val normalized = value.orEmpty().trim().lowercase()
             return all.firstOrNull { bodyPart ->
-                normalized == bodyPart.key || bodyPart.toLocalizedMap().values.any { it.lowercase() == normalized }
+                normalized == bodyPart.key.lowercase() || bodyPart.toLocalizedMap().values.any { it.lowercase() == normalized }
             } ?: when (normalized) {
                 "abdominals", "пресс", "мышцы пресса" -> Abs
                 "bicep", "бицепс", "біцэпс" -> Biceps

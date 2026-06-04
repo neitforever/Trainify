@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -30,11 +31,13 @@ fun CollapsibleBodyPartItem(
     isExpanded: Boolean,
     onClick: () -> Unit
 ) {
-    val bodyPartType = BodyPart.fromString(bodyPart)
+    val bodyPartType = remember(bodyPart) {
+        BodyPart.fromString(bodyPart)
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 3.dp)
             .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -56,7 +59,7 @@ fun CollapsibleBodyPartItem(
                 ) else it.toString()
             },
             color = MaterialTheme.colorScheme.secondary,
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier
                 .weight(1f)
         )

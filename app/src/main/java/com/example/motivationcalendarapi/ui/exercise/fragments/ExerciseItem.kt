@@ -38,18 +38,18 @@ fun ExerciseItem(
     lang: String
 ) {
     val iconSize by animateDpAsState(
-        targetValue = if (isFavorite) 26.dp else 24.dp,
+        targetValue = if (isFavorite) 24.dp else 24.dp,
         animationSpec = tween(durationMillis = 200)
     )
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onItemClick).padding(top=16.dp,bottom = 8.dp),
+            .clickable(onClick = onItemClick).padding(top = 10.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(28.dp)
+                .size(22.dp)
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = CircleShape

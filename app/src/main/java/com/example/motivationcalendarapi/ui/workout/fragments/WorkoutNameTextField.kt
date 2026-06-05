@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -32,6 +33,8 @@ fun WorkoutNameTextField(
     onValueChange: (String) -> Unit,
     keyboardController: SoftwareKeyboardController?
 ) {
+    val focusManager = LocalFocusManager.current
+
     BasicTextField(
         value = workoutName,
         onValueChange = onValueChange,
@@ -79,6 +82,7 @@ fun WorkoutNameTextField(
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = {
             keyboardController?.hide()
+            focusManager.clearFocus(force = true)
         })
     )
 }

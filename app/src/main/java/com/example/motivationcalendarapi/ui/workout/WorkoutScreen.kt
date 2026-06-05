@@ -18,6 +18,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -34,8 +35,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -74,6 +77,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.notifications.WorkoutTimerNotificationService
@@ -93,6 +97,7 @@ import com.example.motivationcalendarapi.ui.workout.fragments.TimerBottomSheet
 import com.example.motivationcalendarapi.ui.workout.fragments.WorkoutNameTextField
 import com.example.motivationcalendarapi.utils.getStartAndEndOfCurrentWeek
 import com.example.motivationcalendarapi.utils.formatTime
+import com.example.motivationcalendarapi.utils.ClearFocusOnKeyboardDismiss
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.motivationcalendar.ui.ExerciseCard
@@ -128,6 +133,8 @@ fun WorkoutScreen(
     )
     val healthState by healthViewModel.uiState.collectAsState()
     val totalKg by workoutViewModel.totalKg.collectAsState()
+
+    ClearFocusOnKeyboardDismiss()
     var showRepDialog by remember { mutableStateOf(false) }
     var showWeightDialog by remember { mutableStateOf(false) }
     var currentExerciseIndex by remember { mutableIntStateOf(0) }
@@ -546,27 +553,12 @@ fun WorkoutScreen(
                                 lang = lang
                             )
                         }
-                        Row(
-                            modifier = Modifier
-                                .clickable(onClick = {
-                                    if (selectedExercises.isEmpty()) {
-                                        isSheetOpen.value = true
-                                    } else {
-                                        isSheetOpen.value = true
-                                    }
-                                })
-                                .padding(top = 12.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = if (selectedExercises.isEmpty()) stringResource(R.string.add_exercise_or_template)
-                                else stringResource(R.string.add_exercise),
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                        }
+                        AddWorkoutContentCard(
+                            hasExercises = selectedExercises.isNotEmpty(),
+                            lang = lang,
+                            onClick = { isSheetOpen.value = true },
+                            modifier = Modifier.padding(top = 10.dp)
+                        )
                         Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp))
                     }
                 }
@@ -820,5 +812,91 @@ private fun CurrentHeartRateCard(
                 color = MaterialTheme.colorScheme.primary
             )
         }
+    }
+}
+
+
+@Composable
+private fun AddWorkoutContentCard(
+    hasExercises: Boolean,
+    lang: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f),
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.14f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 13.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_dumbbell),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(13.dp))
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = workoutContentCardTitle(hasExercises = hasExercises, lang = lang),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = workoutContentCardDescription(hasExercises = hasExercises, lang = lang),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+private fun workoutContentCardTitle(hasExercises: Boolean, lang: String): String {
+    return when (lang.lowercase()) {
+        "ru" -> if (hasExercises) "Дополнить тренировку" else "Собрать тренировку"
+        "be", "by" -> if (hasExercises) "Дапоўніць трэніроўку" else "Сабраць трэніроўку"
+        else -> if (hasExercises) "Extend workout" else "Build workout"
+    }
+}
+
+private fun workoutContentCardDescription(hasExercises: Boolean, lang: String): String {
+    return when (lang.lowercase()) {
+        "ru" -> if (hasExercises) "Добавьте ещё упражнения" else "Выберите упражнения"
+        "be", "by" -> if (hasExercises) "Дадайце яшчэ практыкаванні" else "Выберыце практыкаванні"
+        else -> if (hasExercises) "Add more exercises" else "Choose exercises"
     }
 }

@@ -38,12 +38,12 @@ fun ExerciseSelectionItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onItemClick)
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(28.dp)
+                .size(34.dp)
                 .background(
                     color = if (selectedOrder != null) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.surfaceVariant,
@@ -53,15 +53,14 @@ fun ExerciseSelectionItem(
         ) {
             Text(
                 text = selectedOrder?.toString() ?: exercise.getName(lang).first().uppercase(),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineSmall,
                 color = if (selectedOrder != null) MaterialTheme.colorScheme.background
                 else MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.size(24.dp)
+                textAlign = TextAlign.Center
             )
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
             Text(
@@ -81,7 +80,7 @@ fun ExerciseSelectionItem(
                 else R.drawable.ic_favorite_border
             ),
             contentDescription = stringResource(R.string.favorite),
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(28.dp),
             tint = if (isFavorite) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.secondary
         )

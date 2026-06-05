@@ -1,6 +1,5 @@
 package com.example.motivationcalendarapi.ui.workout.fragments
 
-import LoadingView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -31,6 +30,7 @@ import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
 import com.example.motivationcalendarapi.ui.exercise.fragments.CollapsibleBodyPartItem
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
+import java.text.Collator
 import java.util.Locale
 
 @Composable
@@ -42,114 +42,162 @@ fun BodyPartsList(
     onAddAll: () -> Unit,
     lang: String
 ) {
-
-
     val bodyParts by exerciseViewModel.getBodyPartsLocalized(lang).collectAsState(initial = emptyList())
-    val sortedBodyParts = remember(bodyParts) {
-        bodyParts.sortedBy { it.lowercase(Locale.getDefault()) }
+    val allExercises by exerciseViewModel.getAllExercises().collectAsState(initial = emptyList())
+    val favoriteExercises by exerciseViewModel.getFavoriteExercises().collectAsState(initial = emptyList())
+
+    BodyPartsList(
+        bodyParts = bodyParts,
+        allExercises = allExercises,
+        favoriteExercises = favoriteExercises,
+        selectedExercises = selectedExercises,
+        addedExercises = addedExercises,
+        onExerciseSelected = onExerciseSelected,
+        onAddAll = onAddAll,
+        lang = lang
+    )
+}
+
+@Composable
+fun BodyPartsList(
+    bodyParts: List<String>,
+    allExercises: List<Exercise>,
+    favoriteExercises: List<Exercise>,
+    selectedExercises: List<Exercise>,
+    addedExercises: List<Exercise>,
+    onExerciseSelected: (Exercise) -> Unit,
+    onAddAll: () -> Unit,
+    lang: String
+) {
+    val addedExerciseIds = remember(addedExercises) { addedExercises.map { it.id }.toSet() }
+    val locale = remember(lang) { localeForWorkoutLanguage(lang) }
+    val collator = remember(locale) { Collator.getInstance(locale).apply { strength = Collator.PRIMARY } }
+
+    val exercisesByBodyPart = remember(allExercises, addedExerciseIds, lang, collator) {
+        allExercises
+            .filterNot { exercise -> exercise.id in addedExerciseIds }
+            .groupBy { exercise -> exercise.getBodyPart(lang) }
+            .mapValues { (_, exercises) ->
+                exercises.sortedWith { first, second ->
+                    collator.compare(first.getName(lang), second.getName(lang))
+                }
+            }
     }
-    val favoriteExercises by exerciseViewModel.getFavoriteExercises()
-        .collectAsState(initial = emptyList())
+
+    val visibleBodyParts = remember(bodyParts, exercisesByBodyPart) {
+        bodyParts.filter { bodyPart -> !exercisesByBodyPart[bodyPart].isNullOrEmpty() }
+    }
+
+    val bodyPartSections = remember(visibleBodyParts, lang) {
+        buildWorkoutBodyPartSections(bodyParts = visibleBodyParts, lang = lang)
+            .filter { section -> section.items.isNotEmpty() }
+    }
+
+    val favoriteExerciseIds = remember(favoriteExercises) { favoriteExercises.map { it.id }.toSet() }
     val expandedBodyParts = remember { mutableStateMapOf<String, Boolean>() }
 
-
-
-    if (bodyParts.isEmpty()) {
-        LoadingView()
-    } else {
-
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                items(sortedBodyParts) { bodyPart ->
-                    val isExpanded = expandedBodyParts[bodyPart] == true
-
-                    CollapsibleBodyPartItem(
-                        bodyPart = bodyPart,
-                        isExpanded = isExpanded,
-                        onClick = { expandedBodyParts[bodyPart] = !isExpanded }
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            bodyPartSections.forEach { section ->
+                item(key = "header_${section.key}") {
+                    WorkoutLibrarySectionHeader(
+                        title = section.title,
+                        description = section.description,
+                        count = section.items.size,
+                        iconRes = section.iconRes,
+                        lang = lang,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 5.dp)
                     )
+                }
 
-                    AnimatedVisibility(
-                        visible = isExpanded,
-                        enter = fadeIn() + expandVertically(
-                            expandFrom = Alignment.Top,
-                            initialHeight = { 0 }
-                        ),
-                        exit = fadeOut() + shrinkVertically(
-                            shrinkTowards = Alignment.Top
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        val exercises by exerciseViewModel.getExercisesLocalizedByBodyPart(bodyPart, lang)
-                            .collectAsState(initial = emptyList())
+                items(section.items, key = { bodyPart -> bodyPart }) { bodyPart ->
+                    val exercises = exercisesByBodyPart[bodyPart].orEmpty()
 
-                        val filteredExercises = exercises.filterNot { ex ->
-                            addedExercises.any { it.id == ex.id }
-                        }
+                    if (exercises.isNotEmpty()) {
+                        val isExpanded = expandedBodyParts[bodyPart] == true
 
-                        val (favorites, nonFavorites) = filteredExercises.partition { exercise ->
-                            favoriteExercises.any { it.id == exercise.id }
-                        }
+                        CollapsibleBodyPartItem(
+                            bodyPart = bodyPart,
+                            isExpanded = isExpanded,
+                            onClick = { expandedBodyParts[bodyPart] = !isExpanded }
+                        )
 
-                        val sortedFavorites = favorites.sortedBy { it.getName(lang) }
-                        val sortedNonFavorites = nonFavorites.sortedBy { it.getName(lang) }
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
+                        AnimatedVisibility(
+                            visible = isExpanded,
+                            enter = fadeIn() + expandVertically(
+                                expandFrom = Alignment.Top,
+                                initialHeight = { 0 }
+                            ),
+                            exit = fadeOut() + shrinkVertically(
+                                shrinkTowards = Alignment.Top
+                            ),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            sortedFavorites.forEach { exercise ->
-                                ExerciseSelectionItem(
-                                    exercise = exercise,
-                                    isFavorite = true,
-                                    selectedOrder = selectedExercises.indexOfFirst { it.id == exercise.id }
-                                        .takeIf { it >= 0 }?.plus(1),
-                                    onItemClick = { onExerciseSelected(exercise) },
-                                    lang = lang
-
-                                )
+                            val (favorites, nonFavorites) = exercises.partition { exercise ->
+                                exercise.id in favoriteExerciseIds
                             }
 
-                            sortedNonFavorites.forEach { exercise ->
-                                ExerciseSelectionItem(
-                                    exercise = exercise,
-                                    isFavorite = false,
-                                    selectedOrder = selectedExercises.indexOfFirst { it.id == exercise.id }
-                                        .takeIf { it >= 0 }?.plus(1),
-                                    onItemClick = { onExerciseSelected(exercise) },
-                                    lang = lang
-                                )
+                            Column(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                favorites.forEach { exercise ->
+                                    ExerciseSelectionItem(
+                                        exercise = exercise,
+                                        isFavorite = true,
+                                        selectedOrder = selectedExercises.indexOfFirst { it.id == exercise.id }
+                                            .takeIf { it >= 0 }?.plus(1),
+                                        onItemClick = { onExerciseSelected(exercise) },
+                                        lang = lang
+                                    )
+                                }
+
+                                nonFavorites.forEach { exercise ->
+                                    ExerciseSelectionItem(
+                                        exercise = exercise,
+                                        isFavorite = false,
+                                        selectedOrder = selectedExercises.indexOfFirst { it.id == exercise.id }
+                                            .takeIf { it >= 0 }?.plus(1),
+                                        onItemClick = { onExerciseSelected(exercise) },
+                                        lang = lang
+                                    )
+                                }
                             }
                         }
                     }
                 }
-                item {
-                    Spacer(
-                        modifier = Modifier
-                            .absolutePadding(bottom = 200.dp)
-                    )
-                }
+            }
 
+            item {
+                Spacer(
+                    modifier = Modifier.absolutePadding(bottom = 200.dp)
+                )
+            }
         }
-            if (selectedExercises.isNotEmpty()) {
-                Button(
-                    onClick = onAddAll,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .align(Alignment.BottomCenter)
-                ) {
-                    Text(
-                        text = stringResource(R.string.add_all_with_count, selectedExercises.size),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
+
+        if (selectedExercises.isNotEmpty()) {
+            Button(
+                onClick = onAddAll,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .align(Alignment.BottomCenter)
+            ) {
+                Text(
+                    text = stringResource(R.string.add_all_with_count, selectedExercises.size),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.headlineMedium
+                )
             }
         }
     }
 }
 
+private fun localeForWorkoutLanguage(lang: String): Locale {
+    return when (lang.lowercase()) {
+        "ru" -> Locale("ru")
+        "be", "by" -> Locale("be")
+        else -> Locale.ENGLISH
+    }
+}

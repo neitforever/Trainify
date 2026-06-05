@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="Trainify">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-06-05T12:23:17.209364Z">
+        <DropdownSelection timestamp="2026-06-05T12:27:20.398393Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/neitik/.android/avd/Pixel_9_Pro.avd" />
+              <DeviceId pluginId="Default" identifier="serial=192.168.0.16:39921;connection=51e4db09" />
             </handle>
           </Target>
         </DropdownSelection>

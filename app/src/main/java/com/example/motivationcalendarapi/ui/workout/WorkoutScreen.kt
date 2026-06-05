@@ -459,12 +459,13 @@ fun WorkoutScreen(
                     Column(
                         modifier = Modifier
                             .padding(
-                                top = paddingValues.calculateTopPadding() + 12.dp,
+                                top = paddingValues.calculateTopPadding(),
                                 start = 8.dp,
                                 end = 8.dp
                             )
                             .verticalScroll(rememberScrollState())
                     ) {
+                        Spacer(modifier = Modifier.height(8.dp))
                         WorkoutNameTextField(
                             workoutName = workoutName, onValueChange = { newName ->
                                 if (newName.length <= 20) {

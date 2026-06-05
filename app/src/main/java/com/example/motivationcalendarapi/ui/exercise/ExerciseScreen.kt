@@ -1,13 +1,8 @@
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,7 +17,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,11 +33,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,10 +64,28 @@ import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import java.text.Collator
 import java.util.Locale
+import kotlinx.coroutines.launch
+
+private const val EXERCISE_PAGE_SWIPE_THRESHOLD_PX = 80f
 
 enum class ExerciseLibraryMode {
     EXERCISES,
-    TEMPLATES
+    TEMPLATES;
+
+    val pageIndex: Int
+        get() = when (this) {
+            EXERCISES -> 0
+            TEMPLATES -> 1
+        }
+
+    companion object {
+        fun fromPageIndex(pageIndex: Int): ExerciseLibraryMode {
+            return when (pageIndex) {
+                1 -> TEMPLATES
+                else -> EXERCISES
+            }
+        }
+    }
 }
 
 data class LibrarySection<T>(
@@ -80,6 +102,7 @@ fun ExerciseScreen(
     navController: NavController,
     exerciseViewModel: ExerciseViewModel,
     workoutViewModel: WorkoutViewModel,
+    drawerState: androidx.compose.runtime.MutableState<DrawerState>,
     paddingTopValues: Dp,
     lang: String
 ) {
@@ -95,6 +118,41 @@ fun ExerciseScreen(
 
     val expandedBodyParts = remember { mutableStateMapOf<String, Boolean>() }
     var selectedMode by remember { mutableStateOf(ExerciseLibraryMode.EXERCISES) }
+    val pagerState = rememberPagerState(
+        initialPage = ExerciseLibraryMode.EXERCISES.pageIndex,
+        pageCount = { ExerciseLibraryMode.entries.size }
+    )
+    val coroutineScope = rememberCoroutineScope()
+    val drawerSwipeConnection = remember(pagerState, drawerState) {
+        object : NestedScrollConnection {
+            private var accumulatedRightDrag = 0f
+
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (source == NestedScrollSource.UserInput &&
+                    pagerState.currentPage == ExerciseLibraryMode.EXERCISES.pageIndex
+                ) {
+                    if (available.x > 0f) {
+                        accumulatedRightDrag += available.x
+                    } else if (available.x < 0f) {
+                        accumulatedRightDrag = 0f
+                    }
+                }
+
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                if (pagerState.currentPage == ExerciseLibraryMode.EXERCISES.pageIndex &&
+                    accumulatedRightDrag > EXERCISE_PAGE_SWIPE_THRESHOLD_PX
+                ) {
+                    drawerState.value.open()
+                }
+
+                accumulatedRightDrag = 0f
+                return Velocity.Zero
+            }
+        }
+    }
     val favoriteExercises by exerciseViewModel.getFavoriteExercises().collectAsState(initial = emptyList())
     val isExercisesRefreshing by exerciseViewModel.isRefreshingExercisesFromFirestore.collectAsState()
     val isTemplatesRefreshing by workoutViewModel.isRefreshingTemplatesFromFirestore.collectAsState()
@@ -104,6 +162,10 @@ fun ExerciseScreen(
 
     LaunchedEffect(Unit) {
         workoutViewModel.loadTemplates()
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        selectedMode = ExerciseLibraryMode.fromPageIndex(pagerState.currentPage)
     }
 
     DeleteTemplateDialog(
@@ -134,144 +196,196 @@ fun ExerciseScreen(
                 .fillMaxSize()
                 .padding(top = paddingTopValues)
         ) {
-            LazyColumn(
+            Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                item {
-                    ExerciseLibrarySwitcher(
-                        selectedMode = selectedMode,
-                        onModeSelected = { selectedMode = it },
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp).padding(top = 6.dp)
-                    )
-                }
+                ExerciseLibrarySwitcher(
+                    selectedMode = selectedMode,
+                    onModeSelected = { mode ->
+                        selectedMode = mode
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(mode.pageIndex)
+                        }
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                        .padding(top = 6.dp)
+                )
 
-                item {
-                    AnimatedContent(
-                        targetState = selectedMode,
-                        transitionSpec = {
-                            val direction = if (targetState == ExerciseLibraryMode.TEMPLATES) 1 else -1
-                            (slideInHorizontally(
-                                animationSpec = tween(240),
-                                initialOffsetX = { fullWidth -> fullWidth * direction }
-                            ) togetherWith slideOutHorizontally(
-                                animationSpec = tween(240),
-                                targetOffsetX = { fullWidth -> -fullWidth * direction }
-                            ))
-                        },
-                        label = "ExerciseLibraryModeAnimation"
-                    ) { mode ->
-                        when (mode) {
-                            ExerciseLibraryMode.EXERCISES -> {
-                                Column(modifier = Modifier.fillMaxWidth()) {
-                                    bodyPartSections.forEach { section ->
-                                        LibrarySectionHeader(
-                                            title = section.title,
-                                            description = section.description,
-                                            count = section.items.size,
-                                            iconRes = section.iconRes,
-                                            lang = lang,
-                                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 5.dp)
-                                        )
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .nestedScroll(drawerSwipeConnection),
+                    userScrollEnabled = true
+                ) { page ->
+                    when (ExerciseLibraryMode.fromPageIndex(page)) {
+                        ExerciseLibraryMode.EXERCISES -> {
+                            ExerciseLibraryExercisesPage(
+                                bodyPartSections = bodyPartSections,
+                                expandedBodyParts = expandedBodyParts,
+                                exerciseViewModel = exerciseViewModel,
+                                favoriteExercises = favoriteExercises,
+                                navController = navController,
+                                lang = lang
+                            )
+                        }
 
-                                        section.items.forEach { bodyPart ->
-                                            val isExpanded = expandedBodyParts[bodyPart] == true
-
-                                            CollapsibleBodyPartItem(
-                                                bodyPart = bodyPart,
-                                                isExpanded = isExpanded,
-                                                onClick = { expandedBodyParts[bodyPart] = !isExpanded }
-                                            )
-
-                                            AnimatedVisibility(
-                                                visible = isExpanded,
-                                                enter = fadeIn() + expandVertically(
-                                                    expandFrom = Alignment.Top,
-                                                    initialHeight = { 0 }
-                                                ),
-                                                exit = fadeOut() + shrinkVertically(
-                                                    shrinkTowards = Alignment.Top
-                                                ),
-                                                modifier = Modifier.fillMaxWidth()
-                                            ) {
-                                                val exercises by exerciseViewModel
-                                                    .getExercisesLocalizedByBodyPart(bodyPart, lang)
-                                                    .collectAsState(initial = emptyList())
-
-                                                Column(modifier = Modifier.fillMaxWidth()) {
-                                                    exercises.sortedBy { it.getName(lang).lowercase(localeForLanguage(lang)) }
-                                                        .forEach { exercise ->
-                                                            Column(
-                                                                modifier = Modifier
-                                                                    .fillMaxWidth()
-                                                                    .clickable {
-                                                                        navController.navigate("${Screen.ExerciseDetailView.route}/${exercise.id}")
-                                                                    }
-                                                                    .padding(start = 16.dp, end = 16.dp)
-                                                            ) {
-                                                                ExerciseItem(
-                                                                    exercise = exercise,
-                                                                    onItemClick = {
-                                                                        navController.navigate("exercise_detail/${exercise.id}")
-                                                                    },
-                                                                    onFavoriteClick = { exerciseViewModel.toggleFavorite(exercise) },
-                                                                    isFavorite = favoriteExercises.any { it.id == exercise.id },
-                                                                    lang = lang
-                                                                )
-                                                            }
-                                                        }
-                                                }
-                                            }
-                                        }
-                                    }
+                        ExerciseLibraryMode.TEMPLATES -> {
+                            ExerciseLibraryTemplatesPage(
+                                templateSections = templateSections,
+                                navController = navController,
+                                lang = lang,
+                                onDeleteTemplate = { template ->
+                                    selectedTemplateForDeletion = template
+                                    showDeleteDialog = true
                                 }
-                            }
-
-                            ExerciseLibraryMode.TEMPLATES -> {
-                                Column(modifier = Modifier.fillMaxWidth()) {
-                                    if (templateSections.isEmpty()) {
-                                        Text(
-                                            text = stringResource(R.string.no_templates_found),
-                                            modifier = Modifier.padding(16.dp)
-                                        )
-                                    } else {
-                                        templateSections.forEach { section ->
-                                            LibrarySectionHeader(
-                                                title = section.title,
-                                                description = section.description,
-                                                count = section.items.size,
-                                                iconRes = section.iconRes,
-                                                lang = lang,
-                                                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 5.dp)
-                                            )
-
-                                            section.items.forEach { template ->
-                                                TemplateItem(
-                                                    template = template,
-                                                    onClick = {
-                                                        navController.navigate("${Screen.TemplateDetailView.route}/${template.id}")
-                                                    },
-                                                    onDelete = {
-                                                        selectedTemplateForDeletion = template
-                                                        showDeleteDialog = true
-                                                    },
-                                                    navController = navController,
-                                                    lang = lang
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            )
                         }
                     }
                 }
+            }
+        }
+    }
+}
 
-                item {
-                    Spacer(
-                        modifier = Modifier.absolutePadding(bottom = 200.dp)
+
+@Composable
+private fun ExerciseLibraryExercisesPage(
+    bodyPartSections: List<LibrarySection<String>>,
+    expandedBodyParts: MutableMap<String, Boolean>,
+    exerciseViewModel: ExerciseViewModel,
+    favoriteExercises: List<com.example.motivationcalendarapi.model.Exercise>,
+    navController: NavController,
+    lang: String
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        bodyPartSections.forEach { section ->
+            item(key = "exercise_section_${section.key}") {
+                LibrarySectionHeader(
+                    title = section.title,
+                    description = section.description,
+                    count = section.items.size,
+                    iconRes = section.iconRes,
+                    lang = lang,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 5.dp)
+                )
+            }
+
+            section.items.forEach { bodyPart ->
+                item(key = "body_part_$bodyPart") {
+                    val isExpanded = expandedBodyParts[bodyPart] == true
+
+                    CollapsibleBodyPartItem(
+                        bodyPart = bodyPart,
+                        isExpanded = isExpanded,
+                        onClick = { expandedBodyParts[bodyPart] = !isExpanded }
                     )
+
+                    AnimatedVisibility(
+                        visible = isExpanded,
+                        enter = fadeIn() + expandVertically(
+                            expandFrom = Alignment.Top,
+                            initialHeight = { 0 }
+                        ),
+                        exit = fadeOut() + shrinkVertically(
+                            shrinkTowards = Alignment.Top
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val exercises by exerciseViewModel
+                            .getExercisesLocalizedByBodyPart(bodyPart, lang)
+                            .collectAsState(initial = emptyList())
+
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            exercises.sortedBy { it.getName(lang).lowercase(localeForLanguage(lang)) }
+                                .forEach { exercise ->
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                navController.navigate("${Screen.ExerciseDetailView.route}/${exercise.id}")
+                                            }
+                                            .padding(start = 16.dp, end = 16.dp)
+                                    ) {
+                                        ExerciseItem(
+                                            exercise = exercise,
+                                            onItemClick = {
+                                                navController.navigate("exercise_detail/${exercise.id}")
+                                            },
+                                            onFavoriteClick = { exerciseViewModel.toggleFavorite(exercise) },
+                                            isFavorite = favoriteExercises.any { it.id == exercise.id },
+                                            lang = lang
+                                        )
+                                    }
+                                }
+                        }
+                    }
                 }
             }
+        }
+
+        item {
+            Spacer(
+                modifier = Modifier.absolutePadding(bottom = 200.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ExerciseLibraryTemplatesPage(
+    templateSections: List<LibrarySection<Template>>,
+    navController: NavController,
+    lang: String,
+    onDeleteTemplate: (Template) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (templateSections.isEmpty()) {
+            item {
+                Text(
+                    text = stringResource(R.string.no_templates_found),
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        } else {
+            templateSections.forEach { section ->
+                item(key = "template_section_${section.key}") {
+                    LibrarySectionHeader(
+                        title = section.title,
+                        description = section.description,
+                        count = section.items.size,
+                        iconRes = section.iconRes,
+                        lang = lang,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 5.dp)
+                    )
+                }
+
+                section.items.forEach { template ->
+                    item(key = "template_${template.id}") {
+                        TemplateItem(
+                            template = template,
+                            onClick = {
+                                navController.navigate("${Screen.TemplateDetailView.route}/${template.id}")
+                            },
+                            onDelete = { onDeleteTemplate(template) },
+                            navController = navController,
+                            lang = lang
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            Spacer(
+                modifier = Modifier.absolutePadding(bottom = 200.dp)
+            )
         }
     }
 }

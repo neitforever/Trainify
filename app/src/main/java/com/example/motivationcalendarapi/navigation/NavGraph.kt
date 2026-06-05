@@ -393,6 +393,7 @@ fun NavGraph(
                             navController,
                             exerciseViewModel,
                             workoutViewModel,
+                            drawerState = drawerState,
                             paddingTopValues = paddingValue.calculateTopPadding(),
                             lang = lang
                         )

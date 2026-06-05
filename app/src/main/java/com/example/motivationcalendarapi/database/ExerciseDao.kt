@@ -22,6 +22,9 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercises WHERE id = :id LIMIT 1")
     suspend fun getExerciseById(id: String): Exercise?
 
+    @Query("SELECT * FROM exercises WHERE id = :id LIMIT 1")
+    fun getExerciseByIdFlow(id: String): Flow<Exercise?>
+
     @Query("SELECT * FROM exercises WHERE favorite = 1 ORDER BY nameLocalized ASC")
     fun getFavoriteExercises(): Flow<List<Exercise>>
 

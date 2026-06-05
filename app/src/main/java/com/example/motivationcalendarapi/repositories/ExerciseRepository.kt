@@ -186,6 +186,9 @@ class ExerciseRepository(
         appDatabase.exerciseDao().getExerciseById(id)
     }
 
+    fun getExerciseByIdFlow(id: String): Flow<Exercise?> {
+        return appDatabase.exerciseDao().getExerciseByIdFlow(id)
+    }
 
     fun getAllExercises(): Flow<List<Exercise>> {
         return appDatabase.exerciseDao().getAllExercisesFlow()

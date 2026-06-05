@@ -83,23 +83,12 @@ fun ExerciseDetailScreen(
     context: Context
 ) {
     val showDeleteDialog = remember { mutableStateOf(false) }
-    val selectedExercise = remember { mutableStateOf<Exercise?>(null) }
+    val selectedExercise by viewModel.getExerciseByIdFlow(exerciseId).collectAsState(initial = null)
     val favoriteExercises by viewModel.getFavoriteExercises().collectAsState(initial = emptyList())
     val techniqueVideosState by viewModel.techniqueVideosUiState.collectAsState()
     val selectedTechniqueVideo by viewModel.selectedTechniqueVideo.collectAsState()
     var showTechniqueSheet by remember { mutableStateOf(false) }
     val topBarScope = rememberCoroutineScope()
-
-    LaunchedEffect(exerciseId) {
-        coroutineScope {
-            launch(Dispatchers.IO) {
-                selectedExercise.value = viewModel.getExerciseById(exerciseId)
-                selectedExercise.value?.let { exercise ->
-                }
-            }
-        }
-    }
-
 
 
     Scaffold(
@@ -138,13 +127,12 @@ fun ExerciseDetailScreen(
                     )
                 }
             }, actions = {
-                selectedExercise.value?.let { exercise ->
+                selectedExercise?.let { exercise ->
                     val isFavorite = favoriteExercises.any { it.id == exercise.id }
                     IconButton(
                         onClick = {
                             val updatedExercise = exercise.copy(favorite = isFavorite)
                             viewModel.toggleFavorite(updatedExercise)
-                            selectedExercise.value = exercise.copy(favorite = !isFavorite)
                         }
                     ) {
                         Icon(
@@ -183,7 +171,7 @@ fun ExerciseDetailScreen(
             }
         }
     ) { paddingValues ->
-        selectedExercise.value?.let { exercise ->
+        selectedExercise?.let { exercise ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -264,7 +252,7 @@ fun ExerciseDetailScreen(
                                 ), verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                painter = painterResource(id = getIconForEquipment(exercise.getEquipment(lang))),
+                                painter = painterResource(id = getIconForEquipment(exercise.equipmentLocalized)),
                                 contentDescription = stringResource(R.string.equipment),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
@@ -501,7 +489,7 @@ fun ExerciseDetailScreen(
     }
 
     if (showTechniqueSheet) {
-        selectedExercise.value?.let { exercise ->
+        selectedExercise?.let { exercise ->
             ExerciseTechniqueBottomSheet(
                 exerciseName = exercise.getName(lang),
                 videosState = techniqueVideosState,
@@ -529,7 +517,7 @@ fun ExerciseDetailScreen(
         onDismiss = { showDeleteDialog.value = false },
         onConfirm = {
             showDeleteDialog.value = false
-            selectedExercise.value?.let {
+            selectedExercise?.let {
                 viewModel.deleteExercise(it.id)
                 navController.popBackStack()
             }

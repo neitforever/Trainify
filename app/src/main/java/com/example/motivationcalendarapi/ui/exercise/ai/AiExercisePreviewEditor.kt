@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
+import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.model.ExerciseCardType
 import com.example.motivationcalendarapi.model.ExerciseCatalog
 import com.example.motivationcalendarapi.model.ExerciseSet
@@ -124,7 +125,7 @@ internal fun ExercisePreviewEditor(
         PreviewBodyEquipmentCard(
             title = stringResource(R.string.equipment),
             selected = exercise.getEquipment(lang).ifBlank { selectedEquipment },
-            iconRes = safeEquipmentIcon(exercise.getEquipment(lang).ifBlank { selectedEquipment }),
+            iconRes = getIconForEquipment(exercise.equipmentLocalized).takeIf { exercise.equipmentLocalized.isNotEmpty() } ?: safeEquipmentIcon(selectedEquipment),
             optionGroups = ExerciseCatalog.groupedEquipmentLabels(lang),
             optionIcon = { safeEquipmentIcon(it) },
             onSelected = { selected ->

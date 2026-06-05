@@ -202,7 +202,7 @@ fun CreateExerciseScreen(
                     title = stringResource(R.string.equipment),
                     value = exercise.getEquipment(lang).ifBlank { stringResource(R.string.not_set) },
                     iconRes = if (exercise.getEquipment(lang).isNotBlank()) {
-                        getIconForEquipment(exercise.getEquipment(lang))
+                        getIconForEquipment(exercise.equipmentLocalized)
                     } else {
                         R.drawable.ic_dumbbell
                     },

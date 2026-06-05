@@ -107,6 +107,8 @@ class ExerciseViewModel(
         return exerciseRepository.getExerciseById(id)
     }
 
+    fun getExerciseByIdFlow(id: String) = exerciseRepository.getExerciseByIdFlow(id)
+
 
 
 

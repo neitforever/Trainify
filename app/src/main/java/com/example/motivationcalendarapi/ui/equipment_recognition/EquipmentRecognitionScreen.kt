@@ -437,7 +437,7 @@ private fun EquipmentExerciseCard(matchedExercise: MatchedExercise, lang: String
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(id = getIconForEquipment(exercise.getEquipment(lang))),
+                    painter = painterResource(id = getIconForEquipment(exercise.equipmentLocalized)),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(28.dp)

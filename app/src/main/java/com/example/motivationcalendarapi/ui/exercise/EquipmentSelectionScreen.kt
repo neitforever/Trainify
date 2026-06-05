@@ -57,10 +57,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.Exercise
+import com.example.motivationcalendarapi.model.Equipment
 import com.example.motivationcalendarapi.model.ExerciseCatalog
 import com.example.motivationcalendarapi.model.LocalizedOption
 import com.example.motivationcalendarapi.model.LocalizedOptionGroup
-import com.example.motivationcalendarapi.model.getIconForEquipment
+import com.example.motivationcalendarapi.model.getIconForEquipmentOption
 import com.example.motivationcalendarapi.ui.dialogs.ErrorDialog
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 
@@ -334,8 +335,12 @@ private fun EquipmentSelectionCard(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
+                val equipment = remember(option.key, option.localized) {
+                    Equipment.fromCatalogOption(option)
+                }
+
                 Icon(
-                    painter = painterResource(id = getIconForEquipment(option.localized["en"].orEmpty())),
+                    painter = painterResource(id = equipment.iconResId),
                     contentDescription = label,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(30.dp)

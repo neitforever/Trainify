@@ -61,45 +61,201 @@ sealed class Equipment(
     )
 
     companion object {
-        val all: List<Equipment> = listOf(
+        val all: List<Equipment> by lazy(LazyThreadSafetyMode.NONE) {
+            listOf(
             Rope, Assisted, BodyWeight, Weighted, Hammer, BosuBall, SmithMachine,
             MedicineBall, StabilityBall, Kettlebell, Barbell, Dumbbell, Cable,
             LegPress, Band, EzBarbell, TrapBar, WheelRoller, LeverageMachine,
             PecDeckMachine, SeatedRowMachine, AbductorAdductorMachine, LegCurlMachine,
             LegExtensionMachine, CalfMachine, AbdominalCrunch, HipThrustMachine,
             OlympicBarbell, Treadmill, Bike, EllipticalMachine, Roller, SkiergMachine,
-            StepmillMachine, Tire, ResistanceBand
-        )
+                StepmillMachine, Tire, ResistanceBand
+            ).filterNotNull()
+        }
 
-        fun fromString(value: String): Equipment {
-            val normalized = value.trim().lowercase()
-            return all.firstOrNull { equipment ->
-                normalized == equipment.key || equipment.toLocalizedMap().values.any { it.lowercase() == normalized }
-            } ?: when (normalized) {
-                "exercise bike", "bicycle", "cycling", "велосипед", "стационарный велосипед", "велотренажёр", "велотренажер" -> Bike
-                "running machine", "беговая", "дорожка" -> Treadmill
-                "ab wheel", "ab roller", "ролик для пресса" -> WheelRoller
-                "elastic band", "rubber band", "резинка", "резиновая лента" -> ResistanceBand
-                "elliptical", "орбитрек" -> EllipticalMachine
-                "ski erg", "skierg" -> SkiergMachine
-                "stepper", "stair climber", "stair mill" -> StepmillMachine
-                "sled", "sled machine", "leg press machine", "жим ногами", "тренажер sled", "тренажёр sled" -> LegPress
-                "butterfly", "butterfly machine", "pec deck", "chest fly machine", "тренажер бабочка", "тренажёр бабочка", "бабочка" -> PecDeckMachine
-                "row machine", "back row machine", "hammer row", "hammer strength row", "seated cable row", "тяга на спину", "тренажер для тяги", "тренажер для тяги на спину" -> SeatedRowMachine
-                "abductor machine", "adductor machine", "abductor adductor machine", "hip abductor", "hip adductor", "тренажер для отведения бедра", "тренажер для приведения бедра" -> AbductorAdductorMachine
-                "leg curling", "leg curl", "lying leg curl", "seated leg curl", "сгибание ног", "тренажер для сгибания ног" -> LegCurlMachine
-                "leg extension", "leg extensions", "разгибание ног", "тренажер для разгибания ног" -> LegExtensionMachine
-                "calf raise machine", "standing calf raise", "seated calf raise", "тренажер для икр", "икры" -> CalfMachine
-                "abdominal_crunch", "abdominal crunch", "ab crunch", "ab crunch machine", "crunch machine", "тренажер для пресса", "тренажёр для пресса", "пресс машина" -> AbdominalCrunch
-                "hip trast", "hip thrust", "hip thrusts", "hip thrust machine", "glute bridge machine", "тренажер для ягодичного моста", "ягодичный мост" -> HipThrustMachine
-                else -> Unknown
+        private fun normalize(value: String?): String {
+            return value.orEmpty()
+                .trim()
+                .lowercase()
+                .replace('ё', 'е')
+                .replace('ў', 'у')
+                .replace('й', 'и')
+                .replace(Regex("[\\s_\\-/\\.\\(\\)]+"), " ")
+                .replace(Regex("[^a-zа-я0-9 ]"), "")
+                .replace(Regex("\\s+"), " ")
+                .trim()
+        }
+
+        private fun compact(value: String): String = normalize(value).replace(" ", "")
+
+        private fun inputCandidates(value: String): Set<String> {
+            val normalized = normalize(value)
+            if (normalized.isBlank()) return emptySet()
+
+            val raw = value.orEmpty()
+            val parts = raw
+                .replace("{", " ")
+                .replace("}", " ")
+                .split(',', ';', '|', ':', '=', '\n', '\t')
+                .map(::normalize)
+                .filter { it.isNotBlank() }
+
+            return buildSet {
+                add(normalized)
+                add(compact(normalized))
+                parts.forEach { part ->
+                    add(part)
+                    add(compact(part))
+                }
             }
         }
+
+        private fun aliasesFor(equipment: Equipment): Set<String> {
+            val baseAliases = buildSet {
+                add(equipment.key)
+                addAll(equipment.toLocalizedMap().values)
+                when (equipment) {
+                    BodyWeight -> addAll(listOf("bodyweight", "body weight", "body_weight", "body-weight", "own body weight", "no equipment", "without equipment", "собственныи вес", "собственный вес", "без оборудования", "без инвентаря", "уласны вес"))
+                    Weighted -> addAll(listOf("weighted", "additional weight", "with weight", "с весом", "утяжеленныи", "утяжеленный", "утяжараны"))
+                    Assisted -> addAll(listOf("assisted", "with assistance", "assisted machine", "с поддержкои", "с поддержкой", "з падтрымкаи", "з падтрымкай"))
+                    Bike -> addAll(listOf("bike", "exercise bike", "stationary bike", "bicycle", "cycling", "велосипед", "велотренажер", "стационарныи велосипед", "стационарный велосипед"))
+                    Treadmill -> addAll(listOf("treadmill", "tread mill", "running machine", "беговая дорожка", "беговая", "дорожка"))
+                    WheelRoller -> addAll(listOf("wheel roller", "ab wheel", "ab roller", "roller wheel", "ролик для пресса", "ролик"))
+                    Roller -> addAll(listOf("roller", "foam roller", "ролик", "массажныи ролик", "массажный ролик"))
+                    Band, ResistanceBand -> addAll(listOf("band", "resistance band", "elastic band", "rubber band", "резинка", "резиновая лента", "эспандер", "эспандэр"))
+                    EllipticalMachine -> addAll(listOf("elliptical", "elliptical machine", "elliptical trainer", "orbitrek", "орбитрек", "эллиптическии", "эллиптический"))
+                    SkiergMachine -> addAll(listOf("ski erg", "skierg", "skierg machine", "ski erg machine", "лыжныи", "лыжный", "лыжныи тренажер", "лыжный тренажер"))
+                    StepmillMachine -> addAll(listOf("stepmill", "step mill", "stepmill machine", "stepper", "stair climber", "stair mill", "степпер"))
+                    LegPress -> addAll(listOf("sled", "sled machine", "leg press", "leg press machine", "жим ногами", "тренажер для жима ногами"))
+                    SmithMachine -> addAll(listOf("smith", "smith machine", "smith_machine", "машина смита", "тренажер смита", "смита"))
+                    Hammer -> addAll(listOf("hammer", "hammer machine", "hammer strength", "хамер", "хаммер"))
+                    LeverageMachine -> addAll(listOf("leverage", "leverage machine", "рычажныи", "рычажный", "рычагавы"))
+                    PecDeckMachine -> addAll(listOf("pec deck", "pec-deck", "pec_deck", "pec deck machine", "butterfly", "butterfly machine", "chest fly machine", "тренажер бабочка", "бабочка", "матылек"))
+                    SeatedRowMachine -> addAll(listOf("seated row", "seated-row", "seated_row", "seated row machine", "row machine", "back row machine", "seated cable row", "тяга на спину", "тренажер для тяги", "тренажер для тяги на спину"))
+                    AbductorAdductorMachine -> addAll(listOf("abductor", "adductor", "abductor adductor", "abductor adductor machine", "hip abductor", "hip adductor", "отведение бедра", "приведение бедра", "отведение и приведение бедра"))
+                    LegCurlMachine -> addAll(listOf("leg curl", "leg-curl", "leg_curl", "leg curl machine", "lying leg curl", "seated leg curl", "сгибание ног", "тренажер для сгибания ног"))
+                    LegExtensionMachine -> addAll(listOf("leg extension", "leg-extension", "leg_extension", "leg extensions", "leg extension machine", "разгибание ног", "тренажер для разгибания ног"))
+                    CalfMachine -> addAll(listOf("calf", "calf machine", "calf raise", "calf raise machine", "standing calf raise", "seated calf raise", "икры", "лытки", "тренажер для икр"))
+                    AbdominalCrunch -> addAll(listOf("abdominal crunch", "abdominal-crunch", "abdominal_crunch", "ab crunch", "ab crunch machine", "crunch machine", "пресс", "прес", "пресс машина", "тренажер для пресса"))
+                    HipThrustMachine -> addAll(listOf("hip thrust", "hip-thrust", "hip_thrust", "hip thrust machine", "hip trast", "glute bridge machine", "ягодичныи мост", "ягодичный мост", "тренажер для ягодичного моста"))
+                    EzBarbell -> addAll(listOf("ez bar", "ez-bar", "ez_bar", "ez curl bar", "ez barbell", "ez штанга"))
+                    TrapBar -> addAll(listOf("trap bar", "trap-bar", "trap_bar", "hex bar", "трап гриф", "трап-гриф"))
+                    OlympicBarbell -> addAll(listOf("olympic bar", "olympic barbell", "олимпииская штанга", "олимпийская штанга"))
+                    Cable -> addAll(listOf("cable", "cable machine", "crossover", "кроссовер", "кросовер", "блок", "блочныи тренажер", "блочный тренажер"))
+                    Rope -> addAll(listOf("rope", "battle rope", "cable rope", "канат", "вяроука"))
+                    StabilityBall -> addAll(listOf("stability ball", "swiss ball", "fitball", "фитбол"))
+                    BosuBall -> addAll(listOf("bosu", "bosu ball", "мяч босу"))
+                    MedicineBall -> addAll(listOf("medicine ball", "med ball", "медицинскии мяч", "медицинский мяч"))
+                    Kettlebell -> addAll(listOf("kettlebell", "kettle bell", "гиря", "гіра"))
+                    Dumbbell -> addAll(listOf("dumbbell", "dumb bell", "гантель", "гантэль"))
+                    Barbell -> addAll(listOf("barbell", "bar bell", "штанга"))
+                    Tire -> addAll(listOf("tire", "tyre", "покрышка", "пакрышка"))
+                    Unknown -> Unit
+                }
+            }
+
+            return buildSet {
+                baseAliases.forEach { alias ->
+                    val normalizedAlias = normalize(alias)
+                    if (normalizedAlias.isNotBlank()) {
+                        add(normalizedAlias)
+                        add(compact(normalizedAlias))
+                    }
+                }
+            }
+        }
+
+
+        fun fromCatalogOption(option: LocalizedOption): Equipment {
+            return all.firstOrNull { equipment ->
+                equipment.key == option.key || equipment.toLocalizedMap() == option.localized
+            } ?: fromCatalogText(option.key) ?: option.localized.values.firstNotNullOfOrNull { value ->
+                fromCatalogText(value)
+            } ?: Unknown
+        }
+
+        fun fromCatalogText(value: String?): Equipment? {
+            val normalizedValue = normalize(value)
+            if (normalizedValue.isBlank()) return null
+            val compactValue = compact(normalizedValue)
+
+            return all.firstOrNull { equipment ->
+                val directValues = buildList {
+                    add(equipment.key)
+                    addAll(equipment.toLocalizedMap().values)
+                }
+
+                directValues.any { direct ->
+                    val normalizedDirect = normalize(direct)
+                    normalizedValue == normalizedDirect || compactValue == compact(normalizedDirect)
+                }
+            }
+        }
+
+        fun fromLocalizedMap(values: Map<String, String>): Equipment {
+            if (values.isEmpty()) return Unknown
+
+            all.firstOrNull { equipment ->
+                val equipmentMap = equipment.toLocalizedMap()
+                equipmentMap["en"] == values["en"] ||
+                        equipmentMap["ru"] == values["ru"] ||
+                        equipmentMap["be"] == values["be"] ||
+                        equipment.key == values["key"]
+            }?.let { return it }
+
+            values["key"]?.let { key -> fromCatalogText(key)?.let { return it } }
+            values["en"]?.let { en -> fromCatalogText(en)?.let { return it } }
+            values["ru"]?.let { ru -> fromCatalogText(ru)?.let { return it } }
+            values["be"]?.let { be -> fromCatalogText(be)?.let { return it } }
+
+            values.values.forEach { value ->
+                fromCatalogText(value)?.let { return it }
+            }
+
+            return Unknown
+        }
+
+        fun fromString(value: String): Equipment {
+            val candidates = inputCandidates(value)
+            if (candidates.isEmpty()) return Unknown
+
+            val aliasesByEquipment = all.associateWith { aliasesFor(it) }
+
+            aliasesByEquipment.firstNotNullOfOrNull { (equipment, aliases) ->
+                equipment.takeIf { candidates.any { candidate -> candidate in aliases } }
+            }?.let { return it }
+
+            aliasesByEquipment.firstNotNullOfOrNull { (equipment, aliases) ->
+                equipment.takeIf {
+                    candidates.any { candidate ->
+                        aliases.any { alias ->
+                            alias.length >= 4 && candidate.length >= 4 &&
+                                    (candidate.contains(alias) || alias.contains(candidate))
+                        }
+                    }
+                }
+            }?.let { return it }
+
+            return Unknown
+        }
+
     }
 }
 
 fun getIconForEquipment(equipment: String): Int {
-    if (equipment.isBlank()) return Equipment.Unknown.iconResId
-    return runCatching { Equipment.fromString(equipment).iconResId }
-        .getOrDefault(Equipment.Unknown.iconResId)
+    val value = equipment.trim()
+    if (value.isBlank()) return Equipment.Unknown.iconResId
+
+    val matched = runCatching { Equipment.fromString(value) }.getOrDefault(Equipment.Unknown)
+    return if (matched != Equipment.Unknown) matched.iconResId else Equipment.Unknown.iconResId
+}
+
+fun getIconForEquipment(equipment: Equipment): Int = equipment.iconResId
+
+fun getIconForEquipment(equipmentLocalized: Map<String, String>): Int {
+    return Equipment.fromLocalizedMap(equipmentLocalized).iconResId
+}
+
+fun getIconForEquipmentOption(option: LocalizedOption): Int {
+    return Equipment.fromCatalogOption(option).iconResId
 }

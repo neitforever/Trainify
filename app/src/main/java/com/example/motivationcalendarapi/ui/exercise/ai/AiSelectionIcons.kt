@@ -1,7 +1,7 @@
 package com.example.motivationcalendarapi.ui.exercise.ai
 
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.model.getIconForEquipment
+import com.example.motivationcalendarapi.model.Equipment
 
 fun isAiChooseOption(option: String, aiChooseLabel: String): Boolean {
     val normalizedOption = option.trim().lowercase()
@@ -10,6 +10,9 @@ fun isAiChooseOption(option: String, aiChooseLabel: String): Boolean {
 }
 
 fun safeEquipmentIcon(option: String, aiChooseLabel: String = "Let AI choose"): Int {
-    if (isAiChooseOption(option, aiChooseLabel) || option.isBlank()) return R.drawable.ic_info
-    return runCatching { getIconForEquipment(option) }.getOrDefault(R.drawable.ic_info)
+    val value = option.trim()
+    if (isAiChooseOption(value, aiChooseLabel) || value.isBlank()) return R.drawable.ic_info
+
+    return Equipment.fromCatalogText(value)?.iconResId
+        ?: runCatching { Equipment.fromString(value).iconResId }.getOrDefault(Equipment.Unknown.iconResId)
 }

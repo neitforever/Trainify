@@ -57,19 +57,52 @@ sealed class BodyPart(
             Glutes, Hamstrings, Lats, Pectorals, Quads, Spine, Traps, Triceps, UpperBack
         )
 
+        private fun normalize(value: String?): String {
+            return value.orEmpty()
+                .trim()
+                .lowercase()
+                .replace('ё', 'е')
+                .replace('ў', 'у')
+                .replace(Regex("[\\s_\\-/]+"), " ")
+                .replace(Regex("[^a-zа-я0-9 ]"), "")
+                .replace(Regex("\\s+"), " ")
+                .trim()
+        }
+
         fun fromString(value: String?): BodyPart {
-            val normalized = value.orEmpty().trim().lowercase()
+            val normalized = normalize(value)
+            if (normalized.isBlank()) return Unknown
+
             return all.firstOrNull { bodyPart ->
-                normalized == bodyPart.key.lowercase() || bodyPart.toLocalizedMap().values.any { it.lowercase() == normalized }
+                normalized == normalize(bodyPart.key) ||
+                        bodyPart.toLocalizedMap().values.any { localizedName ->
+                            normalized == normalize(localizedName)
+                        }
             } ?: when (normalized) {
-                "abdominals", "пресс", "мышцы пресса" -> Abs
-                "bicep", "бицепс", "біцэпс" -> Biceps
-                "tricep", "трицепс", "трыцэпс" -> Triceps
-                "quadriceps", "квадрицепс" -> Quads
-                "latissimus dorsi", "широчайшие" -> Lats
-                "trapezius", "трапециевидные" -> Traps
-                "calf", "икроножные" -> Calves
-                "gluteus", "ягодичные" -> Glutes
+                "core", "waist", "талия", "талія" -> Waist
+                "abdominal", "abdominals", "abs", "abdominal muscles", "пресс", "мышцы пресса", "прэс" -> Abs
+                "back", "спина", "спіна" -> Back
+                "upper back", "верх спины", "верх спіны" -> UpperBack
+                "lat", "lats", "latissimus dorsi", "широчаишие", "широчайшие", "наишырэишыя мышцы спіны", "найшырэйшыя мышцы спіны" -> Lats
+                "trap", "traps", "trapezius", "trapezius muscle", "трапеции", "трапециевидные", "трапецыі" -> Traps
+                "spinal erectors", "erector spinae", "spine", "разгибатели позвоночника", "разгінальнікі пазваночніка" -> Spine
+                "chest", "pectorals", "pecs", "pec", "грудь", "грудные мышцы", "грудзі", "грудныя мышцы" -> Pectorals
+
+                "shoulder", "shoulders", "delts", "delt", "deltoids", "deltoid", "плечи", "дельты", "плячы", "дэльты" -> Shoulders
+                "neck", "шея", "шыя" -> Neck
+                "arm", "arms", "upper arms", "верхние части рук", "верхнія часткі рук" -> UpperArms
+                "bicep", "biceps", "бицепс", "біцэпс" -> Biceps
+                "tricep", "triceps", "трицепс", "трыцэпс" -> Triceps
+                "forearm", "forearms", "lower arms", "предплечья", "нижние части рук", "перадплеччы", "ніжнія часткі рук" -> Forearms
+
+                "leg", "legs", "upper legs", "thighs", "верхние части ног", "верхнія часткі ног" -> UpperLegs
+                "quad", "quads", "quadriceps", "quadricep", "квадрицепс", "квадрицепсы", "квадрыцэпсы" -> Quads
+                "hamstring", "hamstrings", "бицепс бедра", "біцэпс сцягна" -> Hamstrings
+                "glute", "glutes", "gluteus", "gluteus maximus", "ягодицы", "ягодичные", "ягадзіцы" -> Glutes
+                "abductor", "abductors", "отводящие мышцы бедра", "адводзячыя мышцы сцягна" -> Abductors
+                "adductor", "adductors", "приводящие мышцы бедра", "прыводзячыя мышцы сцягна" -> Adductors
+                "calf", "calves", "lower legs", "икры", "икроножные", "ікры", "нижние части ног", "ніжнія часткі ног" -> Calves
+                "cardio", "кардио", "кардые", "кардыё" -> Cardio
                 else -> Unknown
             }
         }

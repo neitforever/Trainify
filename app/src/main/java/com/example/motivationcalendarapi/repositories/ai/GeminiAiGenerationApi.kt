@@ -240,14 +240,17 @@ class GeminiAiGenerationApi {
         exercises: List<Exercise>
     ): String {
         val currentLang = lang.takeIf { it in listOf("en", "ru", "be") } ?: "en"
-        val existingNames = exercises
+        val safeExercises = (exercises as List<Exercise?>).filterNotNull()
+        val safeSelectedEquipment = selectedEquipment.trim()
+
+        val existingNames = safeExercises
             .filter { exercise ->
                 val bodyPart = exercise.getBodyPart(currentLang)
-                val equipment = exercise.getEquipment(currentLang)
+                val exerciseEquipment = exercise.getEquipment(currentLang)
                 bodyPart.equals(selectedBodyPart, ignoreCase = true) ||
-                        (selectedEquipment.isNotBlank() && equipment.equals(selectedEquipment, ignoreCase = true))
+                        (safeSelectedEquipment.isNotBlank() && exerciseEquipment.equals(safeSelectedEquipment, ignoreCase = true))
             }
-            .ifEmpty { exercises }
+            .ifEmpty { safeExercises }
             .mapIndexed { index, exercise ->
                 val localizedName = exercise.getName(currentLang).ifBlank { exercise.getName("en") }
                 "${index + 1}. ${localizedName} / ${exercise.getName("en")}"
@@ -256,21 +259,23 @@ class GeminiAiGenerationApi {
             .take(80)
             .joinToString("\n")
 
-        val equipmentCatalog = Equipment.all.joinToString("\n") { equipment ->
-            val names = equipment.toLocalizedMap()
-            "- en='${names["en"]}'; ru='${names["ru"]}'; be='${names["be"]}'"
+        val equipmentCatalogLines = mutableListOf<String>()
+        for (item in (Equipment.all as List<Equipment?>).filterNotNull()) {
+            val names = item.toLocalizedMap()
+            equipmentCatalogLines += "- en='${names["en"].orEmpty()}'; ru='${names["ru"].orEmpty()}'; be='${names["be"].orEmpty()}'"
         }
-        val equipmentRule = if (selectedEquipment.isBlank()) {
+        val equipmentCatalog = equipmentCatalogLines.joinToString("\n")
+        val equipmentRule = if (safeSelectedEquipment.isBlank()) {
             "Equipment is optional: choose exactly ONE most suitable equipment from the available equipment list below and put it into equipmentLocalized."
         } else {
-            "Required equipment: $selectedEquipment. Use this equipment in equipmentLocalized."
+            "Required equipment: $safeSelectedEquipment. Use this equipment in equipmentLocalized."
         }
 
         return """
             Generate ONE new fitness exercise.
             Language for user-facing style: $currentLang.
-            User request: $userPrompt
-            Required body part: $selectedBodyPart
+            User request: ${userPrompt.trim()}
+            Required body part: ${selectedBodyPart.trim()}
             $equipmentRule
             Difficulty/load range: $levelRange
 

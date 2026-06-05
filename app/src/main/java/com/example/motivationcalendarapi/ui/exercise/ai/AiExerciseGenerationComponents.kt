@@ -1,6 +1,5 @@
 package com.example.motivationcalendarapi.ui.exercise.ai
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -87,6 +86,7 @@ internal fun String.withFirstUppercase(): String = replaceFirstChar { char ->
     if (char.isLowerCase()) char.titlecase() else char.toString()
 }
 
+
 @Composable
 internal fun SelectorRowWithIcon(
     title: String,
@@ -137,7 +137,7 @@ internal fun SelectorRowWithIcon(
             enabled = enabled
         )
 
-        AnimatedVisibility(visible = expanded && enabled) {
+        if (expanded && enabled) {
             GroupedInlineOptionsList(
                 optionGroups = optionGroups,
                 optionIcon = optionIcon,
@@ -534,9 +534,7 @@ internal fun GroupedInlineOptionsList(
 
             options.chunked(2).forEach { rowOptions ->
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Min),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     rowOptions.forEach { option ->
@@ -577,13 +575,14 @@ private fun CompactAiOptionCard(
             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
         ),
         modifier = modifier
+            .height(IntrinsicSize.Min)
             .heightIn(min = 82.dp)
-            .fillMaxHeight()
             .clickable { onClick() }
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .fillMaxHeight()
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center

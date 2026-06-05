@@ -1,6 +1,5 @@
 package com.example.motivationcalendarapi.ui.exercise.ai
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.graphicsLayer
@@ -134,44 +133,42 @@ internal fun MultiChoiceCardsSectionState(
             }
         }
 
-        AnimatedVisibility(visible = expanded && enabled) {
+        if (expanded && enabled) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        optionGroups.forEach { (groupTitle, options) ->
-            if (groupTitle.isNotBlank()) {
-                Text(
-                    text = groupTitle,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp, start = 2.dp)
-                )
-            }
-
-            options.chunked(2).forEach { rowOptions ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Min),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    rowOptions.forEach { option ->
-                        val isSelected = selected.contains(option)
-                        TemplateCompactOptionCard(
-                            option = option,
-                            iconRes = iconForOption(option),
-                            isSelected = isSelected,
-                            enabled = enabled,
-                            onClick = { onToggle(option) },
-                            exerciseCount = exerciseCounts[option],
-                            modifier = Modifier.weight(1f)
+                optionGroups.forEach { (groupTitle, options) ->
+                    if (groupTitle.isNotBlank()) {
+                        Text(
+                            text = groupTitle,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp, start = 2.dp)
                         )
                     }
-                    if (rowOptions.size == 1) {
-                        Spacer(modifier = Modifier.weight(1f))
+
+                    options.chunked(2).forEach { rowOptions ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            rowOptions.forEach { option ->
+                                val isSelected = selected.contains(option)
+                                TemplateCompactOptionCard(
+                                    option = option,
+                                    iconRes = iconForOption(option),
+                                    isSelected = isSelected,
+                                    enabled = enabled,
+                                    onClick = { onToggle(option) },
+                                    exerciseCount = exerciseCounts[option],
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            if (rowOptions.size == 1) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
                     }
                 }
-            }
-        }
             }
         }
     }
@@ -189,8 +186,8 @@ private fun TemplateCompactOptionCard(
 ) {
     Card(
         modifier = modifier
+            .height(IntrinsicSize.Min)
             .heightIn(min = 82.dp)
-            .fillMaxHeight()
             .clickable(enabled = enabled) { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -203,7 +200,8 @@ private fun TemplateCompactOptionCard(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .fillMaxHeight()
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
             if (isSelected) {

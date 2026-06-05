@@ -71,6 +71,7 @@ fun WorkoutHistoryDetailScreen(
     if (showSaveTemplateDialog.value) {
         SaveTemplateDialog(
             showDialog = true,
+            initialTemplateName = selectedWorkout.value?.name.orEmpty(),
             onDismiss = { showSaveTemplateDialog.value = false },
             onConfirm = { name ->
                 selectedWorkout.value?.let { workout ->

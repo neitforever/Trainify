@@ -40,6 +40,7 @@ import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.ui.fragments.StatusIcon
+import com.example.motivationcalendarapi.utils.formatExerciseMinutes
 import com.example.motivationcalendarapi.ui.workout.fragments.NoteBottomSheet
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 
@@ -213,7 +214,7 @@ fun ExerciseCardHistory(
                         columns = listOf(
                             HistoryTableColumn(
                                 title = stringResource(R.string.time_minutes),
-                                value = { it.time.toString() }
+                                value = { formatExerciseMinutes(it.time) }
                             ),
                             HistoryTableColumn(
                                 title = stringResource(R.string.resistance_level),
@@ -229,7 +230,7 @@ fun ExerciseCardHistory(
                         columns = listOf(
                             HistoryTableColumn(
                                 title = stringResource(R.string.time_minutes),
-                                value = { it.time.toString() }
+                                value = { formatExerciseMinutes(it.time) }
                             ),
                             HistoryTableColumn(
                                 title = stringResource(R.string.resistance_level),

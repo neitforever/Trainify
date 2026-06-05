@@ -534,7 +534,9 @@ internal fun GroupedInlineOptionsList(
 
             options.chunked(2).forEach { rowOptions ->
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     rowOptions.forEach { option ->
@@ -575,14 +577,13 @@ private fun CompactAiOptionCard(
             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
         ),
         modifier = modifier
-            .height(IntrinsicSize.Min)
             .heightIn(min = 82.dp)
+            .fillMaxHeight()
             .clickable { onClick() }
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
+                .fillMaxSize()
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center

@@ -6,6 +6,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.roundToInt
 
 fun formatTime(context: Context, seconds: Int?): String {
     val safeSeconds = seconds ?: 0
@@ -14,6 +15,16 @@ fun formatTime(context: Context, seconds: Int?): String {
         "%02d:%02d",
         safeSeconds / 60,
         safeSeconds % 60
+    )
+}
+
+fun formatExerciseMinutes(minutes: Float?): String {
+    val totalSeconds = ((minutes ?: 0f) * 60f).roundToInt().coerceAtLeast(0)
+    return String.format(
+        Locale.US,
+        "%d:%02d",
+        totalSeconds / 60,
+        totalSeconds % 60
     )
 }
 

@@ -148,7 +148,9 @@ internal fun MultiChoiceCardsSectionState(
 
                     options.chunked(2).forEach { rowOptions ->
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(IntrinsicSize.Min),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             rowOptions.forEach { option ->
@@ -186,8 +188,8 @@ private fun TemplateCompactOptionCard(
 ) {
     Card(
         modifier = modifier
-            .height(IntrinsicSize.Min)
             .heightIn(min = 82.dp)
+            .fillMaxHeight()
             .clickable(enabled = enabled) { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -200,8 +202,7 @@ private fun TemplateCompactOptionCard(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
+                .fillMaxSize()
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
             if (isSelected) {

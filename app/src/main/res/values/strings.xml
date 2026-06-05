@@ -246,7 +246,7 @@
     <string name="language_description_title">Note:</string>
 
     <string name="time_minutes">Time</string>
-    <string name="resistance_level">Resistance</string>
+    <string name="resistance_level">Spd</string>
     <string name="incline_percent">Inc</string>
     <string name="cardio_time_configuration">Cardio Time Configuration</string>
     <string name="resistance_configuration">Resistance Configuration</string>

@@ -247,7 +247,7 @@
     <string name="example_prefix">Пример</string>
     <string name="language_description_title">Пример:</string>
     <string name="time_minutes">Время</string>
-    <string name="resistance_level">Сила</string>
+    <string name="resistance_level">Скор.</string>
     <string name="incline_percent">Накл.</string>
     <string name="cardio_time_configuration">Настройка времени кардио</string>
     <string name="resistance_configuration">Настройка силы</string>

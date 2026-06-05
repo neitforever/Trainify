@@ -250,7 +250,7 @@
     <string name="language_description_title">Заўвага:</string>
 
     <string name="time_minutes">Час</string>
-    <string name="resistance_level">Сіла</string>
+    <string name="resistance_level">Хутк.</string>
     <string name="incline_percent">Нах.</string>
     <string name="cardio_time_configuration">Налады часу кардыё</string>
     <string name="resistance_configuration">Налады сілы</string>

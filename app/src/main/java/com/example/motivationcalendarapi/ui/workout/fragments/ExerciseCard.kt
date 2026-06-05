@@ -44,6 +44,7 @@ import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.ui.fragments.StatusIcon
 import com.example.motivationcalendarapi.ui.workout.fragments.NoteBottomSheet
+import com.example.motivationcalendarapi.utils.formatExerciseMinutes
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -394,7 +395,7 @@ private fun BikeSetsTable(
         columns = listOf(
             TableColumn(
                 title = stringResource(R.string.time_minutes),
-                value = { it.time.toString() },
+                value = { formatExerciseMinutes(it.time) },
                 onClick = onTimeClick
             ),
             TableColumn(
@@ -426,7 +427,7 @@ private fun TreadmillSetsTable(
         columns = listOf(
             TableColumn(
                 title = stringResource(R.string.time_minutes),
-                value = { it.time.toString() },
+                value = { formatExerciseMinutes(it.time) },
                 onClick = onTimeClick
             ),
             TableColumn(

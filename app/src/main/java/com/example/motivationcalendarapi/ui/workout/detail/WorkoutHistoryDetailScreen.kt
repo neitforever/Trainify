@@ -38,7 +38,6 @@ import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.Workout
 import com.example.motivationcalendarapi.ui.dialogs.DeleteWorkoutDialog
 import com.example.motivationcalendarapi.ui.dialogs.SaveTemplateDialog
-import com.example.motivationcalendarapi.ui.dialogs.TemplateSavedDialog
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
@@ -64,8 +63,6 @@ fun WorkoutHistoryDetailScreen(
     val selectedWorkout = remember { mutableStateOf<Workout?>(null) }
     val showDeleteDialog = remember { mutableStateOf(false) }
     val showSaveTemplateDialog = remember { mutableStateOf(false) }
-    val showSaveSuccessDialog = remember { mutableStateOf(false) }
-    val savedTemplateName = remember { mutableStateOf("") }
     val context = LocalContext.current
 
     if (showSaveTemplateDialog.value) {
@@ -87,18 +84,11 @@ fun WorkoutHistoryDetailScreen(
                         templateName = name,
                         lang = lang
                     )
-                    savedTemplateName.value = name
-                    showSaveSuccessDialog.value = true
                 }
             }
         )
     }
 
-    TemplateSavedDialog(
-        showDialog = showSaveSuccessDialog.value,
-        templateName = savedTemplateName.value,
-        onDismiss = { showSaveSuccessDialog.value = false }
-    )
 
     if (showDeleteDialog.value) {
         DeleteWorkoutDialog(

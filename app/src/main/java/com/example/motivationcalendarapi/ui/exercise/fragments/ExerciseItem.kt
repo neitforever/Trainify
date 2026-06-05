@@ -38,18 +38,21 @@ fun ExerciseItem(
     lang: String
 ) {
     val iconSize by animateDpAsState(
-        targetValue = if (isFavorite) 24.dp else 24.dp,
-        animationSpec = tween(durationMillis = 200)
+        targetValue = if (isFavorite) 30.dp else 28.dp,
+        animationSpec = tween(durationMillis = 200),
+        label = "Favorite Icon Size"
     )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onItemClick).padding(top = 10.dp, bottom = 6.dp),
+            .clickable(onClick = onItemClick)
+            .padding(top = 12.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(22.dp)
+                .size(28.dp)
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = CircleShape
@@ -58,17 +61,18 @@ fun ExerciseItem(
         ) {
             Text(
                 text = exercise.getName(lang).first().uppercase(),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.size(24.dp)
+                textAlign = TextAlign.Center
             )
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         Column(
-            modifier = Modifier.weight(1f).padding(end = 8.dp)
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 10.dp)
         ) {
             Text(
                 text = exercise.getName(lang).replaceFirstChar {
@@ -81,7 +85,6 @@ fun ExerciseItem(
             )
         }
 
-
         Icon(
             painter = painterResource(
                 id = if (isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
@@ -90,7 +93,11 @@ fun ExerciseItem(
             modifier = Modifier
                 .clickable { onFavoriteClick() }
                 .size(iconSize),
-            tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+            tint = if (isFavorite) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.secondary
+            }
         )
     }
 }

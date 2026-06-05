@@ -37,31 +37,26 @@ fun CollapsibleBodyPartItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 3.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 6.dp)
             .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Icon(
             painter = painterResource(id = bodyPartType.iconResId),
             contentDescription = null,
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(28.dp),
             tint = MaterialTheme.colorScheme.primary
         )
 
-
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(14.dp))
 
         Text(
             text = bodyPart.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(
-                    Locale.ROOT
-                ) else it.toString()
+                if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
             },
             color = MaterialTheme.colorScheme.secondary,
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier
-                .weight(1f)
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.weight(1f)
         )
 
         val rotation by animateFloatAsState(
@@ -69,11 +64,13 @@ fun CollapsibleBodyPartItem(
             animationSpec = tween(durationMillis = 210),
             label = "Icon Animation"
         )
+
         Icon(
             painter = painterResource(id = R.drawable.ic_arrow_drop_down),
             contentDescription = stringResource(R.string.drop_down_list),
             tint = MaterialTheme.colorScheme.secondary,
             modifier = Modifier
+                .size(28.dp)
                 .graphicsLayer { rotationZ = rotation }
         )
     }

@@ -498,4 +498,12 @@
 
     <string name="workouts_for_date">Workouts for %1$s</string>
     <string name="select_workout_to_view">Select a workout</string>
+
+    <string name="technique_analysis">Technique analysis</string>
+    <string name="technique_analysis_placeholder">Technique analysis will be added later</string>
+    <string name="exercise_detail_no_instructions">Instructions have not been added yet</string>
+    <string name="muscle_groups">Muscles</string>
+    <string name="similar_exercises_title">Similar exercises</string>
+    <string name="similar_exercises_description">Exercises with similar muscle groups</string>
+    <string name="hide">Hide</string>
 </resources>

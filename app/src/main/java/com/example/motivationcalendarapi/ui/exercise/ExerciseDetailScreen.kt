@@ -3,33 +3,28 @@ package com.example.motivationcalendarapi.ui.exercise
 import LoadingView
 import Screen
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CutCornerShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,39 +33,40 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
-import com.example.motivationcalendarapi.model.Exercise
+import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.model.getIconForBodyPart
 import com.example.motivationcalendarapi.model.getIconForEquipment
 import com.example.motivationcalendarapi.ui.dialogs.DeleteExerciseDialog
 import com.example.motivationcalendarapi.ui.exercise.analysis.ExerciseAnalysisSection
+import com.example.motivationcalendarapi.ui.exercise.detail.ExerciseDetailFabMenu
+import com.example.motivationcalendarapi.ui.exercise.detail.ExerciseInstructionsCard
+import com.example.motivationcalendarapi.ui.exercise.detail.ExerciseMetricCard
+import com.example.motivationcalendarapi.ui.exercise.detail.ExerciseTitleCard
+import com.example.motivationcalendarapi.ui.exercise.detail.SimilarExercisesSection
+import com.example.motivationcalendarapi.ui.exercise.detail.findSimilarExercises
+import com.example.motivationcalendarapi.ui.exercise.detail.getTechniqueSearchName
 import com.example.motivationcalendarapi.ui.exercise.technique.ExerciseTechniqueBottomSheet
-import com.example.motivationcalendarapi.ui.exercise.technique.TechniquePreviewCard
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.analysis.ExerciseAnalysisViewModel
-import com.example.motivationcalendarapi.model.getCardType
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseDetailScreen(
     navController: NavController,
@@ -85,389 +81,177 @@ fun ExerciseDetailScreen(
     val showDeleteDialog = remember { mutableStateOf(false) }
     val selectedExercise by viewModel.getExerciseByIdFlow(exerciseId).collectAsState(initial = null)
     val favoriteExercises by viewModel.getFavoriteExercises().collectAsState(initial = emptyList())
+    val allExercises by viewModel.getAllExercises().collectAsState(initial = emptyList())
     val techniqueVideosState by viewModel.techniqueVideosUiState.collectAsState()
     val selectedTechniqueVideo by viewModel.selectedTechniqueVideo.collectAsState()
-    var showTechniqueSheet by remember { mutableStateOf(false) }
-    val topBarScope = rememberCoroutineScope()
 
+    var showTechniqueSheet by remember { mutableStateOf(false) }
+    var isMenuExpanded by remember { mutableStateOf(false) }
+    val topBarScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets(top = 32.dp),colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                titleContentColor = MaterialTheme.colorScheme.primary,
-            ), navigationIcon = {
-                IconButton(
-                    onClick = {
-                        topBarScope.launch {
-                            drawerState.value.open()
-                        }
-                    },
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_menu),
-                        contentDescription = stringResource(R.string.menu),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(42.dp)
-                    )
-                }
-            }, title = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 4.dp)
-                ) {
-                    Text(
-                        text = Screen.ExerciseDetailView.getTitle(context),
-                        style = MaterialTheme.typography.displaySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }, actions = {
-                selectedExercise?.let { exercise ->
-                    val isFavorite = favoriteExercises.any { it.id == exercise.id }
+                windowInsets = WindowInsets(top = 32.dp),
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                navigationIcon = {
                     IconButton(
                         onClick = {
-                            val updatedExercise = exercise.copy(favorite = isFavorite)
-                            viewModel.toggleFavorite(updatedExercise)
-                        }
+                            topBarScope.launch { drawerState.value.open() }
+                        },
+                        modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
-                            painter = painterResource(
-                                id = if (isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
-                            ),
-                            contentDescription = stringResource(R.string.favorite),
-                            tint = if (isFavorite) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onBackground
+                            painter = painterResource(id = R.drawable.ic_menu),
+                            contentDescription = stringResource(R.string.menu),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(42.dp)
                         )
                     }
-                }
-            }, modifier = Modifier.border(
-                border = BorderStroke(2.dp, MaterialTheme.colorScheme.tertiary),
-                shape = CutCornerShape(4.dp)
-            )
+                },
+                title = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 4.dp)
+                    ) {
+                        Text(
+                            text = Screen.ExerciseDetailView.getTitle(context),
+                            style = MaterialTheme.typography.displaySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                },
+                actions = {
+                    selectedExercise?.let { exercise ->
+                        val isFavorite = favoriteExercises.any { it.id == exercise.id }
+                        IconButton(
+                            onClick = {
+                                val updatedExercise = exercise.copy(favorite = isFavorite)
+                                viewModel.toggleFavorite(updatedExercise)
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (isFavorite) R.drawable.ic_favorite_filled
+                                    else R.drawable.ic_favorite_border
+                                ),
+                                contentDescription = stringResource(R.string.favorite),
+                                tint = if (isFavorite) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                },
+                modifier = Modifier.border(
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.tertiary),
+                    shape = CutCornerShape(4.dp)
+                )
             )
         },
         floatingActionButton = {
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier.navigationBarsPadding()
-            ) {
-                FloatingActionButton(
-                    onClick = { showDeleteDialog.value = true },
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(64.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = stringResource(R.string.delete_exercise),
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
-            }
-        }
-    ) { paddingValues ->
-        selectedExercise?.let { exercise ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                //Name
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { navController.navigate("${Screen.EditExerciseName.route}/${exercise.id}") }
-                    .padding(top = 16.dp, start = 8.dp, end = 8.dp, bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween)
-                {
-                    Text(
-                        text = exercise.getName(lang).replaceFirstChar { it.uppercase() },
-                        color = MaterialTheme.colorScheme.onBackground,
-                        style = MaterialTheme.typography.headlineLarge,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_edit),
-                        contentDescription = stringResource(R.string.edit),
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier
-                            .size(28.dp)
-                            .padding(start = 8.dp)
-                    )
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 0.dp),
-                    thickness = 2.dp,
-                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f)
-                )
-
-                //Equipment
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 8.dp, bottom = 8.dp, top = 16.dp, end = 8.dp)
-                    .clickable { navController.navigate("${Screen.EquipmentSelection.route}/${exercise.id}") })
-                {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Text(
-                            text = stringResource(R.string.equipment),
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(end = 8.dp).weight(1f)
-                        )
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = stringResource(R.string.edit),
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier
-                                .size(28.dp)
-                                .padding(start = 8.dp)
-                        )
-                    }
-
-                    Card(
-                        shape = RoundedCornerShape(8.dp), colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        ), modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(
-                                    start = 12.dp,
-                                    end = 12.dp,
-                                    top = 8.dp,
-                                    bottom = 8.dp
-                                ), verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(id = getIconForEquipment(exercise.equipmentLocalized)),
-                                contentDescription = stringResource(R.string.equipment),
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .padding(end = 8.dp)
-                            )
-                            Text(
-                                text = exercise.getEquipment(lang),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    }
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 0.dp),
-                    thickness = 2.dp,
-                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f)
-                )
-
-                //Bodypart
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 8.dp, bottom = 8.dp, top = 16.dp, end = 8.dp)
-                    .clickable { navController.navigate("${Screen.BodyPartSelection.route}/${exercise.id}") })
-                {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Text(
-                            text = stringResource(R.string.body_part),
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(end = 8.dp)
-                                .weight(1f)
-                        )
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = stringResource(R.string.edit),
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier
-                                .size(28.dp)
-                                .padding(start = 8.dp)
-                        )
-                    }
-
-                    Card(
-                        shape = RoundedCornerShape(8.dp), colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        ), modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(
-                                    start = 12.dp,
-                                    end = 12.dp,
-                                    top = 8.dp,
-                                    bottom = 8.dp
-                                ), verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(id = getIconForBodyPart(exercise.getBodyPart(lang))),
-                                contentDescription = stringResource(R.string.body_part),
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .padding(end = 8.dp)
-                            )
-                            Text(
-                                text = exercise.getBodyPart(lang),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    }
-                }
-//                    HorizontalDivider(
-//                        modifier = Modifier.padding(start = 0.dp), thickness = 2.dp,
-//                        color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f)
-//                    )
-//
-//                    Column(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(start = 8.dp, bottom = 8.dp, top = 16.dp, end = 8.dp)
-//                            .clickable { navController.navigate("${Screen.SecondaryMusclesSelection.route}/${exercise.id}") }
-//                    ) {
-//                        Row(
-//                            modifier = Modifier.fillMaxWidth(),
-//                            verticalAlignment = Alignment.CenterVertically
-//                        ) {
-//                            Text(
-//                                text = "Secondary Muscles",
-//                                style = MaterialTheme.typography.headlineSmall,
-//                                color = MaterialTheme.colorScheme.onSurface,
-//                                modifier = Modifier.padding(end = 8.dp).weight(1f),
-//                            )
-//                            Icon(
-//                                painter = painterResource(id = R.drawable.ic_edit),
-//                                contentDescription = "Edit",
-//                                tint = MaterialTheme.colorScheme.tertiary,
-//                                modifier = Modifier
-//                                    .size(28.dp)
-//                                    .padding(start = 8.dp)
-//                            )
-//                        }
-//
-//                        FlowRow(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(top = 8.dp),
-//                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-//                            verticalArrangement = Arrangement.spacedBy(8.dp)
-//                        ) {
-//                            if (exercise.secondaryMuscles.isEmpty()) {
-//                                Text(
-//                                    text = "Not set",
-//                                    style = MaterialTheme.typography.titleMedium,
-//                                    color = MaterialTheme.colorScheme.outline,
-//                                    modifier = Modifier.padding(top = 8.dp)
-//                                )
-//                            } else {
-//                                exercise.secondaryMuscles
-//                                    .flatMap { muscleEntry ->
-//                                        muscleEntry
-//                                            .replace("[", "")
-//                                            .replace("]", "")
-//                                            .replace("\"", "")
-//                                            .split(",")
-//                                            .map { it.trim() }
-//                                    }
-//                                    .filter { it.isNotBlank() }
-//                                    .forEach { muscle ->
-//                                        Card(
-//                                            shape = RoundedCornerShape(8.dp),
-//                                            colors = CardDefaults.cardColors(
-//                                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-//                                            ),
-//                                            modifier = Modifier.wrapContentWidth()
-//                                        ) {
-//                                            Text(
-//                                                text = muscle,
-//                                                style = MaterialTheme.typography.titleMedium,
-//                                                color = MaterialTheme.colorScheme.primary,
-//                                                maxLines = 1,
-//                                                overflow = TextOverflow.Ellipsis,
-//                                                modifier = Modifier
-//                                                    .padding(horizontal = 12.dp, vertical = 8.dp)
-//                                            )
-//                                        }
-//                                    }
-//                            }
-//                        }
-//                    }
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 0.dp),
-                    thickness = 2.dp,
-                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f)
-                )
-
-                //Instructions
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 8.dp, bottom = 8.dp, top = 16.dp, end = 8.dp)
-                    .clickable { navController.navigate("${Screen.EditExerciseInstructions.route}/${exercise.id}") })
-                {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(R.string.instructions),
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(end = 8.dp)
-                                .weight(1f),
-                        )
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = stringResource(R.string.edit),
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier
-                                .size(28.dp)
-                                .padding(start = 8.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    exercise.getInstructions(lang).forEachIndexed { index, instruction ->
-                        Text(
-                            text = "${index + 1}. $instruction",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
-                        )
-                    }
-                }
-
-                TechniquePreviewCard(
-                    onClick = {
+            ExerciseDetailFabMenu(
+                isExpanded = isMenuExpanded,
+                onToggle = { isMenuExpanded = !isMenuExpanded },
+                onOpenTechnique = {
+                    selectedExercise?.let { exercise ->
                         showTechniqueSheet = true
+                        isMenuExpanded = false
                         viewModel.loadTechniqueVideos(
                             exerciseId = exercise.id,
                             exerciseName = exercise.getTechniqueSearchName(lang),
                             lang = lang
                         )
+                    }
+                },
+                onAnalyzeTechnique = {
+                    isMenuExpanded = false
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.technique_analysis_placeholder),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
+                onDelete = {
+                    isMenuExpanded = false
+                    showDeleteDialog.value = true
+                }
+            )
+        }
+    ) { paddingValues ->
+        selectedExercise?.let { exercise ->
+            val similarExercises = remember(allExercises, exercise.id, lang) {
+                findSimilarExercises(
+                    currentExercise = exercise,
+                    allExercises = allExercises,
+                    lang = lang
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .pointerInput(Unit) {
+                        detectTapGestures { isMenuExpanded = false }
+                    }
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                ExerciseTitleCard(
+                    exercise = exercise,
+                    lang = lang,
+                    onClick = {
+                        navController.navigate("${Screen.EditExerciseName.route}/${exercise.id}")
+                    }
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    ExerciseMetricCard(
+                        title = stringResource(R.string.equipment),
+                        primaryValue = exercise.getEquipment(lang),
+                        secondaryValue = "",
+                        iconResId = getIconForEquipment(exercise.equipmentLocalized),
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            navController.navigate("${Screen.EquipmentSelection.route}/${exercise.id}")
+                        }
+                    )
+
+                    ExerciseMetricCard(
+                        title = stringResource(R.string.muscle_groups),
+                        primaryValue = exercise.getBodyPart(lang),
+                        secondaryValue = "",
+                        iconResId = getIconForBodyPart(exercise.getBodyPart(lang)),
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            navController.navigate("${Screen.BodyPartSelection.route}/${exercise.id}")
+                        }
+                    )
+                }
+
+                ExerciseInstructionsCard(
+                    instructions = exercise.getInstructions(lang),
+                    onClick = {
+                        navController.navigate("${Screen.EditExerciseInstructions.route}/${exercise.id}")
+                    }
+                )
+
+                SimilarExercisesSection(
+                    exercises = similarExercises,
+                    lang = lang,
+                    onExerciseClick = { similarExercise ->
+                        navController.navigate("${Screen.ExerciseDetailView.route}/${similarExercise.id}")
                     }
                 )
 
@@ -479,11 +263,7 @@ fun ExerciseDetailScreen(
                     viewModel = analysisViewModel
                 )
 
-                    Spacer(
-                        modifier = Modifier
-                            .absolutePadding(bottom = 200.dp)
-                    )
-
+                Spacer(modifier = Modifier.absolutePadding(bottom = 200.dp))
             }
         } ?: LoadingView()
     }
@@ -512,7 +292,7 @@ fun ExerciseDetailScreen(
         }
     }
 
-    DeleteExerciseDialog (
+    DeleteExerciseDialog(
         showDialog = showDeleteDialog.value,
         onDismiss = { showDeleteDialog.value = false },
         onConfirm = {
@@ -523,13 +303,4 @@ fun ExerciseDetailScreen(
             }
         }
     )
-
-}
-
-private fun Exercise.getTechniqueSearchName(lang: String): String {
-    return when (lang) {
-        "en" -> getName("en")
-        "ru", "be" -> getName("ru").ifBlank { getName(lang) }
-        else -> getName("en").ifBlank { getName(lang) }
-    }
 }

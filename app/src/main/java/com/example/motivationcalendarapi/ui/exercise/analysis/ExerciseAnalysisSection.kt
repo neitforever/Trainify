@@ -34,6 +34,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,8 +60,10 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.ExerciseCardType
 import com.example.motivationcalendarapi.model.analysis.ExerciseAnalysisMetric
 import com.example.motivationcalendarapi.model.analysis.ExerciseAnalysisPeriod
@@ -97,18 +101,9 @@ fun ExerciseAnalysisSection(
 
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 16.dp),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            text = text.title,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 0.dp)
-        )
-
         Card(
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f)),
@@ -126,6 +121,8 @@ fun ExerciseAnalysisSection(
                     .padding(14.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                ExerciseAnalysisHeader(text.title)
+
                 ExerciseAnalysisPeriodSelector(
                     selectedPeriod = uiState.selectedPeriod,
                     text = text,
@@ -199,6 +196,39 @@ fun ExerciseAnalysisSection(
 
             }
         }
+    }
+}
+
+@Composable
+private fun ExerciseAnalysisHeader(title: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_progress),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(7.dp)
+                    .size(20.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -490,7 +520,7 @@ private fun ExerciseAnalysisSummaryGrid(
         when (result.cardType) {
             ExerciseCardType.STRENGTH -> {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    SummaryMetricCard(text.totalVolume, formatNumber(summary.totalVolume) + text.weightUnit, Modifier.weight(1f))
+                    SummaryMetricCard(text.maxWeight, formatNumber(summary.maxWeight) + text.weightUnit, Modifier.weight(1f))
                     SummaryMetricCard(text.estimatedOneRepMax, summary.bestEstimatedOneRepMax?.let { formatNumber(it) + text.weightUnit } ?: "—", Modifier.weight(1f))
                 }
                 if (result.hasActualBodyWeight && summary.bestRelativeStrengthPercent != null) {
@@ -1079,6 +1109,7 @@ private class ExerciseAnalysisText(private val lang: String, val locale: Locale)
     val sessions = when (lang) { "ru" -> "Тренировок"; "be" -> "Трэніровак"; else -> "Sessions" }
     val sets = when (lang) { "ru" -> "Подходов"; "be" -> "Падыходаў"; else -> "Sets" }
     val totalVolume = when (lang) { "ru" -> "Общий объём"; "be" -> "Агульны аб'ём"; else -> "Total volume" }
+    val maxWeight = when (lang) { "ru" -> "Макс. вес"; "be" -> "Макс. вага"; else -> "Max weight" }
     val estimatedOneRepMax = when (lang) { "ru" -> "1ПМ"; "be" -> "1ПМ"; else -> "1RM" }
     val estimatedOneRepMaxShort = when (lang) { "ru" -> "1ПМ"; "be" -> "1ПМ"; else -> "1RM" }
     val relativeStrength = when (lang) { "ru" -> "Относительная сила"; "be" -> "Адносная сіла"; else -> "Relative strength" }

@@ -502,4 +502,12 @@
 
     <string name="workouts_for_date">Трэніроўкі за %1$s</string>
     <string name="select_workout_to_view">Выберыце трэніроўку</string>
+
+    <string name="technique_analysis">Аналіз тэхнікі</string>
+    <string name="technique_analysis_placeholder">Аналіз тэхнікі выканання будзе дададзены пазней</string>
+    <string name="exercise_detail_no_instructions">Інструкцыі пакуль не дададзены</string>
+    <string name="muscle_groups">Мышцы</string>
+    <string name="similar_exercises_title">Падобныя практыкаванні</string>
+    <string name="similar_exercises_description">Практыкаванні з падобнымі групамі мышцаў</string>
+    <string name="hide">Схаваць</string>
 </resources>

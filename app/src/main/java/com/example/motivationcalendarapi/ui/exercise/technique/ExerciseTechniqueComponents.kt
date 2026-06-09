@@ -23,11 +23,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -263,14 +264,10 @@ private fun TechniqueVideoContent(
         videos.getOrNull(pagerState.currentPage)?.let(onVideoClick)
     }
 
-    val blockSheetVerticalDragConnection = remember { BlockSheetVerticalDragConnection() }
-
     HorizontalPager(
         state = pagerState,
         pageSpacing = 14.dp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .nestedScroll(blockSheetVerticalDragConnection)
+        modifier = Modifier.fillMaxWidth()
     ) { page ->
         val video = videos[page]
         val isActivePage = page == pagerState.currentPage
@@ -282,13 +279,18 @@ private fun TechniqueVideoContent(
             modifier = Modifier.fillMaxWidth()
         ) {
             if (isActivePage) {
-                YouTubeShortsWebView(
-                    videoId = video.videoId,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(9f / 16f)
                         .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-                )
+                        .blockSheetVerticalSwipe()
+                ) {
+                    YouTubeShortsWebView(
+                        videoId = video.videoId,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             } else {
                 Box(
                     modifier = Modifier
@@ -372,12 +374,29 @@ private fun PageIndicator(
     }
 }
 
-private class BlockSheetVerticalDragConnection : NestedScrollConnection {
-    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        return if (source == NestedScrollSource.UserInput && kotlin.math.abs(available.y) > kotlin.math.abs(available.x)) {
-            Offset(x = 0f, y = available.y)
-        } else {
-            Offset.Zero
+private fun Modifier.blockSheetVerticalSwipe(): Modifier = pointerInput(Unit) {
+    awaitEachGesture {
+        val down = awaitFirstDown(requireUnconsumed = false)
+        var totalX = 0f
+        var totalY = 0f
+        var blockVerticalDrag = false
+
+        while (true) {
+            val event = awaitPointerEvent(PointerEventPass.Initial)
+            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+            if (!change.pressed) break
+
+            val delta = change.positionChange()
+            totalX += delta.x
+            totalY += delta.y
+
+            if (!blockVerticalDrag && kotlin.math.abs(totalY) > 10f && kotlin.math.abs(totalY) > kotlin.math.abs(totalX) * 1.15f) {
+                blockVerticalDrag = true
+            }
+
+            if (blockVerticalDrag) {
+                change.consume()
+            }
         }
     }
 }

@@ -249,6 +249,8 @@
     <string name="example_prefix">Прыклад</string>
     <string name="language_description_title">Заўвага:</string>
 
+    <string name="minutes_short">хв</string>
+    <string name="seconds_short">сек</string>
     <string name="time_minutes">Час</string>
     <string name="resistance_level">Хутк.</string>
     <string name="incline_percent">Нах.</string>

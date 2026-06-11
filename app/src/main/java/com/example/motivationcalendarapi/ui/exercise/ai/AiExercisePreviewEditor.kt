@@ -75,6 +75,7 @@ import com.example.motivationcalendarapi.ui.template.fragments.ExerciseTemplateI
 import com.motivationcalendar.ui.RepsDialog
 import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
 import com.example.motivationcalendarapi.ui.dialogs.FloatMetricDialog
+import com.example.motivationcalendarapi.ui.dialogs.TimeMetricDialog
 import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
@@ -434,14 +435,13 @@ internal fun TemplatePreviewEditor(
         }
     )
 
-    FloatMetricDialog(
+    TimeMetricDialog(
         showDialog = showTimeDialog,
         title = stringResource(R.string.edit_time),
-        label = stringResource(R.string.time_minutes),
-        initialValue = selectedSet?.time ?: minCardioTime,
-        minValue = minCardioTime,
-        maxValue = maxCardioTime,
-        stepValue = stepCardioTime,
+        initialValueMinutes = selectedSet?.time ?: minCardioTime,
+        minValueMinutes = minCardioTime,
+        maxValueMinutes = maxCardioTime,
+        stepValueMinutes = stepCardioTime,
         onDismiss = { showTimeDialog = false },
         onSave = { newTime ->
             updateDraftSet(currentExerciseIndex, currentSetIndex) { it.copy(time = newTime) }

@@ -45,6 +45,7 @@ import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.model.localizedName
 import com.example.motivationcalendarapi.ui.dialogs.DeleteTemplateDialog
 import com.example.motivationcalendarapi.ui.dialogs.FloatMetricDialog
+import com.example.motivationcalendarapi.ui.dialogs.TimeMetricDialog
 import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
 import com.example.motivationcalendarapi.ui.template.fragments.AddExerciseTemplate
 import com.example.motivationcalendarapi.ui.template.fragments.ExerciseTemplateItem
@@ -400,19 +401,18 @@ fun TemplateDetailScreen(
         }
     )
 
-    FloatMetricDialog(
+    TimeMetricDialog(
         showDialog = showTimeDialog,
         title = stringResource(R.string.edit_time),
-        label = stringResource(R.string.time_minutes),
-        initialValue = template
+        initialValueMinutes = template
             ?.exercises
             ?.getOrNull(currentExerciseIndex)
             ?.sets
             ?.getOrNull(currentSetIndex)
             ?.time ?: minCardioTime,
-        minValue = minCardioTime,
-        maxValue = maxCardioTime,
-        stepValue = stepCardioTime,
+        minValueMinutes = minCardioTime,
+        maxValueMinutes = maxCardioTime,
+        stepValueMinutes = stepCardioTime,
         onDismiss = { showTimeDialog = false },
         onSave = { newTime ->
             template?.id?.let { id ->

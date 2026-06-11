@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.ExerciseCardType
@@ -503,11 +505,13 @@ private fun SetsTable(
                 )
 
                 exerciseSets.forEachIndexed { setIndex, set ->
+                    val cellValue = column.value(set)
                     Box(
                         modifier = Modifier
                             .padding(horizontal = 4.dp)
                             .padding(bottom = 8.dp)
-                            .size(60.dp, 40.dp)
+                            .width(60.dp)
+                            .height(40.dp)
                             .border(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
@@ -518,9 +522,19 @@ private fun SetsTable(
                             }
                     ) {
                         Text(
-                            text = column.value(set),
-                            modifier = Modifier.align(Alignment.Center),
-                            style = MaterialTheme.typography.bodyLarge
+                            text = cellValue,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(horizontal = 3.dp),
+                            style = if (cellValue.isLongTimerCell()) {
+                                MaterialTheme.typography.labelSmall.copy(fontSize = 15.sp, lineHeight = 15.sp, letterSpacing = 0.sp)
+                            } else {
+                                MaterialTheme.typography.bodyLarge
+                            },
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -688,4 +702,9 @@ private fun StatusMenuRow(
             color = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+
+private fun String.isLongTimerCell(): Boolean {
+    return contains(":") && length >= 6
 }

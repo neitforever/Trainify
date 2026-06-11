@@ -108,6 +108,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.ui.dialogs.FloatMetricDialog
+import com.example.motivationcalendarapi.ui.dialogs.TimeMetricDialog
 import com.example.motivationcalendarapi.ui.dialogs.FinishWorkoutWithEmptySetsDialog
 
 
@@ -702,16 +703,15 @@ fun WorkoutScreen(
                     showWeightDialog = false
                 }
             )
-            FloatMetricDialog(
+            TimeMetricDialog(
                 showDialog = showTimeDialog,
                 title = stringResource(R.string.edit_time),
-                label = stringResource(R.string.time_minutes),
-                initialValue = exerciseSetsMap[currentExerciseIndex]
+                initialValueMinutes = exerciseSetsMap[currentExerciseIndex]
                     ?.getOrNull(currentSetIndex)
                     ?.time ?: minCardioTime,
-                minValue = minCardioTime,
-                maxValue = maxCardioTime,
-                stepValue = stepCardioTime,
+                minValueMinutes = minCardioTime,
+                maxValueMinutes = maxCardioTime,
+                stepValueMinutes = stepCardioTime,
                 onDismiss = { showTimeDialog = false },
                 onSave = { newTime ->
                     workoutViewModel.updateTime(

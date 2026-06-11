@@ -2,7 +2,6 @@ package com.example.motivationcalendarapi.ui.template
 
 import LoadingView
 import Screen
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,13 +14,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -29,10 +27,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -47,6 +47,7 @@ import com.example.motivationcalendarapi.ui.dialogs.DeleteTemplateDialog
 import com.example.motivationcalendarapi.ui.dialogs.FloatMetricDialog
 import com.example.motivationcalendarapi.ui.dialogs.TimeMetricDialog
 import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
+import com.example.motivationcalendarapi.ui.components.TrainifyNameTextField
 import com.example.motivationcalendarapi.ui.template.fragments.AddExerciseTemplate
 import com.example.motivationcalendarapi.ui.template.fragments.ExerciseTemplateItem
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
@@ -67,6 +68,31 @@ fun TemplateDetailScreen(
     val template by workoutViewModel
         .getTemplateById(templateId ?: "")
         .collectAsState(initial = null)
+
+    var templateNameDraft by remember(templateId, lang) { mutableStateOf("") }
+    var templateNameFieldFocused by remember { mutableStateOf(false) }
+    val templateNameSource = template?.localizedName(lang)?.replaceFirstChar { it.uppercase() } ?: ""
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(template?.id, lang, templateNameSource) {
+        if (!templateNameFieldFocused) {
+            templateNameDraft = templateNameSource
+        }
+    }
+
+    fun saveTemplateNameIfNeeded() {
+        val updatedName = templateNameDraft.trim()
+        val currentName = templateNameSource.trim()
+
+        if (templateId != null && updatedName.isNotBlank() && updatedName != currentName) {
+            workoutViewModel.updateTemplateNameLocalized(
+                templateId = templateId,
+                lang = lang,
+                newName = updatedName
+            )
+        }
+    }
 
     var showDeleteTemplateDialog by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -148,42 +174,24 @@ fun TemplateDetailScreen(
                     .padding(top = paddingTopValues)
             ) {
                 item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                navController.navigate("${Screen.EditTemplateName.route}/${template?.id}")
+                    TrainifyNameTextField(
+                        value = templateNameDraft,
+                        onValueChange = { templateNameDraft = it },
+                        placeholder = stringResource(R.string.workout_template_split),
+                        leadingIconRes = R.drawable.ic_template,
+                        imeAction = ImeAction.Done,
+                        onDone = {
+                            saveTemplateNameIfNeeded()
+                            keyboardController?.hide()
+                            focusManager.clearFocus(force = true)
+                        },
+                        onFocusChanged = { focused ->
+                            if (!focused && templateNameFieldFocused) {
+                                saveTemplateNameIfNeeded()
                             }
-                            .padding(top = 16.dp, start = 8.dp, end = 8.dp, bottom = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = template
-                                ?.localizedName(lang)
-                                ?.replaceFirstChar { it.uppercase() }
-                                ?: "",
-                            color = MaterialTheme.colorScheme.onBackground,
-                            style = MaterialTheme.typography.headlineLarge,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = stringResource(R.string.edit),
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier
-                                .size(28.dp)
-                                .padding(start = 8.dp)
-                        )
-                    }
-
-                    HorizontalDivider(
-                        modifier = Modifier.padding(bottom = 16.dp),
-                        thickness = 2.dp,
-                        color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f)
+                            templateNameFieldFocused = focused
+                        },
+                        modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)
                     )
                 }
 

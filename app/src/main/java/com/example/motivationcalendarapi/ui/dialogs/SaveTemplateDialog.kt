@@ -18,8 +18,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,13 +32,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.motivationcalendarapi.R
+import com.example.motivationcalendarapi.ui.components.TrainifyNameTextField
 import com.example.motivationcalendarapi.utils.ClearFocusOnKeyboardDismiss
 
 @Composable
@@ -116,25 +113,17 @@ fun SaveTemplateDialog(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
-                    OutlinedTextField(
+                    TrainifyNameTextField(
                         value = templateName,
                         onValueChange = { templateName = it },
-                        label = { Text(text = stringResource(R.string.template_name)) },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                focusManager.clearFocus(force = true)
-                                keyboardController?.hide()
-                            }
-                        ),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            cursorColor = MaterialTheme.colorScheme.primary
-                        ),
-                        modifier = Modifier.fillMaxWidth()
+                        label = stringResource(R.string.template_name),
+                        placeholder = stringResource(R.string.workout_template_split),
+                        leadingIconRes = R.drawable.ic_template,
+                        imeAction = ImeAction.Done,
+                        onDone = {
+                            focusManager.clearFocus(force = true)
+                            keyboardController?.hide()
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(22.dp))

@@ -79,7 +79,6 @@ import com.example.motivationcalendarapi.ui.settings.SettingsScreen
 import com.example.motivationcalendarapi.ui.settings.language_settings.LanguageSettingsScreen
 import com.example.motivationcalendarapi.ui.settings.theme_settings.ThemeSettingsScreen
 import com.example.motivationcalendarapi.ui.settings.workout_settings.WorkoutSettingsScreen
-import com.example.motivationcalendarapi.ui.template.EditTemplateNameScreen
 import com.example.motivationcalendarapi.ui.template.TemplateDetailScreen
 import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.AiTemplateGenerationViewModel
@@ -424,18 +423,6 @@ fun NavGraph(
                         )
                     }
 
-                    composable(
-                        Screen.EditTemplateName.route + "/{templateId}",
-                        arguments = listOf(navArgument("templateId") { type = NavType.StringType })
-                    ) { backStackEntry ->
-                        val templateId = backStackEntry.arguments?.getString("templateId")
-                        EditTemplateNameScreen(
-                            navController = navController,
-                            templateId = templateId ?: "",
-                            viewModel = workoutViewModel,
-                            lang = lang
-                        )
-                    }
 
                     composable(Screen.SearchExercise.route) {
                         SearchExerciseScreen(

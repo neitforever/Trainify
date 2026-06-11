@@ -65,11 +65,11 @@ fun IntMetricInputDialog(
     val safeMin = minOf(minValue, maxValue)
     val safeMax = maxOf(minValue, maxValue)
     val safeStep = stepValue.coerceAtLeast(1)
-    val initialSnapped = remember(initialValue, safeMin, safeMax, safeStep) {
-        snapIntValue(initialValue, safeMin, safeMax, safeStep)
+    val initialClamped = remember(initialValue, safeMin, safeMax) {
+        initialValue.coerceIn(safeMin, safeMax)
     }
 
-    var inputText by remember(initialSnapped) { mutableStateOf(initialSnapped.toString()) }
+    var inputText by remember(initialClamped) { mutableStateOf(initialClamped.toString()) }
     val parsedValue = inputText.trim().toIntOrNull()
     val isInputBlank = inputText.isBlank()
     val isFormatError = !isInputBlank && parsedValue == null
@@ -105,16 +105,16 @@ fun IntMetricInputDialog(
             }
         },
         onDecrease = {
-            inputText = snapIntValue(stepBaseValue - safeStep, safeMin, safeMax, safeStep).toString()
+            inputText = (stepBaseValue - safeStep).coerceIn(safeMin, safeMax).toString()
         },
         onIncrease = {
-            inputText = snapIntValue(stepBaseValue + safeStep, safeMin, safeMax, safeStep).toString()
+            inputText = (stepBaseValue + safeStep).coerceIn(safeMin, safeMax).toString()
         },
         onDismiss = onDismiss,
         onSave = {
             val value = inputText.trim().toIntOrNull()
             if (value != null && value in safeMin..safeMax) {
-                onSave(snapIntValue(value, safeMin, safeMax, safeStep))
+                onSave(value)
             }
         }
     )

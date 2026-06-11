@@ -509,4 +509,7 @@
     <string name="similar_exercises_title">Похожие упражнения</string>
     <string name="similar_exercises_description">Упражнения с похожими группами мышц</string>
     <string name="hide">Скрыть</string>
+    <string name="metric_min_label">мин</string>
+    <string name="metric_step_label">шаг</string>
+    <string name="metric_max_label">макс</string>
 </resources>

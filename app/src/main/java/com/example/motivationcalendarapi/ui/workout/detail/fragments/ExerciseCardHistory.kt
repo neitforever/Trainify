@@ -42,6 +42,7 @@ import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.ui.fragments.StatusIcon
+import com.example.motivationcalendarapi.utils.formatCompactDecimal
 import com.example.motivationcalendarapi.utils.formatExerciseMinutes
 import com.example.motivationcalendarapi.ui.workout.fragments.NoteBottomSheet
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
@@ -240,7 +241,7 @@ fun ExerciseCardHistory(
                             ),
                             HistoryTableColumn(
                                 title = stringResource(R.string.incline_percent),
-                                value = { "%.1f".format(it.incline) }
+                                value = { formatCompactDecimal(it.incline) }
                             )
                         )
                     )

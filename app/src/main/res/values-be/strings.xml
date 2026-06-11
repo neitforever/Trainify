@@ -512,4 +512,7 @@
     <string name="similar_exercises_title">Падобныя практыкаванні</string>
     <string name="similar_exercises_description">Практыкаванні з падобнымі групамі мышцаў</string>
     <string name="hide">Схаваць</string>
+    <string name="metric_min_label">мін</string>
+    <string name="metric_step_label">крок</string>
+    <string name="metric_max_label">макс</string>
 </resources>

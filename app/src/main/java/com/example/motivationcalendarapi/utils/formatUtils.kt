@@ -28,6 +28,14 @@ fun formatExerciseMinutes(minutes: Float?): String {
     )
 }
 
+fun formatCompactDecimal(value: Float): String {
+    return if (value % 1f == 0f) {
+        value.toInt().toString()
+    } else {
+        String.format(Locale.US, "%.1f", value).trimEnd('0').trimEnd('.')
+    }
+}
+
 fun formatDate(context: Context, timestamp: Long): String {
     val locale = context.resources.configuration.locales[0] ?: Locale.getDefault()
     val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", locale)

@@ -46,6 +46,7 @@ import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.ui.fragments.StatusIcon
 import com.example.motivationcalendarapi.ui.workout.fragments.NoteBottomSheet
+import com.example.motivationcalendarapi.utils.formatCompactDecimal
 import com.example.motivationcalendarapi.utils.formatExerciseMinutes
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 
@@ -439,7 +440,7 @@ private fun TreadmillSetsTable(
             ),
             TableColumn(
                 title = stringResource(R.string.incline_percent),
-                value = { "%.1f".format(it.incline) },
+                value = { formatCompactDecimal(it.incline) },
                 onClick = onInclineClick
             )
         ),

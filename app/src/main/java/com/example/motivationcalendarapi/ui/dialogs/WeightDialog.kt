@@ -1,30 +1,7 @@
 package com.example.motivationcalendarapi.ui.dialogs
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 
 @Composable
@@ -37,112 +14,15 @@ fun WeightDialog(
     onDismiss: () -> Unit,
     onSave: (Float) -> Unit
 ) {
-    if (showDialog) {
-        var weight by remember { mutableStateOf(initialWeight) }
-
-        AlertDialog(onDismissRequest = onDismiss, title = {
-            Text(
-                text = stringResource(R.string.edit_weight),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.titleLarge,
-            )
-        }, text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                WeightRow(
-                    value = weight,
-                    min = minWeight,
-                    max = maxWeight,
-                    step = stepWeight,
-                    onValueChange = { weight = it }
-                )
-            }
-        }, confirmButton = {
-            TextButton(onClick = { onSave(weight) }) {
-                Text(
-                    text = stringResource(R.string.save),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-        }, dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    text = stringResource(R.string.cancel),
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-        }, modifier = Modifier.padding(16.dp)
-        )
-    }
-}
-
-@Composable
-private fun WeightRow(
-    value: Float,
-    min: Float,
-    max: Float,
-    step: Float,
-    onValueChange: (Float) -> Unit
-) {
-    var inputText by remember { mutableStateOf(value.toString()) }
-    var hasFocus by remember { mutableStateOf(false) }
-
-    LaunchedEffect(value, hasFocus) {
-        if (!hasFocus) {
-            inputText = value.toString()
-        }
-    }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        TextButton(
-            onClick = {
-                val newValue = (value - step).coerceAtLeast(min)
-                inputText = newValue.toString()
-                onValueChange(newValue)
-            }
-        ) {
-            Text("-$step", style = MaterialTheme.typography.bodyMedium)
-        }
-
-        OutlinedTextField(value = inputText,
-            onValueChange = { input ->
-                inputText = input
-                input.replace(',', '.').toFloatOrNull()?.let { weight ->
-                    onValueChange(weight.coerceIn(min, max))
-                }
-            },
-            label = { Text(text = stringResource(R.string.Weight), style = MaterialTheme.typography.titleMedium) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            modifier = Modifier
-                .width(100.dp)
-                .onFocusChanged { focusState ->
-                    if (focusState.isFocused && !hasFocus) {
-                        inputText = ""
-                    } else if (!focusState.isFocused && hasFocus && inputText.isBlank()) {
-                        inputText = value.toString()
-                    }
-                    hasFocus = focusState.isFocused
-                }
-        )
-
-        TextButton(
-            onClick = {
-                val newValue = (value + step).coerceAtMost(max)
-                inputText = newValue.toString()
-                onValueChange(newValue)
-            }
-        ) {
-            Text("+$step", style = MaterialTheme.typography.bodyMedium)
-        }
-    }
+    FloatMetricInputDialog(
+        showDialog = showDialog,
+        title = stringResource(R.string.edit_weight),
+        label = stringResource(R.string.Weight),
+        initialValue = initialWeight,
+        minValue = minWeight,
+        maxValue = maxWeight,
+        stepValue = stepWeight,
+        onDismiss = onDismiss,
+        onSave = onSave
+    )
 }

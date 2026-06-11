@@ -508,4 +508,7 @@
     <string name="similar_exercises_title">Similar exercises</string>
     <string name="similar_exercises_description">Exercises with similar muscle groups</string>
     <string name="hide">Hide</string>
+    <string name="metric_min_label">min</string>
+    <string name="metric_step_label">step</string>
+    <string name="metric_max_label">max</string>
 </resources>

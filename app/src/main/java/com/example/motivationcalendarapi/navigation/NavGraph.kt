@@ -87,6 +87,7 @@ import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.analysis.ExerciseAnalysisViewModel
+import com.example.motivationcalendarapi.viewmodel.technique_analysis.ExerciseTechniqueAnalysisViewModel
 import com.example.motivationcalendarapi.viewmodel.EquipmentRecognitionViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
@@ -106,6 +107,7 @@ fun NavGraph(
     workoutViewModel: WorkoutViewModel,
     exerciseViewModel: ExerciseViewModel,
     exerciseAnalysisViewModel: ExerciseAnalysisViewModel,
+    exerciseTechniqueAnalysisViewModel: ExerciseTechniqueAnalysisViewModel,
     mainViewModel: MainViewModel,
     drawerState: MutableState<DrawerState>,
     authViewModel: AuthViewModel,
@@ -641,6 +643,7 @@ fun NavGraph(
                             exerciseId = exerciseId ?: "",
                             viewModel = exerciseViewModel,
                             analysisViewModel = exerciseAnalysisViewModel,
+                            techniqueAnalysisViewModel = exerciseTechniqueAnalysisViewModel,
                             drawerState = drawerState,
                             lang = lang,
                             currentLocale = currentLocale,

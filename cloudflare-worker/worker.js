@@ -3,7 +3,8 @@ const ROUTES = {
   "/generate-exercise": "gemini-3-flash-preview",
   "/generate-template": "gemini-3.5-flash",
   "/translate": "gemini-3.1-flash-lite",
-  "/suggest-exercise-selection": "gemini-3.1-flash-lite"
+  "/suggest-exercise-selection": "gemini-3.1-flash-lite",
+  "/analyze-exercise-technique": "gemini-3.1-flash-lite"
 };
 
 export default {

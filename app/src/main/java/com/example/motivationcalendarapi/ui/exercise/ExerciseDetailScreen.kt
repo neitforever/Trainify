@@ -3,7 +3,6 @@ package com.example.motivationcalendarapi.ui.exercise
 import LoadingView
 import Screen
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -61,8 +60,10 @@ import com.example.motivationcalendarapi.ui.exercise.detail.SimilarExercisesSect
 import com.example.motivationcalendarapi.ui.exercise.detail.findSimilarExercises
 import com.example.motivationcalendarapi.ui.exercise.detail.getTechniqueSearchName
 import com.example.motivationcalendarapi.ui.exercise.technique.ExerciseTechniqueBottomSheet
+import com.example.motivationcalendarapi.ui.exercise.technique_analysis.ExerciseTechniqueAnalysisBottomSheet
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.analysis.ExerciseAnalysisViewModel
+import com.example.motivationcalendarapi.viewmodel.technique_analysis.ExerciseTechniqueAnalysisViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -73,6 +74,7 @@ fun ExerciseDetailScreen(
     exerciseId: String,
     viewModel: ExerciseViewModel,
     analysisViewModel: ExerciseAnalysisViewModel,
+    techniqueAnalysisViewModel: ExerciseTechniqueAnalysisViewModel,
     drawerState: MutableState<DrawerState>,
     lang: String,
     currentLocale: Locale,
@@ -86,6 +88,7 @@ fun ExerciseDetailScreen(
     val selectedTechniqueVideo by viewModel.selectedTechniqueVideo.collectAsState()
 
     var showTechniqueSheet by remember { mutableStateOf(false) }
+    var showTechniqueAnalysisSheet by remember { mutableStateOf(false) }
     var isMenuExpanded by remember { mutableStateOf(false) }
     val topBarScope = rememberCoroutineScope()
 
@@ -170,11 +173,7 @@ fun ExerciseDetailScreen(
                 },
                 onAnalyzeTechnique = {
                     isMenuExpanded = false
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.technique_analysis_placeholder),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    showTechniqueAnalysisSheet = true
                 },
                 onDelete = {
                     isMenuExpanded = false
@@ -287,6 +286,24 @@ fun ExerciseDetailScreen(
                 onDismiss = {
                     showTechniqueSheet = false
                     viewModel.clearTechniqueVideosState()
+                }
+            )
+        }
+    }
+
+    if (showTechniqueAnalysisSheet) {
+        selectedExercise?.let { exercise ->
+            ExerciseTechniqueAnalysisBottomSheet(
+                currentExercise = exercise,
+                allExercises = allExercises,
+                lang = lang,
+                viewModel = techniqueAnalysisViewModel,
+                onMatchedExerciseClick = { matchedExercise ->
+                    showTechniqueAnalysisSheet = false
+                    navController.navigate("${Screen.ExerciseDetailView.route}/${matchedExercise.id}")
+                },
+                onDismiss = {
+                    showTechniqueAnalysisSheet = false
                 }
             )
         }

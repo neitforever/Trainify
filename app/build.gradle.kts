@@ -38,6 +38,7 @@ android {
         buildConfigField("String", "GEMINI_TRANSLATION_URL", "\"${localProperties.getProperty("GEMINI_TRANSLATION_URL", "")}\"")
         buildConfigField("String", "YOUTUBE_TECHNIQUE_SEARCH_URL", "\"${localProperties.getProperty("YOUTUBE_TECHNIQUE_SEARCH_URL", "")}\"")
         buildConfigField("String", "GEMINI_SELECTION_SUGGESTION_URL", "\"${localProperties.getProperty("GEMINI_SELECTION_SUGGESTION_URL", "")}\"")
+        buildConfigField("String", "GEMINI_TECHNIQUE_ANALYSIS_URL", "\"${localProperties.getProperty("GEMINI_TECHNIQUE_ANALYSIS_URL", "")}\"")
     }
 
     buildTypes {
@@ -133,5 +134,12 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Local video preprocessing before Gemini technique analysis
+    implementation("androidx.media3:media3-transformer:1.10.1")
+    implementation("androidx.media3:media3-effect:1.10.1")
+    implementation("androidx.media3:media3-common:1.10.1")
+    implementation("androidx.media3:media3-exoplayer:1.10.1")
+    implementation("androidx.media3:media3-ui:1.10.1")
 
 }

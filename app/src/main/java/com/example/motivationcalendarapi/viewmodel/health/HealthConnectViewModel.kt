@@ -69,7 +69,7 @@ class HealthConnectViewModel(private val repository: HealthConnectRepository) : 
         profileJob = viewModelScope.launch {
             while (true) {
                 refreshNow()
-                delay(5000)
+                delay(2000)
             }
         }
     }
@@ -85,7 +85,7 @@ class HealthConnectViewModel(private val repository: HealthConnectRepository) : 
         heartRateJob = viewModelScope.launch {
             while (true) {
                 refreshHeartRateOnly()
-                delay(10000)
+                delay(2000)
             }
         }
     }

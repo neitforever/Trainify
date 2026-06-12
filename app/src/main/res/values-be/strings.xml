@@ -333,6 +333,8 @@
     <string name="health_connect_not_connected">Health Connect не падключаны</string>
     <string name="connect_health_connect">Падключыць Health Connect</string>
     <string name="smart_watch_connected">Падключаны як крыніца даных</string>
+    <string name="smart_watch_named_connected">%1$s падключаны</string>
+    <string name="smart_watch_named_disconnected">%1$s адключаны</string>
     <string name="health_connect_data_source_unknown">Крыніца даных пакуль не знойдзена</string>
     <string name="finish_workout_with_empty_sets_title">Скончыць трэніроўку?</string>
     <string name="finish_workout_with_empty_sets_message">У трэніроўцы ёсць пустыя падыходы. Скончыць трэніроўку і выдаліць пустыя падыходы? Калі ў практыкаванні ўсе падыходы пустыя, практыкаванне таксама будзе выдалена.</string>
@@ -515,4 +517,8 @@
     <string name="metric_min_label">мін</string>
     <string name="metric_step_label">крок</string>
     <string name="metric_max_label">макс</string>
+    <string name="bluetooth_devices_title">Bluetooth-прылады</string>
+    <string name="bluetooth_devices_description">Спалучаныя прылады, якія бачыць тэлефон</string>
+    <string name="bluetooth_permission_not_granted">Дазвол Bluetooth не выдадзены</string>
+    <string name="bluetooth_devices_empty">Спалучаныя Bluetooth-прылады не знойдзены</string>
 </resources>

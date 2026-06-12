@@ -329,6 +329,8 @@
     <string name="health_connect_not_connected">Health Connect is not connected</string>
     <string name="connect_health_connect">Connect Health Connect</string>
     <string name="smart_watch_connected">Connected as a data source</string>
+    <string name="smart_watch_named_connected">%1$s connected</string>
+    <string name="smart_watch_named_disconnected">%1$s disconnected</string>
     <string name="health_connect_data_source_unknown">Data source not found yet</string>
     <string name="finish_workout_with_empty_sets_title">Finish workout?</string>
     <string name="finish_workout_with_empty_sets_message">The workout contains empty sets. Finish the workout and remove empty sets? If all sets in an exercise are empty, the exercise will also be removed.</string>
@@ -511,4 +513,8 @@
     <string name="metric_min_label">min</string>
     <string name="metric_step_label">step</string>
     <string name="metric_max_label">max</string>
+    <string name="bluetooth_devices_title">Bluetooth devices</string>
+    <string name="bluetooth_devices_description">Bonded devices visible to the phone</string>
+    <string name="bluetooth_permission_not_granted">Bluetooth permission is not granted</string>
+    <string name="bluetooth_devices_empty">No bonded Bluetooth devices found</string>
 </resources>

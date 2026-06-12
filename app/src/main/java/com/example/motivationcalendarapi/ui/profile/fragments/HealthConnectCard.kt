@@ -33,10 +33,14 @@ import com.example.motivationcalendarapi.viewmodel.health.HealthConnectUiState
 fun HealthConnectCard(
     state: HealthConnectUiState,
     onConnectClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    smartWatchName: String? = null,
+    isSmartWatchConnected: Boolean? = null
 ) {
     val isHealthConnectConnected = state.isAvailable && state.hasPermissions
-    val isSmartWatchDetected = isHealthConnectConnected && state.isSmartWatchDetected
+    val healthConnectSmartWatchDetected = isHealthConnectConnected && state.isSmartWatchDetected
+    val hasBluetoothWatch = !smartWatchName.isNullOrBlank()
+    val smartWatchConnected = isSmartWatchConnected ?: healthConnectSmartWatchDetected
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -65,11 +69,17 @@ fun HealthConnectCard(
                 iconRes = R.drawable.ic_watch,
                 title = stringResource(R.string.smart_watch),
                 subtitle = when {
+                    hasBluetoothWatch && smartWatchConnected ->
+                        stringResource(R.string.smart_watch_named_connected, smartWatchName!!)
+
+                    hasBluetoothWatch ->
+                        stringResource(R.string.smart_watch_named_disconnected, smartWatchName!!)
+
                     state.connectedDevice != null -> state.connectedDevice
-                    isSmartWatchDetected -> stringResource(R.string.smart_watch_connected)
+                    healthConnectSmartWatchDetected -> stringResource(R.string.smart_watch_connected)
                     else -> stringResource(R.string.health_connect_data_source_unknown)
                 },
-                isConnected = isSmartWatchDetected
+                isConnected = smartWatchConnected
             )
 
             if (!isHealthConnectConnected && state.isAvailable) {

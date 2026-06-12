@@ -330,6 +330,8 @@
     <string name="health_connect_not_connected">Health Connect не подключён</string>
     <string name="connect_health_connect">Подключить Health Connect</string>
     <string name="smart_watch_connected">Подключены как источник данных</string>
+    <string name="smart_watch_named_connected">%1$s подключены</string>
+    <string name="smart_watch_named_disconnected">%1$s отключены</string>
     <string name="health_connect_data_source_unknown">Источник данных пока не найден</string>
     <string name="finish_workout_with_empty_sets_title">Завершить тренировку?</string>
     <string name="finish_workout_with_empty_sets_message">В тренировке есть пустые подходы. Завершить тренировку и удалить пустые подходы? Если в упражнении все подходы пустые, упражнение тоже будет удалено.</string>
@@ -512,4 +514,8 @@
     <string name="metric_min_label">мин</string>
     <string name="metric_step_label">шаг</string>
     <string name="metric_max_label">макс</string>
+    <string name="bluetooth_devices_title">Bluetooth-устройства</string>
+    <string name="bluetooth_devices_description">Сопряжённые устройства, которые видит телефон</string>
+    <string name="bluetooth_permission_not_granted">Разрешение Bluetooth не выдано</string>
+    <string name="bluetooth_devices_empty">Сопряжённые Bluetooth-устройства не найдены</string>
 </resources>

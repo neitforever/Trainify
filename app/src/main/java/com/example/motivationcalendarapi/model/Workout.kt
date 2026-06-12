@@ -8,6 +8,7 @@ import java.util.UUID
 data class Workout(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val name: String = "",
+    val nameLocalized: Map<String, String> = emptyMap(),
     val duration: Int = 0,
     val timestamp: Long = 0,
     val averageHeartRate: Long? = null,

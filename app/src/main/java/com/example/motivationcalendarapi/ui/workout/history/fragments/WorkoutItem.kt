@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.model.localizedName
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
@@ -39,7 +40,7 @@ import java.util.Locale
 
 @Composable
 fun WorkoutItem(
-    workout: Workout, onClick: () -> Unit, viewModel: WorkoutViewModel
+    workout: Workout, onClick: () -> Unit, viewModel: WorkoutViewModel, lang: String
 ) {
     val context = LocalContext.current
     val difficulty by remember(workout) {
@@ -95,7 +96,7 @@ fun WorkoutItem(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = workout.name.replaceFirstChar {
+                    text = workout.localizedName(lang).replaceFirstChar {
                         it.titlecase(Locale.ROOT)
                     },
                     style = MaterialTheme.typography.headlineSmall,

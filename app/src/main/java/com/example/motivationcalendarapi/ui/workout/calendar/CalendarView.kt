@@ -1,17 +1,6 @@
 package com.example.motivationcalendarapi.ui.workout.calendar
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,8 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerInputScope
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -56,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.model.localizedName
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
 import com.example.motivationcalendarapi.ui.theme.NORMAL_COLOR
@@ -73,6 +64,7 @@ import java.time.format.DateTimeFormatter
 fun CustomCalendarView(
     workouts: List<Workout>,
     calendarState: CalendarState,
+    lang: String,
     onWorkoutClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -80,10 +72,18 @@ fun CustomCalendarView(
     var selectedDayWorkouts by remember { mutableStateOf<List<Workout>>(emptyList()) }
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
+    val initialPage = Int.MAX_VALUE / 2
+    val anchorMonth = remember { currentMonth }
+    val pagerState = rememberPagerState(
+        initialPage = initialPage,
+        pageCount = { Int.MAX_VALUE }
+    )
+
     if (selectedDayWorkouts.size > 1 && selectedDate != null) {
         WorkoutDaySelectionDialog(
             date = selectedDate!!,
             workouts = selectedDayWorkouts,
+            lang = lang,
             onDismiss = {
                 selectedDayWorkouts = emptyList()
                 selectedDate = null
@@ -96,49 +96,78 @@ fun CustomCalendarView(
         )
     }
 
-    AnimatedContent(
-        targetState = currentMonth,
-        transitionSpec = { calculateTransitionSpec(initialState, targetState) },
+    LaunchedEffect(pagerState.currentPage) {
+        val monthFromPager = anchorMonth.plusMonths((pagerState.currentPage - initialPage).toLong())
+        if (calendarState.currentMonth.value != monthFromPager) {
+            calendarState.currentMonth.value = monthFromPager
+        }
+    }
+
+    LaunchedEffect(currentMonth) {
+        val targetPage = initialPage + java.time.temporal.ChronoUnit.MONTHS.between(anchorMonth, currentMonth).toInt()
+        if (pagerState.currentPage != targetPage) {
+            pagerState.animateScrollToPage(targetPage)
+        }
+    }
+
+    HorizontalPager(
+        state = pagerState,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 300.dp)
-            .pointerInput(calendarState) {
-                detectSwipeGestures(calendarState)
+            .heightIn(min = 300.dp),
+        userScrollEnabled = true,
+        pageSpacing = 16.dp
+    ) { page ->
+        val targetYearMonth = anchorMonth.plusMonths((page - initialPage).toLong())
+        CalendarMonthGrid(
+            month = targetYearMonth,
+            workouts = workouts,
+            onWorkoutClick = onWorkoutClick,
+            onMultipleWorkoutsClick = { date, dayWorkouts ->
+                selectedDate = date
+                selectedDayWorkouts = dayWorkouts
             }
-    ) { targetYearMonth ->
-        val daysInMonth = targetYearMonth.lengthOfMonth()
-        val firstDayOfMonth = targetYearMonth.atDay(1)
-        val days = List(daysInMonth) { dayOffset ->
+        )
+    }
+}
+
+@Composable
+private fun CalendarMonthGrid(
+    month: YearMonth,
+    workouts: List<Workout>,
+    onWorkoutClick: (String) -> Unit,
+    onMultipleWorkoutsClick: (LocalDate, List<Workout>) -> Unit
+) {
+    val daysInMonth = month.lengthOfMonth()
+    val firstDayOfMonth = month.atDay(1)
+    val days = remember(month) {
+        List(daysInMonth) { dayOffset ->
             firstDayOfMonth.plusDays(dayOffset.toLong())
         }
+    }
+    val workoutsByDate = remember(workouts) { workouts.groupByLocalDate() }
 
-        val workoutsByDate = remember(workouts) { workouts.groupByLocalDate() }
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(7),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        items(days.size, key = { days[it].toString() }) { index ->
+            val date = days[index]
+            val dayWorkouts = workoutsByDate[date].orEmpty()
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            items(days.size, key = { days[it].toString() }) { index ->
-                val date = days[index]
-                val dayWorkouts = workoutsByDate[date].orEmpty()
-
-                CalendarDay(
-                    day = date.dayOfMonth,
-                    hasWorkout = dayWorkouts.isNotEmpty(),
-                    workoutCount = dayWorkouts.size,
-                    onClick = {
-                        when (dayWorkouts.size) {
-                            0 -> Unit
-                            1 -> onWorkoutClick(dayWorkouts.first().id)
-                            else -> {
-                                selectedDate = date
-                                selectedDayWorkouts = dayWorkouts
-                            }
-                        }
+            CalendarDay(
+                day = date.dayOfMonth,
+                hasWorkout = dayWorkouts.isNotEmpty(),
+                workoutCount = dayWorkouts.size,
+                onClick = {
+                    when (dayWorkouts.size) {
+                        0 -> Unit
+                        1 -> onWorkoutClick(dayWorkouts.first().id)
+                        else -> onMultipleWorkoutsClick(date, dayWorkouts)
                     }
-                )
-            }
+                }
+            )
         }
     }
 }
@@ -148,6 +177,7 @@ fun CustomCalendarView(
 private fun WorkoutDaySelectionDialog(
     date: LocalDate,
     workouts: List<Workout>,
+    lang: String,
     onDismiss: () -> Unit,
     onWorkoutClick: (String) -> Unit
 ) {
@@ -191,6 +221,7 @@ private fun WorkoutDaySelectionDialog(
                 items(workouts, key = { it.id }) { workout ->
                     WorkoutSelectionItem(
                         workout = workout,
+                        lang = lang,
                         timeFormatter = timeFormatter,
                         onClick = { onWorkoutClick(workout.id) }
                     )
@@ -265,6 +296,7 @@ private fun WorkoutDaySheetHeader(
 @Composable
 private fun WorkoutSelectionItem(
     workout: Workout,
+    lang: String,
     timeFormatter: DateTimeFormatter,
     onClick: () -> Unit
 ) {
@@ -312,7 +344,7 @@ private fun WorkoutSelectionItem(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = workout.name.replaceFirstChar { it.uppercase() },
+                    text = workout.localizedName(lang).replaceFirstChar { it.uppercase() },
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -351,46 +383,3 @@ private fun WorkoutSelectionItem(
     }
 }
 
-private fun AnimatedContentTransitionScope<YearMonth>.calculateTransitionSpec(
-    initial: YearMonth,
-    target: YearMonth
-): ContentTransform {
-    return if (target.isAfter(initial)) {
-        slideInHorizontally(
-            animationSpec = tween(300),
-            initialOffsetX = { fullWidth -> fullWidth }
-        ) + fadeIn() togetherWith
-                slideOutHorizontally(
-                    animationSpec = tween(300),
-                    targetOffsetX = { fullWidth -> -fullWidth }
-                ) + fadeOut()
-    } else {
-        slideInHorizontally(
-            animationSpec = tween(300),
-            initialOffsetX = { fullWidth -> -fullWidth }
-        ) + fadeIn() togetherWith
-                slideOutHorizontally(
-                    animationSpec = tween(300),
-                    targetOffsetX = { fullWidth -> fullWidth }
-                ) + fadeOut()
-    }.using(SizeTransform(clip = false))
-}
-
-private suspend fun PointerInputScope.detectSwipeGestures(
-    calendarState: CalendarState
-) {
-    var totalDrag = 0f
-    detectHorizontalDragGestures(
-        onDragStart = { totalDrag = 0f },
-        onDragEnd = {
-            val swipeThreshold = 100f
-            when {
-                totalDrag > swipeThreshold -> calendarState.prevMonth()
-                totalDrag < -swipeThreshold -> calendarState.nextMonth()
-            }
-        },
-        onHorizontalDrag = { _, dragAmount ->
-            totalDrag += dragAmount
-        }
-    )
-}

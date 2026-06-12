@@ -36,6 +36,7 @@ import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.model.localizedName
 import com.example.motivationcalendarapi.ui.dialogs.DeleteWorkoutDialog
 import com.example.motivationcalendarapi.ui.dialogs.SaveTemplateDialog
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
@@ -68,7 +69,7 @@ fun WorkoutHistoryDetailScreen(
     if (showSaveTemplateDialog.value) {
         SaveTemplateDialog(
             showDialog = true,
-            initialTemplateName = selectedWorkout.value?.name.orEmpty(),
+            initialTemplateName = selectedWorkout.value?.localizedName(lang).orEmpty(),
             onDismiss = { showSaveTemplateDialog.value = false },
             onConfirm = { name ->
                 selectedWorkout.value?.let { workout ->
@@ -194,7 +195,7 @@ fun WorkoutHistoryDetailScreen(
                                     .padding(end = 8.dp)
                             )
                         }
-                        Text(text = selectedWorkout.value?.name?.replaceFirstChar { it.uppercase() }
+                        Text(text = selectedWorkout.value?.localizedName(lang)?.replaceFirstChar { it.uppercase() }
                             ?: "",
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.primary,

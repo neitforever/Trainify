@@ -384,7 +384,8 @@ fun NavGraph(
                         WorkoutHistoryScreen(
                             workoutViewModel,
                             navController,
-                            paddingValues = paddingValue.calculateTopPadding()
+                            paddingValues = paddingValue.calculateTopPadding(),
+                            lang = lang
                         )
                     }
 

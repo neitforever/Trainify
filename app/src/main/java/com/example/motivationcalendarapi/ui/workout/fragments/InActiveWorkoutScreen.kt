@@ -4,6 +4,8 @@ import Screen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,13 +26,15 @@ import java.time.LocalDate
 fun InActiveWorkoutScreen(
     workoutViewModel: WorkoutViewModel,
     navController: NavController,
-    paddingTop: Dp
+    paddingTop: Dp,
+    lang: String
 ){
     @Composable
     fun rememberCalendarState(initialDate: LocalDate = LocalDate.now()) = remember {
         CalendarState(initialDate)
     }
     val workouts by workoutViewModel.allWorkouts.collectAsState()
+    val shouldShowWeeklyRecapStartupLoading by workoutViewModel.shouldShowWeeklyRecapStartupLoading.collectAsState()
     val calendarState = rememberCalendarState()
     Column(
         modifier = Modifier
@@ -40,13 +44,27 @@ fun InActiveWorkoutScreen(
         CalendarHeader(
             calendarState = calendarState,
             modifier = Modifier
-                .padding(bottom = 8.dp)
                 .padding(horizontal = 4.dp)
         )
 
         CustomCalendarView(
             workouts = workouts,
             calendarState = calendarState,
+            lang = lang,
+            onWorkoutClick = { workoutId ->
+                navController.navigate("${Screen.WorkoutDetail.route}/$workoutId")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp)
+        )
+
+
+        InactiveWorkoutOverviewPager(
+            workouts = workouts,
+            lang = lang,
+            showWeeklyStartupLoading = shouldShowWeeklyRecapStartupLoading,
+            onWeeklyStartupLoadingShown = workoutViewModel::markWeeklyRecapStartupLoadingShown,
             onWorkoutClick = { workoutId ->
                 navController.navigate("${Screen.WorkoutDetail.route}/$workoutId")
             },

@@ -52,6 +52,14 @@ class WorkoutViewModel(
 
     private var isRestoringActiveWorkout = false
 
+    private val _shouldShowWeeklyRecapStartupLoading = MutableStateFlow(true)
+    val shouldShowWeeklyRecapStartupLoading: StateFlow<Boolean> =
+        _shouldShowWeeklyRecapStartupLoading.asStateFlow()
+
+    fun markWeeklyRecapStartupLoadingShown() {
+        _shouldShowWeeklyRecapStartupLoading.value = false
+    }
+
     val minCardioTime: StateFlow<Float> = mainRepository.minCardioTimeFlow
         .stateIn(viewModelScope, SharingStarted.Lazily, 0f)
 
@@ -350,6 +358,25 @@ class WorkoutViewModel(
         }
     }
 
+    private fun normalizeWorkoutNameLocalization(
+        source: Map<String, String>,
+        originalName: String,
+        lang: String
+    ): Map<String, String> {
+        val normalizedLang = normalizeLanguageCode(lang)
+        val safeOriginal = originalName.trim()
+        val firstTranslated = listOf("en", "ru", "be")
+            .mapNotNull { source[it]?.trim()?.takeIf(String::isNotBlank) }
+            .firstOrNull()
+            ?: safeOriginal
+
+        return mapOf(
+            "en" to (source["en"]?.trim()?.takeIf(String::isNotBlank) ?: firstTranslated),
+            "ru" to (source["ru"]?.trim()?.takeIf(String::isNotBlank) ?: firstTranslated),
+            "be" to (source["be"]?.trim()?.takeIf(String::isNotBlank) ?: firstTranslated)
+        )
+    }
+
     private companion object {
         const val START_TIME_KEY = "start_time"
         const val PAUSED_DURATION_KEY = "paused_duration"
@@ -422,6 +449,9 @@ class WorkoutViewModel(
 
     private val _allWorkouts = MutableStateFlow<List<Workout>>(emptyList())
     val allWorkouts: StateFlow<List<Workout>> = _allWorkouts.asStateFlow()
+
+    private val _areWorkoutsLoaded = MutableStateFlow(false)
+    val areWorkoutsLoaded: StateFlow<Boolean> = _areWorkoutsLoaded.asStateFlow()
 
 
     private fun isInCurrentWeek(timestamp: Long): Boolean {
@@ -865,8 +895,10 @@ class WorkoutViewModel(
 
     fun loadWorkouts() {
         viewModelScope.launch {
+            _areWorkoutsLoaded.value = false
             workoutRepository.getAllWorkouts().collect { workouts ->
                 _allWorkouts.value = workouts
+                _areWorkoutsLoaded.value = true
             }
         }
     }
@@ -887,14 +919,29 @@ class WorkoutViewModel(
 
     fun getWorkoutStartTime(): Long = startTime
 
-    fun saveWorkout(exercises: List<ExtendedExercise>, averageHeartRate: Long? = null) {
-        val savedWorkoutName = workoutName.value
+    suspend fun saveWorkout(exercises: List<ExtendedExercise>, averageHeartRate: Long? = null, lang: String = "en") {
+        val savedWorkoutName = workoutName.value.trim()
         val savedDuration = timerValue.value
         val savedTimestamp = System.currentTimeMillis()
+        val normalizedLang = normalizeLanguageCode(lang)
 
-        viewModelScope.launch {
+        kotlinx.coroutines.withContext(Dispatchers.IO) {
+            val nameLocalized = try {
+                geminiAiGenerationApi.translateTemplateName(savedWorkoutName, normalizedLang)
+            } catch (e: Exception) {
+                android.util.Log.e("WorkoutDebug", "translate workout name failed", e)
+                fallbackTemplateNameLocalization(savedWorkoutName, normalizedLang)
+            }
+
+            val safeNameLocalized = normalizeWorkoutNameLocalization(
+                source = nameLocalized,
+                originalName = savedWorkoutName,
+                lang = normalizedLang
+            )
+
             val workoutWithoutDifficulty = Workout(
                 name = savedWorkoutName,
+                nameLocalized = safeNameLocalized,
                 duration = savedDuration,
                 timestamp = savedTimestamp,
                 averageHeartRate = averageHeartRate,
@@ -904,8 +951,8 @@ class WorkoutViewModel(
                 difficulty = calculateWorkoutDifficulty(workoutWithoutDifficulty)
             )
             workoutRepository.insertWorkout(workout)
-            resetWorkout()
         }
+        resetWorkout()
     }
 
 

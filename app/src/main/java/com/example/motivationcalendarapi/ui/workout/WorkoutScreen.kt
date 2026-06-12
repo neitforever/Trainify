@@ -570,7 +570,8 @@ fun WorkoutScreen(
                     InActiveWorkoutScreen(
                         workoutViewModel = workoutViewModel,
                         navController = navController,
-                        paddingTop = paddingValues.calculateTopPadding()
+                        paddingTop = paddingValues.calculateTopPadding(),
+                        lang = lang
                     )
                 }
 
@@ -628,7 +629,7 @@ fun WorkoutScreen(
                             val averageHeartRate = healthViewModel.readAverageHeartRateSince(
                                 workoutViewModel.getWorkoutStartTime()
                             )
-                            workoutViewModel.saveWorkout(updatedExercises, averageHeartRate)
+                            workoutViewModel.saveWorkout(updatedExercises, averageHeartRate, lang)
                             workoutViewModel.resetWorkout()
                             showEndWorkoutDialog.value = false
                         }
@@ -651,7 +652,7 @@ fun WorkoutScreen(
                             val averageHeartRate = healthViewModel.readAverageHeartRateSince(
                                 workoutViewModel.getWorkoutStartTime()
                             )
-                            workoutViewModel.saveWorkout(cleanedExercises, averageHeartRate)
+                            workoutViewModel.saveWorkout(cleanedExercises, averageHeartRate, lang)
                             workoutViewModel.resetWorkout()
                             showEmptySetsDialog.value = false
                         }

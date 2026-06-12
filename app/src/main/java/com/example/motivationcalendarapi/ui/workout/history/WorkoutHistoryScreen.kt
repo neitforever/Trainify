@@ -44,7 +44,8 @@ import java.util.Locale
 fun WorkoutHistoryScreen(
     viewModel: WorkoutViewModel,
     navController: NavController,
-    paddingValues: Dp
+    paddingValues: Dp,
+    lang: String
 ) {
     val groupedWorkouts by viewModel.workoutsByYearMonthAndWeek()
         .collectAsState(initial = emptyMap())
@@ -154,7 +155,8 @@ fun WorkoutHistoryScreen(
                                                             onClick = {
                                                                 navController.navigate(Screen.WorkoutDetail.route + "/${workout.id}")
                                                             },
-                                                            viewModel = viewModel
+                                                            viewModel = viewModel,
+                                                            lang = lang
                                                         )
                                                         Spacer(modifier = Modifier.height(8.dp))
                                                     }

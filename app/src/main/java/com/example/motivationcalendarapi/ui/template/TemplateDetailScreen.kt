@@ -3,6 +3,7 @@ package com.example.motivationcalendarapi.ui.template
 import LoadingView
 import Screen
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -95,6 +98,7 @@ fun TemplateDetailScreen(
     }
 
     var showDeleteTemplateDialog by remember { mutableStateOf(false) }
+    var showUpdateFromWorkoutSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var showRepDialog by remember { mutableStateOf(false) }
@@ -107,6 +111,7 @@ fun TemplateDetailScreen(
     var currentSetIndex by remember { mutableIntStateOf(0) }
 
     val (showExerciseSheet, setShowExerciseSheet) = remember { mutableStateOf(false) }
+    val allWorkouts by workoutViewModel.allWorkouts.collectAsState()
 
     val minRep by workoutViewModel.minRep.collectAsState()
     val maxRep by workoutViewModel.maxRep.collectAsState()
@@ -128,40 +133,26 @@ fun TemplateDetailScreen(
     val maxIncline by workoutViewModel.maxIncline.collectAsState()
     val stepIncline by workoutViewModel.stepIncline.collectAsState()
 
+    var isTemplateFabExpanded by remember { mutableStateOf(false) }
+
     Scaffold(
         floatingActionButton = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier.navigationBarsPadding()
-            ) {
-                FloatingActionButton(
-                    onClick = { setShowExerciseSheet(true) },
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(64.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_add),
-                        contentDescription = stringResource(R.string.add_exercise),
-                        modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+            TemplateDetailFabMenu(
+                isExpanded = isTemplateFabExpanded,
+                onToggle = { isTemplateFabExpanded = !isTemplateFabExpanded },
+                onAddExercise = {
+                    isTemplateFabExpanded = false
+                    setShowExerciseSheet(true)
+                },
+                onUpdateFromWorkout = {
+                    isTemplateFabExpanded = false
+                    showUpdateFromWorkoutSheet = true
+                },
+                onDelete = {
+                    isTemplateFabExpanded = false
+                    showDeleteTemplateDialog = true
                 }
-
-                FloatingActionButton(
-                    onClick = { showDeleteTemplateDialog = true },
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(64.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = stringResource(R.string.delete_template),
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
-            }
+            )
         }
     ) { paddingValues ->
         if (template == null) {
@@ -299,6 +290,39 @@ fun TemplateDetailScreen(
 
                 item {
                     Spacer(modifier = Modifier.height(200.dp))
+                }
+            }
+
+
+            if (showUpdateFromWorkoutSheet) {
+                template?.let { currentTemplate ->
+                    TemplateUpdateFromWorkoutSheet(
+                        template = currentTemplate,
+                        workouts = allWorkouts,
+                        lang = lang,
+                        minRep = minRep,
+                        maxRep = maxRep,
+                        stepRep = stepRep,
+                        minWeight = minWeight,
+                        maxWeight = maxWeight,
+                        stepWeight = stepWeight,
+                        minCardioTime = minCardioTime,
+                        maxCardioTime = maxCardioTime,
+                        stepCardioTime = stepCardioTime,
+                        minResistance = minResistance,
+                        maxResistance = maxResistance,
+                        stepResistance = stepResistance,
+                        minIncline = minIncline,
+                        maxIncline = maxIncline,
+                        stepIncline = stepIncline,
+                        onDismiss = { showUpdateFromWorkoutSheet = false },
+                        onApply = { updatedExercises ->
+                            workoutViewModel.updateTemplateExercises(
+                                currentTemplate.id,
+                                updatedExercises
+                            )
+                        }
+                    )
                 }
             }
 
@@ -531,6 +555,89 @@ fun TemplateDetailScreen(
             showDeleteTemplateDialog = false
         }
     )
+}
+
+@Composable
+private fun TemplateDetailFabMenu(
+    isExpanded: Boolean,
+    onToggle: () -> Unit,
+    onAddExercise: () -> Unit,
+    onUpdateFromWorkout: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .navigationBarsPadding()
+            .wrapContentSize(Alignment.BottomEnd)
+    ) {
+        if (isExpanded) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TemplateMatrixFabButton(
+                    iconResId = R.drawable.ic_add,
+                    contentDescription = stringResource(R.string.add_exercise),
+                    onClick = onAddExercise
+                )
+
+                TemplateMatrixFabButton(
+                    iconResId = R.drawable.ic_delete,
+                    contentDescription = stringResource(R.string.delete_template),
+                    onClick = onDelete,
+                    iconTint = MaterialTheme.colorScheme.errorContainer
+                )
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TemplateMatrixFabButton(
+                    iconResId = R.drawable.ic_progress,
+                    contentDescription = stringResource(R.string.template_update_from_workout_title),
+                    onClick = onUpdateFromWorkout
+                )
+
+                TemplateMatrixFabButton(
+                    iconResId = R.drawable.ic_close,
+                    contentDescription = stringResource(R.string.hide),
+                    onClick = onToggle
+                )
+            }
+        } else {
+            TemplateMatrixFabButton(
+                iconResId = R.drawable.ic_menu,
+                contentDescription = stringResource(R.string.template_menu),
+                onClick = onToggle
+            )
+        }
+    }
+}
+
+@Composable
+private fun TemplateMatrixFabButton(
+    iconResId: Int,
+    contentDescription: String,
+    onClick: () -> Unit,
+    iconTint: Color = MaterialTheme.colorScheme.primary,
+    iconSize: Int = 36
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(64.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = iconResId),
+            contentDescription = contentDescription,
+            tint = iconTint,
+            modifier = Modifier.size(iconSize.dp)
+        )
+    }
 }
 
 private fun createDefaultTemplateSet(

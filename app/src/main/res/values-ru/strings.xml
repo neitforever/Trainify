@@ -581,4 +581,24 @@
     <string name="template_update_choose_next_text">Откройте разделы «Обновятся», «Добавятся» или «Без изменений», чтобы проверить упражнения перед применением.</string>
     <string name="template_update_empty_section_title">Здесь нет упражнений</string>
     <string name="template_update_empty_section_text">В этом разделе нет упражнений для выбранной тренировки.</string>
+    <string name="training_plan_week">План тренировок</string>
+    <string name="training_plan_completed_format">Выполнено %1$d из %2$d тренировок</string>
+    <string name="create_ai_training_plan">Создать AI-план</string>
+    <string name="next_planned_workout">Следующая тренировка</string>
+    <string name="planned_workout">Запланированная тренировка</string>
+    <string name="no_planned_workouts">Нет запланированных тренировок</string>
+    <string name="ai_recommendation">AI-рекомендация</string>
+    <string name="ai_recommendation_no_plan">Создай недельный план, чтобы календарь помогал заранее распределять тренировки.</string>
+    <string name="ai_recommendation_start_history">Начни с лёгкого плана; рекомендации станут точнее после появления истории тренировок.</string>
+    <string name="ai_recommendation_based_on_history">Планируй неделю с днями восстановления и без частого повторения одинаковой нагрузки.</string>
+    <string name="plan_with_ai">Спланировать с AI</string>
+    <string name="training_day_sheet_subtitle">Сводка дня и действия планирования</string>
+    <string name="planned_workouts">Запланированные тренировки</string>
+    <string name="completed_workouts">Выполненные тренировки</string>
+    <string name="plan_this_day">Спланировать этот день</string>
+    <string name="ai_pick_workout_for_day">Подобрать тренировку на этот день с AI</string>
+    <string name="create_manual_plan">Создать ручной план</string>
+    <string name="choose_template">Выбрать шаблон</string>
+    <string name="start_workout">Начать тренировку</string>
+    <string name="skip">Пропустить</string>
 </resources>

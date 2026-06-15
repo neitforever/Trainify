@@ -49,6 +49,8 @@ import com.example.motivationcalendarapi.repositories.analysis.ExerciseAnalysisR
 import com.example.motivationcalendarapi.ui.theme.MotivationCalendarAPITheme
 import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.AiTemplateGenerationViewModel
+import com.example.motivationcalendarapi.viewmodel.AiWorkoutPlanForDayViewModel
+import com.example.motivationcalendarapi.viewmodel.TrainingPlanCreationViewModel
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModelFactory
@@ -167,6 +169,8 @@ class MainActivity : ComponentActivity() {
             val equipmentRecognitionViewModel: EquipmentRecognitionViewModel = viewModel()
             val aiExerciseGenerationViewModel: AiExerciseGenerationViewModel = viewModel()
             val aiTemplateGenerationViewModel: AiTemplateGenerationViewModel = viewModel()
+            val aiWorkoutPlanForDayViewModel: AiWorkoutPlanForDayViewModel = viewModel()
+            val trainingPlanCreationViewModel: TrainingPlanCreationViewModel = viewModel()
             val navController = rememberNavController()
             val currentNotificationDestination = notificationDestination
             var drawerState = mutableStateOf(rememberDrawerState(initialValue = DrawerValue.Closed))
@@ -228,6 +232,8 @@ class MainActivity : ComponentActivity() {
                     equipmentRecognitionViewModel = equipmentRecognitionViewModel,
                     aiExerciseGenerationViewModel = aiExerciseGenerationViewModel,
                         aiTemplateGenerationViewModel = aiTemplateGenerationViewModel,
+                        aiWorkoutPlanForDayViewModel = aiWorkoutPlanForDayViewModel,
+                        trainingPlanCreationViewModel = trainingPlanCreationViewModel,
                         notificationSettingsViewModel = notificationSettingsViewModel,
                         lang = lang
                     )

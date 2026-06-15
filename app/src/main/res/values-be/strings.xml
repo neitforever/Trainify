@@ -584,4 +584,24 @@
     <string name="template_update_choose_next_text">Адкрыйце раздзелы «Абновяцца», «Дададуцца» або «Без змен», каб праверыць практыкаванні перад прымяненнем.</string>
     <string name="template_update_empty_section_title">Тут няма практыкаванняў</string>
     <string name="template_update_empty_section_text">У гэтым раздзеле няма практыкаванняў для выбранай трэніроўкі.</string>
+    <string name="training_plan_week">План трэніровак</string>
+    <string name="training_plan_completed_format">Выканана %1$d з %2$d трэніровак</string>
+    <string name="create_ai_training_plan">Стварыць AI-план</string>
+    <string name="next_planned_workout">Наступная трэніроўка</string>
+    <string name="planned_workout">Запланаваная трэніроўка</string>
+    <string name="no_planned_workouts">Няма запланаваных трэніровак</string>
+    <string name="ai_recommendation">AI-рэкамендацыя</string>
+    <string name="ai_recommendation_no_plan">Ствары тыднёвы план, каб каляндар дапамагаў загадзя размяркоўваць трэніроўкі.</string>
+    <string name="ai_recommendation_start_history">Пачні з лёгкага плана; рэкамендацыі стануць дакладней пасля з’яўлення гісторыі трэніровак.</string>
+    <string name="ai_recommendation_based_on_history">Плануй тыдзень з днямі аднаўлення і без частага паўтарэння аднолькавай нагрузкі.</string>
+    <string name="plan_with_ai">Спланаваць з AI</string>
+    <string name="training_day_sheet_subtitle">Зводка дня і дзеянні планавання</string>
+    <string name="planned_workouts">Запланаваныя трэніроўкі</string>
+    <string name="completed_workouts">Выкананыя трэніроўкі</string>
+    <string name="plan_this_day">Спланаваць гэты дзень</string>
+    <string name="ai_pick_workout_for_day">Падабраць трэніроўку на гэты дзень з AI</string>
+    <string name="create_manual_plan">Стварыць ручны план</string>
+    <string name="choose_template">Выбраць шаблон</string>
+    <string name="start_workout">Пачаць трэніроўку</string>
+    <string name="skip">Прапусціць</string>
 </resources>

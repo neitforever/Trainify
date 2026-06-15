@@ -25,7 +25,8 @@ data class ActiveWorkoutDraft(
     val totalPausedDuration: Long = 0L,
     val workoutName: String = "",
     val selectedExercises: List<ExtendedExercise> = emptyList(),
-    val exerciseSetsMap: Map<Int, List<ExerciseSet>> = emptyMap()
+    val exerciseSetsMap: Map<Int, List<ExerciseSet>> = emptyMap(),
+    val plannedWorkoutId: String? = null
 )
 
 class TimerDataStore(private val context: Context) {
@@ -41,6 +42,7 @@ class TimerDataStore(private val context: Context) {
         val ACTIVE_WORKOUT_NAME = stringPreferencesKey("active_workout_name")
         val ACTIVE_WORKOUT_EXERCISES_JSON = stringPreferencesKey("active_workout_exercises_json")
         val ACTIVE_WORKOUT_SETS_JSON = stringPreferencesKey("active_workout_sets_json")
+        val ACTIVE_WORKOUT_PLANNED_ID = stringPreferencesKey("active_workout_planned_id")
         const val DEFAULT_WARMUP_TIME = 60
     }
 
@@ -73,7 +75,8 @@ class TimerDataStore(private val context: Context) {
             }.getOrDefault(emptyList()),
             exerciseSetsMap = runCatching {
                 gson.fromJson<Map<Int, List<ExerciseSet>>>(setsJson, setsType).orEmpty()
-            }.getOrDefault(emptyMap())
+            }.getOrDefault(emptyMap()),
+            plannedWorkoutId = preferences[ACTIVE_WORKOUT_PLANNED_ID]
         )
     }
 
@@ -86,6 +89,8 @@ class TimerDataStore(private val context: Context) {
             preferences[ACTIVE_WORKOUT_NAME] = draft.workoutName
             preferences[ACTIVE_WORKOUT_EXERCISES_JSON] = gson.toJson(draft.selectedExercises)
             preferences[ACTIVE_WORKOUT_SETS_JSON] = gson.toJson(draft.exerciseSetsMap)
+            draft.plannedWorkoutId?.let { preferences[ACTIVE_WORKOUT_PLANNED_ID] = it }
+                ?: preferences.remove(ACTIVE_WORKOUT_PLANNED_ID)
         }
     }
 
@@ -98,6 +103,7 @@ class TimerDataStore(private val context: Context) {
             preferences.remove(ACTIVE_WORKOUT_NAME)
             preferences.remove(ACTIVE_WORKOUT_EXERCISES_JSON)
             preferences.remove(ACTIVE_WORKOUT_SETS_JSON)
+            preferences.remove(ACTIVE_WORKOUT_PLANNED_ID)
         }
     }
 }

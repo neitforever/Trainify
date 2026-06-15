@@ -48,7 +48,7 @@ import com.example.motivationcalendarapi.R
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-private const val MAX_TIMER_MINUTES = 120
+private const val MAX_TIMER_MINUTES = 300
 private const val MAX_TIMER_SECONDS = MAX_TIMER_MINUTES * 60 + 59
 private const val WHEEL_ITEM_COUNT = 100_000
 private val WheelViewportHeight = 232.dp

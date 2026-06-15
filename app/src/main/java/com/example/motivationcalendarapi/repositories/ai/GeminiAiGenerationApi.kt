@@ -96,6 +96,51 @@ class GeminiAiGenerationApi {
     }
 
 
+    suspend fun generateWorkout(
+        prompt: String,
+        selectedBodyParts: List<String>,
+        selectedEquipment: List<String>,
+        difficulty: String,
+        exerciseCount: Int,
+        durationMinutes: Int,
+        lang: String,
+        localExercises: List<Exercise>
+    ): GeneratedTemplateDraft = withContext(Dispatchers.IO) {
+        val url = BuildConfig.GEMINI_WORKOUT_GENERATION_URL
+        if (url.isBlank()) error("GEMINI_WORKOUT_GENERATION_URL is empty in local.properties")
+        if (localExercises.isEmpty()) error("No local exercises found")
+
+        val allowedExercises = localExercises.filter { exercise ->
+            val body = exercise.getBodyPart(lang)
+            val equipment = exercise.getEquipment(lang)
+            (selectedBodyParts.isEmpty() || selectedBodyParts.contains(body)) &&
+                    (selectedEquipment.isEmpty() || selectedEquipment.contains(equipment))
+        }.ifEmpty { localExercises }
+
+        val workoutPrompt = buildWorkoutPrompt(
+            userPrompt = prompt,
+            selectedBodyParts = selectedBodyParts,
+            selectedEquipment = selectedEquipment,
+            difficulty = difficulty,
+            exerciseCount = exerciseCount,
+            durationMinutes = durationMinutes,
+            lang = lang,
+            allowedExercises = allowedExercises
+        )
+        logLarge("generateWorkout.prompt", workoutPrompt)
+
+        val request = buildGeminiRequest(
+            workoutPrompt,
+            temperature = 0.22
+        )
+        logLarge("generateWorkout.requestBody", request)
+
+        val responseText = post(url, request)
+        val result = parseCandidateJson(responseText, "generateWorkout")
+        parseTemplate(result, allowedExercises)
+    }
+
+
     suspend fun translateTemplateName(
         name: String,
         sourceLang: String
@@ -300,6 +345,67 @@ class GeminiAiGenerationApi {
             {"nameLocalized":{"en":"","ru":"","be":""},"bodyPartLocalized":{"en":"","ru":"","be":""},"equipmentLocalized":{"en":"","ru":"","be":""},"targetLocalized":{"en":"","ru":"","be":""},"secondaryMusclesLocalized":{"en":[""],"ru":[""],"be":[""]},"cardType":"STRENGTH","instructionsLocalized":{"en":[""],"ru":[""],"be":[""]},"note":""}
         """.trimIndent()
     }
+
+    private fun buildWorkoutPrompt(
+        userPrompt: String,
+        selectedBodyParts: List<String>,
+        selectedEquipment: List<String>,
+        difficulty: String,
+        exerciseCount: Int,
+        durationMinutes: Int,
+        lang: String,
+        allowedExercises: List<Exercise>
+    ): String {
+        val safeCount = exerciseCount.coerceIn(1, 15)
+        val safeDuration = durationMinutes.coerceIn(1, 300)
+        val equipmentRule = if (selectedEquipment.isEmpty()) {
+            "Selected equipment: Let AI choose. Use any suitable equipment from the allowed local exercises; do not invent new equipment."
+        } else {
+            "Selected equipment: ${selectedEquipment.joinToString()}. Select exercises according to this equipment list."
+        }
+        val catalog = allowedExercises.joinToString("\n") { exercise ->
+            "- id=${exercise.id}; en='${exercise.getName("en")}'; ru='${exercise.getName("ru")}'; be='${exercise.getName("be")}'; bodyPart='${exercise.getBodyPart(lang)}'; equipment='${exercise.getEquipment(lang)}'; cardType='${exercise.cardType}'"
+        }
+        return """
+            You generate ONE planned workout for a fitness Android app.
+            User language: $lang.
+            User request: $userPrompt
+            Selected body parts: ${selectedBodyParts.joinToString()}
+            $equipmentRule
+            Selected difficulty: $difficulty
+            Target duration: $safeDuration minutes
+            Required exercise count: exactly $safeCount exercises
+
+            Allowed local exercises. You MUST use ONLY these ids:
+            $catalog
+
+            Rules:
+            - Return ONLY compact valid JSON. No markdown.
+            - Do NOT invent exercises.
+            - Use only exerciseId values from the allowed list.
+            - Select exercises according to selected body parts.
+            - If equipment was selected manually, respect that equipment list.
+            - If equipment is set to Let AI choose, choose suitable equipment from the allowed local exercises only.
+            - Generate exactly $safeCount exercises unless there are not enough allowed local exercises.
+            - Use the selected difficulty and target duration to choose realistic sets, reps, time, weight, resistance and incline.
+            - Use at most ONE cardio exercise unless the user explicitly requested cardio.
+            - Fill workout name for en, ru, be.
+
+            JSON schema:
+            {
+              "nameLocalized":{"en":"","ru":"","be":""},
+              "items":[
+                {
+                  "exerciseId":"existing_id",
+                  "sets":[
+                    {"rep":12,"weight":0.0,"time":0.0,"resistance":0.0,"incline":0.0}
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+    }
+
 
     private fun buildTemplatePrompt(
         userPrompt: String,

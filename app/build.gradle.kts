@@ -35,10 +35,12 @@ android {
         buildConfigField("String", "GEMINI_PROXY_URL", "\"${localProperties.getProperty("GEMINI_PROXY_URL", "")}\"")
         buildConfigField("String", "GEMINI_EXERCISE_GENERATION_URL", "\"${localProperties.getProperty("GEMINI_EXERCISE_GENERATION_URL", "")}\"")
         buildConfigField("String", "GEMINI_TEMPLATE_GENERATION_URL", "\"${localProperties.getProperty("GEMINI_TEMPLATE_GENERATION_URL", "")}\"")
+        buildConfigField("String", "GEMINI_WORKOUT_GENERATION_URL", "\"${localProperties.getProperty("GEMINI_WORKOUT_GENERATION_URL", "")}\"")
         buildConfigField("String", "GEMINI_TRANSLATION_URL", "\"${localProperties.getProperty("GEMINI_TRANSLATION_URL", "")}\"")
         buildConfigField("String", "YOUTUBE_TECHNIQUE_SEARCH_URL", "\"${localProperties.getProperty("YOUTUBE_TECHNIQUE_SEARCH_URL", "")}\"")
         buildConfigField("String", "GEMINI_SELECTION_SUGGESTION_URL", "\"${localProperties.getProperty("GEMINI_SELECTION_SUGGESTION_URL", "")}\"")
         buildConfigField("String", "GEMINI_TECHNIQUE_ANALYSIS_URL", "\"${localProperties.getProperty("GEMINI_TECHNIQUE_ANALYSIS_URL", "")}\"")
+        buildConfigField("String", "GEMINI_TRAINING_PLAN_URL", "\"${localProperties.getProperty("GEMINI_TRAINING_PLAN_URL", "")}\"")
     }
 
     buildTypes {

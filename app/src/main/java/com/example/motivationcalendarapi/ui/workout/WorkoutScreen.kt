@@ -186,6 +186,7 @@ fun WorkoutScreen(
     val coroutineScope = rememberCoroutineScope()
     val showEndWorkoutDialog = remember { mutableStateOf(false) }
     val showEmptySetsDialog = remember { mutableStateOf(false) }
+    var isFinishingWorkout by remember { mutableStateOf(false) }
     val showPauseDialog = remember { mutableStateOf(false) }
     val isWorkoutPaused = remember { derivedStateOf { timerRunning.not() } }
 
@@ -608,8 +609,9 @@ fun WorkoutScreen(
             val repEmpty = stringResource(R.string.all_sets_must_have_reps)
             EndWorkoutDialog(
                 showDialog = showEndWorkoutDialog.value,
-                onDismiss = { showEndWorkoutDialog.value = false },
+                onDismiss = { if (!isFinishingWorkout) showEndWorkoutDialog.value = false },
                 onConfirm = {
+                    if (!isFinishingWorkout) {
                     val isNameEmpty = workoutName.isBlank()
 
                     if (isNameEmpty) {
@@ -625,22 +627,29 @@ fun WorkoutScreen(
                         val updatedExercises = selectedExercises.mapIndexed { index, ex ->
                             ex.copy(sets = exerciseSetsMap[index] ?: emptyList())
                         }
+                        isFinishingWorkout = true
+                        showEndWorkoutDialog.value = false
                         coroutineScope.launch {
-                            val averageHeartRate = healthViewModel.readAverageHeartRateSince(
-                                workoutViewModel.getWorkoutStartTime()
-                            )
-                            workoutViewModel.saveWorkout(updatedExercises, averageHeartRate, lang)
-                            workoutViewModel.resetWorkout()
-                            showEndWorkoutDialog.value = false
+                            try {
+                                val averageHeartRate = healthViewModel.readAverageHeartRateSince(
+                                    workoutViewModel.getWorkoutStartTime()
+                                )
+                                workoutViewModel.saveWorkout(updatedExercises, averageHeartRate, lang)
+                                workoutViewModel.resetWorkout()
+                            } finally {
+                                isFinishingWorkout = false
+                            }
                         }
+                    }
                     }
                 })
 
 
             FinishWorkoutWithEmptySetsDialog(
                 showDialog = showEmptySetsDialog.value,
-                onDismiss = { showEmptySetsDialog.value = false },
+                onDismiss = { if (!isFinishingWorkout) showEmptySetsDialog.value = false },
                 onConfirm = {
+                    if (!isFinishingWorkout) {
                     val cleanedExercises = workoutViewModel.buildWorkoutExercisesWithoutEmptySets(lang)
 
                     if (cleanedExercises.isEmpty()) {
@@ -648,14 +657,20 @@ fun WorkoutScreen(
                         showValidationDialog = true
                         showEmptySetsDialog.value = false
                     } else {
+                        isFinishingWorkout = true
+                        showEmptySetsDialog.value = false
                         coroutineScope.launch {
-                            val averageHeartRate = healthViewModel.readAverageHeartRateSince(
-                                workoutViewModel.getWorkoutStartTime()
-                            )
-                            workoutViewModel.saveWorkout(cleanedExercises, averageHeartRate, lang)
-                            workoutViewModel.resetWorkout()
-                            showEmptySetsDialog.value = false
+                            try {
+                                val averageHeartRate = healthViewModel.readAverageHeartRateSince(
+                                    workoutViewModel.getWorkoutStartTime()
+                                )
+                                workoutViewModel.saveWorkout(cleanedExercises, averageHeartRate, lang)
+                                workoutViewModel.resetWorkout()
+                            } finally {
+                                isFinishingWorkout = false
+                            }
                         }
+                    }
                     }
                 }
             )

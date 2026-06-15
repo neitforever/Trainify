@@ -13,6 +13,8 @@ import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.model.planning.PlannedWorkout
+import com.example.motivationcalendarapi.model.planning.PlannedWorkoutSourceType
 import com.example.motivationcalendarapi.model.reward.RewardUiModel
 import com.example.motivationcalendarapi.model.reward.RewardUnlockEventEntity
 import com.example.motivationcalendarapi.model.getCardType
@@ -38,6 +40,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.Month
 import java.time.ZoneId
+import java.time.LocalTime
 import java.util.Calendar
 import java.util.Collections
 
@@ -59,6 +62,12 @@ class WorkoutViewModel(
     fun markWeeklyRecapStartupLoadingShown() {
         _shouldShowWeeklyRecapStartupLoading.value = false
     }
+
+    private val _plannedWorkouts = MutableStateFlow<List<PlannedWorkout>>(emptyList())
+    val plannedWorkouts: StateFlow<List<PlannedWorkout>> = _plannedWorkouts.asStateFlow()
+
+    private var pendingStartedPlannedWorkoutId: String? = null
+
 
     val minCardioTime: StateFlow<Float> = mainRepository.minCardioTimeFlow
         .stateIn(viewModelScope, SharingStarted.Lazily, 0f)
@@ -118,6 +127,7 @@ class WorkoutViewModel(
         viewModelScope.launch {
             workoutRepository.syncWithFirestore()
             workoutRepository.syncTemplatesWithFirestore()
+            workoutRepository.plannedWorkoutRepository.syncWithFirestore()
             workoutRepository.syncRewardsWithFirestore()
         }
     }
@@ -200,6 +210,12 @@ class WorkoutViewModel(
 
     init {
         viewModelScope.launch {
+            workoutRepository.plannedWorkoutRepository.observePlannedWorkouts().collect { planned ->
+                _plannedWorkouts.value = planned
+            }
+        }
+
+        viewModelScope.launch {
             timerDataStore.warmupTimeFlow.collect { time ->
                 _warmupTime.value = time
             }
@@ -209,6 +225,7 @@ class WorkoutViewModel(
             workoutRepository.initializeDefaultTemplates()
             workoutRepository.initializeRewards()
             workoutRepository.syncTemplatesWithFirestore()
+            workoutRepository.plannedWorkoutRepository.syncWithFirestore()
             workoutRepository.syncRewardsWithFirestore()
         }
         viewModelScope.launch {
@@ -302,6 +319,268 @@ class WorkoutViewModel(
             workoutRepository.syncTemplatesWithFirestore()
         }
     }
+
+
+    fun prepareManualPlannedWorkoutDraft() {
+        _showOverwriteDialog.value = false
+        _timerRunning.value = false
+        savedStateHandle.set(TIMER_RUNNING_KEY, false)
+        _timerValue.value = 0
+        _isWorkoutStarted.value = false
+        savedStateHandle.set(WORKOUT_STARTED_KEY, false)
+        _workoutName.value = ""
+        startTime = 0L
+        totalPausedDuration = 0L
+        _selectedExercises.value = emptyList()
+        _exerciseSetsMap.value = emptyMap()
+        clearActiveWorkout()
+    }
+
+    fun loadPlannedWorkoutForEditor(plannedWorkout: PlannedWorkout) {
+        loadPlannedWorkoutAsDraft(plannedWorkout)
+        _isWorkoutStarted.value = false
+        savedStateHandle.set(WORKOUT_STARTED_KEY, false)
+        _timerRunning.value = false
+        savedStateHandle.set(TIMER_RUNNING_KEY, false)
+    }
+
+    fun saveDraftAsPlannedWorkout(date: LocalDate, existingPlanId: String? = null, lang: String = "en") {
+        viewModelScope.launch(Dispatchers.IO) {
+            val normalizedLang = normalizeLanguageCode(lang)
+            val trimmedName = _workoutName.value.trim().ifBlank {
+                when (normalizedLang) {
+                    "ru" -> "Запланированная тренировка"
+                    "be" -> "Запланаваная трэніроўка"
+                    else -> "Planned workout"
+                }
+            }
+            val millis = date.atTime(LocalTime.of(18, 0)).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            val localized = fallbackTemplateNameLocalization(trimmedName, normalizedLang)
+            val planned = PlannedWorkout(
+                id = existingPlanId ?: java.util.UUID.randomUUID().toString(),
+                date = millis,
+                name = trimmedName,
+                nameLocalized = localized,
+                exercises = _selectedExercises.value.mapIndexed { index, exercise ->
+                    exercise.copy(sets = _exerciseSetsMap.value[index] ?: exercise.sets)
+                },
+                sourceType = PlannedWorkoutSourceType.MANUAL,
+                status = com.example.motivationcalendarapi.model.planning.PlannedWorkoutStatus.PLANNED
+            )
+            workoutRepository.plannedWorkoutRepository.update(planned)
+            pendingStartedPlannedWorkoutId = null
+            resetWorkout()
+        }
+    }
+
+    fun createManualPlannedWorkout(date: LocalDate) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.plannedWorkoutRepository.createManual(date)
+        }
+    }
+
+    fun createPlannedWorkoutFromTemplate(date: LocalDate, template: Template) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.plannedWorkoutRepository.createFromTemplate(
+                date = date,
+                template = template,
+                sourceType = PlannedWorkoutSourceType.TEMPLATE
+            )
+        }
+    }
+
+    fun createAiSuggestedWorkoutForDate(date: LocalDate) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val template = workoutRepository.getAllTemplates().first().firstOrNull() ?: return@launch
+            workoutRepository.plannedWorkoutRepository.createFromTemplate(
+                date = date,
+                template = template,
+                sourceType = PlannedWorkoutSourceType.AI_RECOMMENDED
+            )
+        }
+    }
+
+
+    fun createAiGeneratedWorkoutForDate(
+        date: LocalDate,
+        prompt: String,
+        selectedBodyParts: List<String>,
+        selectedEquipment: List<String>,
+        difficulty: String,
+        minExercises: Int,
+        maxExercises: Int,
+        durationMinutes: Int = 45,
+        lang: String,
+        localExercises: List<com.example.motivationcalendarapi.model.Exercise>,
+        aiReason: String? = null,
+        onComplete: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val draft = geminiAiGenerationApi.generateWorkout(
+                    prompt = prompt,
+                    selectedBodyParts = selectedBodyParts,
+                    selectedEquipment = selectedEquipment,
+                    difficulty = difficulty,
+                    exerciseCount = ((minExercises + maxExercises) / 2).coerceIn(1, 15),
+                    durationMinutes = durationMinutes,
+                    lang = lang,
+                    localExercises = localExercises
+                )
+                val millis = date.atTime(LocalTime.of(18, 0)).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                workoutRepository.plannedWorkoutRepository.insert(
+                    PlannedWorkout(
+                        date = millis,
+                        name = draft.nameLocalized["en"] ?: draft.nameLocalized["ru"] ?: "AI workout",
+                        nameLocalized = draft.nameLocalized,
+                        exercises = draft.exercises,
+                        sourceType = PlannedWorkoutSourceType.AI_GENERATED,
+                        aiReason = aiReason?.takeIf { it.isNotBlank() }
+                            ?: prompt.lineSequence().firstOrNull()?.takeIf { it.isNotBlank() }
+                            ?: "Generated by Gemini from selected workout parameters."
+                    )
+                )
+                launch(Dispatchers.Main) { onComplete() }
+            } catch (e: Exception) {
+                launch(Dispatchers.Main) { onError(e.message ?: "AI generation failed") }
+            }
+        }
+    }
+
+
+    fun createAiGeneratedTrainingPlanForDates(
+        dates: List<LocalDate>,
+        prompt: String,
+        selectedBodyParts: List<String>,
+        selectedEquipment: List<String>,
+        difficulty: String,
+        exerciseCount: Int,
+        durationMinutes: Int,
+        lang: String,
+        localExercises: List<com.example.motivationcalendarapi.model.Exercise>,
+        aiReasonBuilder: (LocalDate) -> String = { "Generated by Gemini from selected plan parameters." },
+        onComplete: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val safeDates = dates.distinct().sorted()
+                if (safeDates.isEmpty()) error("No dates selected")
+
+                safeDates.forEachIndexed { index, date ->
+                    val draft = geminiAiGenerationApi.generateWorkout(
+                        prompt = "$prompt\nPlan session ${index + 1} of ${safeDates.size}. Date: $date. Keep load distribution realistic across the whole plan.",
+                        selectedBodyParts = selectedBodyParts,
+                        selectedEquipment = selectedEquipment,
+                        difficulty = difficulty,
+                        exerciseCount = exerciseCount,
+                        durationMinutes = durationMinutes,
+                        lang = lang,
+                        localExercises = localExercises
+                    )
+                    val millis = date.atTime(LocalTime.of(18, 0)).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    workoutRepository.plannedWorkoutRepository.insert(
+                        PlannedWorkout(
+                            date = millis,
+                            name = draft.nameLocalized["en"] ?: draft.nameLocalized["ru"] ?: "AI plan workout",
+                            nameLocalized = draft.nameLocalized,
+                            exercises = draft.exercises,
+                            sourceType = PlannedWorkoutSourceType.AI_GENERATED,
+                            aiReason = aiReasonBuilder(date)
+                        )
+                    )
+                }
+                launch(Dispatchers.Main) { onComplete() }
+            } catch (e: Exception) {
+                launch(Dispatchers.Main) { onError(e.message ?: "AI plan generation failed") }
+            }
+        }
+    }
+
+
+    fun createAiTrainingPlanForWeek() {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.plannedWorkoutRepository.createAiWeekPlan(
+                templates = workoutRepository.getAllTemplates().first(),
+                workouts = _allWorkouts.value
+            )
+        }
+    }
+
+    fun createAiTrainingPlanForDates(dates: List<LocalDate>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.plannedWorkoutRepository.createAiPlanForDates(
+                dates = dates,
+                templates = workoutRepository.getAllTemplates().first(),
+                workouts = _allWorkouts.value
+            )
+        }
+    }
+
+    fun createTemplatePlanForDates(dates: List<LocalDate>, template: Template) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.plannedWorkoutRepository.createTemplatePlanForDates(dates, template)
+        }
+    }
+
+    fun skipPlannedWorkout(id: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.plannedWorkoutRepository.markSkipped(id)
+        }
+    }
+
+    fun deletePlannedWorkout(id: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.plannedWorkoutRepository.delete(id)
+        }
+    }
+
+    fun restoreSkippedPlannedWorkout(id: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.plannedWorkoutRepository.restoreSkipped(id)
+        }
+    }
+
+    fun movePlannedWorkout(id: String, date: LocalDate) {
+        viewModelScope.launch(Dispatchers.IO) {
+            workoutRepository.plannedWorkoutRepository.moveToDate(id, date)
+        }
+    }
+
+    fun startWorkoutFromPlan(plannedWorkout: PlannedWorkout) {
+        loadPlannedWorkoutAsDraft(plannedWorkout)
+        startWorkout()
+    }
+
+    fun editPlannedWorkout(plannedWorkout: PlannedWorkout) {
+        loadPlannedWorkoutAsDraft(plannedWorkout)
+        _isWorkoutStarted.value = true
+        savedStateHandle.set(WORKOUT_STARTED_KEY, true)
+        _timerRunning.value = false
+        savedStateHandle.set(TIMER_RUNNING_KEY, false)
+        persistActiveWorkout()
+    }
+
+    private fun loadPlannedWorkoutAsDraft(plannedWorkout: PlannedWorkout) {
+        _showOverwriteDialog.value = false
+        _timerRunning.value = false
+        savedStateHandle.set(TIMER_RUNNING_KEY, false)
+        _timerValue.value = 0
+        _workoutName.value = plannedWorkout.name.ifBlank { plannedWorkout.nameLocalized["en"] ?: "Planned workout" }
+        startTime = 0L
+        totalPausedDuration = 0L
+        _selectedExercises.value = emptyList()
+        _exerciseSetsMap.value = emptyMap()
+        plannedWorkout.exercises.forEachIndexed { index, exercise ->
+            _selectedExercises.value = _selectedExercises.value + exercise
+            _exerciseSetsMap.value = _exerciseSetsMap.value.toMutableMap().apply {
+                put(index, exercise.sets)
+            }
+        }
+        pendingStartedPlannedWorkoutId = plannedWorkout.id
+    }
+
 
     fun saveAsTemplate(
         workout: Workout,
@@ -688,6 +967,7 @@ class WorkoutViewModel(
                 _workoutName.value = draft.workoutName
                 _selectedExercises.value = draft.selectedExercises
                 _exerciseSetsMap.value = draft.exerciseSetsMap
+                pendingStartedPlannedWorkoutId = draft.plannedWorkoutId
 
                 _timerValue.value = if (draft.isRunning && draft.startTime > 0L) {
                     ((System.currentTimeMillis() - draft.startTime) / 1000L).toInt().coerceAtLeast(0)
@@ -740,7 +1020,8 @@ class WorkoutViewModel(
                         totalPausedDuration = totalPausedDuration,
                         workoutName = _workoutName.value,
                         selectedExercises = _selectedExercises.value,
-                        exerciseSetsMap = _exerciseSetsMap.value
+                        exerciseSetsMap = _exerciseSetsMap.value,
+                        plannedWorkoutId = pendingStartedPlannedWorkoutId
                     )
                 )
             }
@@ -951,7 +1232,12 @@ class WorkoutViewModel(
                 difficulty = calculateWorkoutDifficulty(workoutWithoutDifficulty)
             )
             workoutRepository.insertWorkout(workout)
+            val plannedId = pendingStartedPlannedWorkoutId
+            if (plannedId != null) {
+                workoutRepository.plannedWorkoutRepository.markCompleted(plannedId, workout.id)
+            }
         }
+        pendingStartedPlannedWorkoutId = null
         resetWorkout()
     }
 

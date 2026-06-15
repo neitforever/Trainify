@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -41,6 +43,8 @@ import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.model.planning.PlannedWorkout
+import com.example.motivationcalendarapi.model.planning.PlannedWorkoutStatus
 import com.example.motivationcalendarapi.model.localizedName
 import com.example.motivationcalendarapi.ui.exercise.detail.SectionIcon
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
@@ -52,17 +56,23 @@ import com.example.motivationcalendarapi.utils.formatTime
 import com.example.motivationcalendarapi.utils.getStartAndEndOfCurrentWeek
 import com.example.motivationcalendarapi.utils.resolvedDifficulty
 import kotlinx.coroutines.delay
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import kotlin.math.roundToInt
 
 @Composable
 fun InactiveWorkoutOverviewPager(
     workouts: List<Workout>,
+    plannedWorkouts: List<PlannedWorkout>,
     lang: String,
     showWeeklyStartupLoading: Boolean,
     onWeeklyStartupLoadingShown: () -> Unit,
     onWorkoutClick: (String) -> Unit,
+    onCreateAiPlan: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState(pageCount = { 2 })
+    val pagerState = rememberPagerState(initialPage = 1, pageCount = { 3 })
     val context = LocalContext.current
     val text = remember(lang) { InactiveWorkoutOverviewText(lang) }
     val weekStats = remember(workouts) { workouts.toWeekStats() }
@@ -95,7 +105,18 @@ fun InactiveWorkoutOverviewPager(
                         .height(256.dp)
                 )
 
-                1 -> LastWorkoutCard(
+                1 -> PlanOverviewCard(
+                    workouts = workouts,
+                    plannedWorkouts = plannedWorkouts,
+                    text = text,
+                    lang = lang,
+                    onCreateAiPlan = onCreateAiPlan,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(256.dp)
+                )
+
+                2 -> LastWorkoutCard(
                     workout = lastWorkout,
                     text = text,
                     context = context,
@@ -112,7 +133,7 @@ fun InactiveWorkoutOverviewPager(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            repeat(2) { index ->
+            repeat(3) { index ->
                 val selected = pagerState.currentPage == index
                 Surface(
                     modifier = Modifier.size(width = if (selected) 18.dp else 7.dp, height = 7.dp),
@@ -209,6 +230,161 @@ private fun WeekSummaryCard(
                     label = text.time,
                     value = formatTime(context, stats.totalDurationSeconds),
                     modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun PlanOverviewCard(
+    workouts: List<Workout>,
+    plannedWorkouts: List<PlannedWorkout>,
+    text: InactiveWorkoutOverviewText,
+    lang: String,
+    onCreateAiPlan: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val today = remember { LocalDate.now() }
+    val weekStart = remember(today) { today.with(java.time.DayOfWeek.MONDAY) }
+    val weekEnd = remember(weekStart) { weekStart.plusDays(6) }
+    val weekPlans = remember(plannedWorkouts, weekStart, weekEnd) {
+        plannedWorkouts.filter {
+            it.status != PlannedWorkoutStatus.CANCELLED &&
+                it.status != PlannedWorkoutStatus.MOVED &&
+                it.localDate() in weekStart..weekEnd
+        }
+    }
+    val actualCompletedThisWeek = remember(workouts, weekStart, weekEnd) {
+        workouts.count { workout ->
+            val workoutDate = Instant.ofEpochMilli(workout.timestamp).atZone(ZoneId.systemDefault()).toLocalDate()
+            workoutDate in weekStart..weekEnd
+        }
+    }
+    val active = plannedWorkouts
+        .filter { it.status == PlannedWorkoutStatus.PLANNED && !it.localDate().isBefore(today) }
+        .minByOrNull { it.date }
+    val totalForProgress = maxOf(
+        weekPlans.count { it.status == PlannedWorkoutStatus.PLANNED || it.status == PlannedWorkoutStatus.SKIPPED },
+        actualCompletedThisWeek
+    )
+    val completed = actualCompletedThisWeek.coerceAtMost(totalForProgress)
+    val percent = if (totalForProgress == 0) 0 else ((completed.toFloat() / totalForProgress) * 100).roundToInt()
+
+    OverviewCard(modifier = modifier) {
+        OverviewHeader(
+            iconResId = R.drawable.ic_reward_fg_ai_template,
+            title = text.planTitle,
+            subtitle = if (weekPlans.isEmpty()) text.planEmptySubtitle else text.planSubtitle
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OverviewMetricChip(
+                label = text.completed,
+                value = "$completed/$totalForProgress",
+                modifier = Modifier.weight(1f)
+            )
+            OverviewMetricChip(
+                label = text.completion,
+                value = "$percent%",
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.68f),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.10f))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Surface(
+                    modifier = Modifier.size(42.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_time),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.86f),
+                            modifier = Modifier.size(23.dp)
+                        )
+                    }
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = text.nextPlan,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = active?.localizedPlanName(lang) ?: text.noNextPlan,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 3.dp)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .clickable(onClick = onCreateAiPlan),
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.68f),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.18f))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 14.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_reward_fg_ai_template),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text = text.createAiPlan,
+                    modifier = Modifier.padding(start = 8.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -326,7 +502,8 @@ private fun CompactRecentWorkoutTitleBlock(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.68f)
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.68f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
     ) {
         Row(
             modifier = Modifier
@@ -444,7 +621,8 @@ private fun OverviewMetricChip(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.58f)
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.58f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
     ) {
         Column(
             modifier = Modifier
@@ -485,7 +663,8 @@ private fun CompactAverageWorkoutBlock(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.68f)
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.68f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
     ) {
         Row(
             modifier = Modifier
@@ -752,6 +931,22 @@ private fun Workout.totalLiftedWeightKg(): Float {
 }
 
 
+private fun PlannedWorkout.localDate(): LocalDate =
+    Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
+
+private fun PlannedWorkout.localizedPlanName(lang: String): String {
+    val normalized = when (lang.lowercase()) {
+        "ru" -> "ru"
+        "be", "by" -> "be"
+        else -> "en"
+    }
+    return nameLocalized[normalized]
+        ?: nameLocalized["en"]
+        ?: nameLocalized["ru"]
+        ?: nameLocalized["be"]
+        ?: name
+}
+
 
 private data class InactiveWorkoutOverviewText(
     val weekTitle: String,
@@ -784,7 +979,15 @@ private data class InactiveWorkoutOverviewText(
     val kg: String,
     val easy: String,
     val normal: String,
-    val hard: String
+    val hard: String,
+    val planTitle: String,
+    val planSubtitle: String,
+    val planEmptySubtitle: String,
+    val completed: String,
+    val completion: String,
+    val nextPlan: String,
+    val noNextPlan: String,
+    val createAiPlan: String
 ) {
     constructor(lang: String) : this(
         weekTitle = when (lang) {
@@ -941,6 +1144,46 @@ private data class InactiveWorkoutOverviewText(
             "ru" -> "Сложная"
             "be" -> "Складаная"
             else -> "Hard"
+        },
+        planTitle = when (lang) {
+            "ru" -> "План тренировок"
+            "be" -> "План трэніровак"
+            else -> "Training plan"
+        },
+        planSubtitle = when (lang) {
+            "ru" -> "Прогресс и ближайшая запланированная тренировка"
+            "be" -> "Прагрэс і найбліжэйшая запланаваная трэніроўка"
+            else -> "Progress and your next planned workout"
+        },
+        planEmptySubtitle = when (lang) {
+            "ru" -> "Создай план на выбранные дни недели"
+            "be" -> "Ствары план на выбраныя дні тыдня"
+            else -> "Create a plan for selected weekdays"
+        },
+        completed = when (lang) {
+            "ru" -> "Выполнено"
+            "be" -> "Выканана"
+            else -> "Completed"
+        },
+        completion = when (lang) {
+            "ru" -> "План"
+            "be" -> "План"
+            else -> "Plan"
+        },
+        nextPlan = when (lang) {
+            "ru" -> "Следующая тренировка"
+            "be" -> "Наступная трэніроўка"
+            else -> "Next workout"
+        },
+        noNextPlan = when (lang) {
+            "ru" -> "Пока нет будущих планов"
+            "be" -> "Пакуль няма будучых планаў"
+            else -> "No upcoming plans yet"
+        },
+        createAiPlan = when (lang) {
+            "ru" -> "Создать план"
+            "be" -> "Стварыць план"
+            else -> "Create plan"
         }
     )
 }

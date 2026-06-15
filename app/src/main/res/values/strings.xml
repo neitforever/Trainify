@@ -580,4 +580,24 @@
     <string name="template_update_choose_next_text">Open Updated, Added, or Unchanged to review exercises before applying changes.</string>
     <string name="template_update_empty_section_title">No exercises here</string>
     <string name="template_update_empty_section_text">This section has no exercises for the selected workout.</string>
+    <string name="training_plan_week">Training plan</string>
+    <string name="training_plan_completed_format">%1$d of %2$d workouts completed</string>
+    <string name="create_ai_training_plan">Create AI plan</string>
+    <string name="next_planned_workout">Next workout</string>
+    <string name="planned_workout">Planned workout</string>
+    <string name="no_planned_workouts">No planned workouts</string>
+    <string name="ai_recommendation">AI recommendation</string>
+    <string name="ai_recommendation_no_plan">Create a weekly plan to make the calendar useful before training starts.</string>
+    <string name="ai_recommendation_start_history">Start with a light plan; the recommendation will improve after workout history appears.</string>
+    <string name="ai_recommendation_based_on_history">Plan the week with recovery gaps and avoid repeating the same load too often.</string>
+    <string name="plan_with_ai">Plan with AI</string>
+    <string name="training_day_sheet_subtitle">Day workout summary and planning actions</string>
+    <string name="planned_workouts">Planned workouts</string>
+    <string name="completed_workouts">Completed workouts</string>
+    <string name="plan_this_day">Plan this day</string>
+    <string name="ai_pick_workout_for_day">Pick workout for this day with AI</string>
+    <string name="create_manual_plan">Create manual plan</string>
+    <string name="choose_template">Choose template</string>
+    <string name="start_workout">Start workout</string>
+    <string name="skip">Skip</string>
 </resources>

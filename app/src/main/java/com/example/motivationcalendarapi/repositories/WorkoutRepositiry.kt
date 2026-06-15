@@ -26,6 +26,7 @@ class WorkoutRepository(
 ): ViewModel() {
 
     private val currentUser get() = auth.currentUser
+    val plannedWorkoutRepository = PlannedWorkoutRepository(appDatabase, PlannedWorkoutFirestoreRepository(), auth)
 
     private val rewardRepository = RewardRepository(appDatabase, RewardFirestoreRepository(), auth)
 
@@ -331,6 +332,7 @@ class WorkoutRepository(
         remoteData.forEach { appDatabase.workoutDao().insert(it) }
 
         rewardRepository.syncFromFirestore()
+        plannedWorkoutRepository.syncWithFirestore()
         val localData = appDatabase.workoutDao().getAllWorkouts().first()
         localData.forEach { firestoreRepo.insert(it) }
     }

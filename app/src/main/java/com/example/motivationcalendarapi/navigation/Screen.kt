@@ -23,6 +23,9 @@ sealed class Screen(
     // History
     object WorkoutHistory : Screen("workout_history", R.string.history)
     object WorkoutDetail : Screen("workout_detail", R.string.workout)
+    object PlannedWorkoutEditor : Screen("planned_workout_editor", R.string.workout)
+    object AiWorkoutPlanForDay : Screen("ai_workout_plan_for_day", R.string.ai_exercise_generation)
+    object TrainingPlanCreation : Screen("training_plan_creation", R.string.workout)
 
     // Exercises
     object ExercisesView : Screen("exercises", R.string.exercise)

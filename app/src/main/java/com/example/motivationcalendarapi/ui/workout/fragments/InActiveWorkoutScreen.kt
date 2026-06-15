@@ -20,6 +20,8 @@ import com.example.motivationcalendarapi.ui.workout.calendar.CustomCalendarView
 import com.example.motivationcalendarapi.utils.CalendarState
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +36,8 @@ fun InActiveWorkoutScreen(
         CalendarState(initialDate)
     }
     val workouts by workoutViewModel.allWorkouts.collectAsState()
+    val plannedWorkouts by workoutViewModel.plannedWorkouts.collectAsState()
+    val templates by workoutViewModel.templates.collectAsState(initial = emptyList())
     val shouldShowWeeklyRecapStartupLoading by workoutViewModel.shouldShowWeeklyRecapStartupLoading.collectAsState()
     val calendarState = rememberCalendarState()
     Column(
@@ -47,12 +51,33 @@ fun InActiveWorkoutScreen(
                 .padding(horizontal = 4.dp)
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
         CustomCalendarView(
             workouts = workouts,
+            plannedWorkouts = plannedWorkouts,
+            templates = templates,
             calendarState = calendarState,
             lang = lang,
             onWorkoutClick = { workoutId ->
                 navController.navigate("${Screen.WorkoutDetail.route}/$workoutId")
+            },
+            onCreateManualPlan = { date ->
+                val millis = date.atTime(LocalTime.of(18, 0)).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                navController.navigate("${Screen.PlannedWorkoutEditor.route}/$millis/new")
+            },
+            onCreateAiPlanForDay = { date ->
+                val millis = date.atTime(LocalTime.of(18, 0)).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                navController.navigate("${Screen.AiWorkoutPlanForDay.route}/$millis")
+            },
+            onCreatePlanFromTemplate = workoutViewModel::createPlannedWorkoutFromTemplate,
+            onStartPlannedWorkout = workoutViewModel::startWorkoutFromPlan,
+            onSkipPlannedWorkout = workoutViewModel::skipPlannedWorkout,
+            onDeletePlannedWorkout = workoutViewModel::deletePlannedWorkout,
+            onRestoreSkippedPlannedWorkout = workoutViewModel::restoreSkippedPlannedWorkout,
+            onMovePlannedWorkout = workoutViewModel::movePlannedWorkout,
+            onEditPlannedWorkout = { planned ->
+                navController.navigate("${Screen.PlannedWorkoutEditor.route}/${planned.date}/${planned.id}")
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -62,12 +87,14 @@ fun InActiveWorkoutScreen(
 
         InactiveWorkoutOverviewPager(
             workouts = workouts,
+            plannedWorkouts = plannedWorkouts,
             lang = lang,
             showWeeklyStartupLoading = shouldShowWeeklyRecapStartupLoading,
             onWeeklyStartupLoadingShown = workoutViewModel::markWeeklyRecapStartupLoadingShown,
             onWorkoutClick = { workoutId ->
                 navController.navigate("${Screen.WorkoutDetail.route}/$workoutId")
             },
+            onCreateAiPlan = { navController.navigate(Screen.TrainingPlanCreation.route) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 4.dp)

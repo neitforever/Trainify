@@ -82,6 +82,8 @@ import com.example.motivationcalendarapi.ui.settings.workout_settings.WorkoutSet
 import com.example.motivationcalendarapi.ui.template.TemplateDetailScreen
 import com.example.motivationcalendarapi.viewmodel.AiExerciseGenerationViewModel
 import com.example.motivationcalendarapi.viewmodel.AiTemplateGenerationViewModel
+import com.example.motivationcalendarapi.viewmodel.AiWorkoutPlanForDayViewModel
+import com.example.motivationcalendarapi.viewmodel.TrainingPlanCreationViewModel
 import com.example.motivationcalendarapi.viewmodel.AuthViewModel
 import com.example.motivationcalendarapi.viewmodel.BodyProgressViewModel
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
@@ -91,6 +93,9 @@ import com.example.motivationcalendarapi.viewmodel.EquipmentRecognitionViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutSettingsViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 import com.example.motivationcalendarapi.ui.workout.WorkoutScreen
+import com.example.motivationcalendarapi.ui.workout.planning.PlannedWorkoutEditorScreen
+import com.example.motivationcalendarapi.ui.workout.planning.AiWorkoutPlanForDayScreen
+import com.example.motivationcalendarapi.ui.workout.planning.TrainingPlanCreationBottomSheet
 import com.example.motivationcalendarapi.ui.workout.detail.WorkoutHistoryDetailScreen
 import com.example.motivationcalendarapi.viewmodel.MainViewModel
 import com.motivationcalendar.ui.WorkoutHistoryScreen
@@ -115,6 +120,8 @@ fun NavGraph(
     equipmentRecognitionViewModel: EquipmentRecognitionViewModel,
     aiExerciseGenerationViewModel: AiExerciseGenerationViewModel,
     aiTemplateGenerationViewModel: AiTemplateGenerationViewModel,
+    aiWorkoutPlanForDayViewModel: AiWorkoutPlanForDayViewModel,
+    trainingPlanCreationViewModel: TrainingPlanCreationViewModel,
     notificationSettingsViewModel: NotificationSettingsViewModel,
     lang: String
 ) {
@@ -379,6 +386,70 @@ fun NavGraph(
                             context = context
                         )
                     }
+                    composable(
+                        Screen.PlannedWorkoutEditor.route + "/{dateMillis}/{plannedWorkoutId}",
+                        arguments = listOf(
+                            navArgument("dateMillis") { type = NavType.LongType },
+                            navArgument("plannedWorkoutId") { type = NavType.StringType }
+                        )
+                    ) { backStackEntry ->
+                        PlannedWorkoutEditorScreen(
+                            dateMillis = backStackEntry.arguments?.getLong("dateMillis") ?: System.currentTimeMillis(),
+                            plannedWorkoutId = backStackEntry.arguments?.getString("plannedWorkoutId"),
+                            workoutViewModel = workoutViewModel,
+                            exerciseViewModel = exerciseViewModel,
+                            navController = navController,
+                            drawerState = drawerState,
+                            lang = lang
+                        )
+                    }
+                    composable(
+                        Screen.AiWorkoutPlanForDay.route + "/{dateMillis}",
+                        arguments = listOf(
+                            navArgument("dateMillis") { type = NavType.LongType }
+                        )
+                    ) { backStackEntry ->
+                        AiWorkoutPlanForDayScreen(
+                            dateMillis = backStackEntry.arguments?.getLong("dateMillis") ?: System.currentTimeMillis(),
+                            workoutViewModel = workoutViewModel,
+                            exerciseViewModel = exerciseViewModel,
+                            aiWorkoutPlanForDayViewModel = aiWorkoutPlanForDayViewModel,
+                            navController = navController,
+                            drawerState = drawerState,
+                            lang = lang
+                        )
+                    }
+
+                    composable(Screen.TrainingPlanCreation.route) {
+                        val templates by workoutViewModel.templates.collectAsState(initial = emptyList())
+                        val allExercises by exerciseViewModel.getAllExercises().collectAsState(initial = emptyList())
+                        TrainingPlanCreationBottomSheet(
+                            templates = templates,
+                            lang = lang,
+                            drawerState = drawerState,
+                            allExercises = allExercises,
+                            trainingPlanCreationViewModel = trainingPlanCreationViewModel,
+                            onDismiss = { navHostController.popBackStack() },
+                            onCreateAiPlan = { dates, prompt, selectedBodyParts, selectedEquipment, difficulty, exerciseCount, durationMinutes, aiReason, onComplete, onError ->
+                                workoutViewModel.createAiGeneratedTrainingPlanForDates(
+                                    dates = dates,
+                                    prompt = prompt,
+                                    selectedBodyParts = selectedBodyParts,
+                                    selectedEquipment = selectedEquipment,
+                                    difficulty = difficulty,
+                                    exerciseCount = exerciseCount,
+                                    durationMinutes = durationMinutes,
+                                    lang = lang,
+                                    localExercises = allExercises,
+                                    aiReasonBuilder = { aiReason },
+                                    onComplete = onComplete,
+                                    onError = onError
+                                )
+                            },
+                            onCreateTemplatePlan = workoutViewModel::createTemplatePlanForDates
+                        )
+                    }
+
                     composable(Screen.WorkoutHistory.route) {
 
                         WorkoutHistoryScreen(

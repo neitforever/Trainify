@@ -46,6 +46,10 @@ import androidx.compose.ui.unit.dp
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.DifficultyLevel
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.model.Template
+import com.example.motivationcalendarapi.model.planning.PlannedWorkout
+import com.example.motivationcalendarapi.model.planning.PlannedWorkoutSourceType
+import com.example.motivationcalendarapi.model.planning.PlannedWorkoutStatus
 import com.example.motivationcalendarapi.model.localizedName
 import com.example.motivationcalendarapi.ui.theme.EASY_COLOR
 import com.example.motivationcalendarapi.ui.theme.HARD_COLOR
@@ -54,6 +58,7 @@ import com.example.motivationcalendarapi.utils.CalendarState
 import com.example.motivationcalendarapi.utils.formatDate
 import com.example.motivationcalendarapi.utils.groupByLocalDate
 import com.example.motivationcalendarapi.utils.resolvedDifficulty
+import com.example.motivationcalendarapi.ui.workout.planning.TrainingDayPlanningBottomSheet
 import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
@@ -63,13 +68,23 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun CustomCalendarView(
     workouts: List<Workout>,
+    plannedWorkouts: List<PlannedWorkout>,
+    templates: List<Template>,
     calendarState: CalendarState,
     lang: String,
     onWorkoutClick: (String) -> Unit,
+    onCreateManualPlan: (LocalDate) -> Unit,
+    onCreateAiPlanForDay: (LocalDate) -> Unit,
+    onCreatePlanFromTemplate: (LocalDate, Template) -> Unit,
+    onStartPlannedWorkout: (PlannedWorkout) -> Unit,
+    onSkipPlannedWorkout: (String) -> Unit,
+    onDeletePlannedWorkout: (String) -> Unit,
+    onRestoreSkippedPlannedWorkout: (String) -> Unit,
+    onMovePlannedWorkout: (String, LocalDate) -> Unit,
+    onEditPlannedWorkout: (PlannedWorkout) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val currentMonth = calendarState.currentMonth.value
-    var selectedDayWorkouts by remember { mutableStateOf<List<Workout>>(emptyList()) }
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
     val initialPage = Int.MAX_VALUE / 2
@@ -79,19 +94,46 @@ fun CustomCalendarView(
         pageCount = { Int.MAX_VALUE }
     )
 
-    if (selectedDayWorkouts.size > 1 && selectedDate != null) {
-        WorkoutDaySelectionDialog(
-            date = selectedDate!!,
-            workouts = selectedDayWorkouts,
+    selectedDate?.let { currentSelectedDate ->
+        val liveCompletedWorkouts = workouts.groupByLocalDate()[currentSelectedDate].orEmpty()
+        val livePlannedWorkouts = plannedWorkouts.groupBy { planned ->
+            Instant.ofEpochMilli(planned.date).atZone(ZoneId.systemDefault()).toLocalDate()
+        }[currentSelectedDate].orEmpty()
+        TrainingDayPlanningBottomSheet(
+            date = currentSelectedDate,
+            completedWorkouts = liveCompletedWorkouts,
+            plannedWorkouts = livePlannedWorkouts,
+            templates = templates,
             lang = lang,
             onDismiss = {
-                selectedDayWorkouts = emptyList()
                 selectedDate = null
             },
-            onWorkoutClick = { workoutId ->
-                selectedDayWorkouts = emptyList()
+            onOpenWorkout = { workoutId ->
                 selectedDate = null
                 onWorkoutClick(workoutId)
+            },
+            onCreateManualPlan = {
+                onCreateManualPlan(currentSelectedDate)
+                selectedDate = null
+            },
+            onCreateAiPlanForDay = {
+                onCreateAiPlanForDay(currentSelectedDate)
+                selectedDate = null
+            },
+            onCreatePlanFromTemplate = { template ->
+                onCreatePlanFromTemplate(currentSelectedDate, template)
+            },
+            onStartPlannedWorkout = { plannedWorkout ->
+                selectedDate = null
+                onStartPlannedWorkout(plannedWorkout)
+            },
+            onSkipPlannedWorkout = onSkipPlannedWorkout,
+            onDeletePlannedWorkout = onDeletePlannedWorkout,
+            onRestoreSkippedPlannedWorkout = onRestoreSkippedPlannedWorkout,
+            onMovePlannedWorkout = onMovePlannedWorkout,
+            onEditPlannedWorkout = { plannedWorkout ->
+                selectedDate = null
+                onEditPlannedWorkout(plannedWorkout)
             }
         )
     }
@@ -122,10 +164,9 @@ fun CustomCalendarView(
         CalendarMonthGrid(
             month = targetYearMonth,
             workouts = workouts,
-            onWorkoutClick = onWorkoutClick,
-            onMultipleWorkoutsClick = { date, dayWorkouts ->
+            plannedWorkouts = plannedWorkouts,
+            onDayClick = { date, _, _ ->
                 selectedDate = date
-                selectedDayWorkouts = dayWorkouts
             }
         )
     }
@@ -135,8 +176,8 @@ fun CustomCalendarView(
 private fun CalendarMonthGrid(
     month: YearMonth,
     workouts: List<Workout>,
-    onWorkoutClick: (String) -> Unit,
-    onMultipleWorkoutsClick: (LocalDate, List<Workout>) -> Unit
+    plannedWorkouts: List<PlannedWorkout>,
+    onDayClick: (LocalDate, List<Workout>, List<PlannedWorkout>) -> Unit
 ) {
     val daysInMonth = month.lengthOfMonth()
     val firstDayOfMonth = month.atDay(1)
@@ -146,6 +187,11 @@ private fun CalendarMonthGrid(
         }
     }
     val workoutsByDate = remember(workouts) { workouts.groupByLocalDate() }
+    val plannedByDate = remember(plannedWorkouts) {
+        plannedWorkouts.groupBy { planned ->
+            Instant.ofEpochMilli(planned.date).atZone(ZoneId.systemDefault()).toLocalDate()
+        }
+    }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
@@ -155,18 +201,24 @@ private fun CalendarMonthGrid(
         items(days.size, key = { days[it].toString() }) { index ->
             val date = days[index]
             val dayWorkouts = workoutsByDate[date].orEmpty()
+            val dayPlans = plannedByDate[date].orEmpty()
+            val activePlans = dayPlans.filter { it.status == PlannedWorkoutStatus.PLANNED }
+            val hasAiPlan = activePlans.any {
+                it.sourceType == PlannedWorkoutSourceType.AI_GENERATED || it.sourceType == PlannedWorkoutSourceType.AI_RECOMMENDED
+            }
+            val hasManualPlan = activePlans.any { it.sourceType != PlannedWorkoutSourceType.AI_GENERATED && it.sourceType != PlannedWorkoutSourceType.AI_RECOMMENDED }
+            val hasSkippedPlan = dayPlans.any { it.status == PlannedWorkoutStatus.SKIPPED }
 
             CalendarDay(
                 day = date.dayOfMonth,
                 hasWorkout = dayWorkouts.isNotEmpty(),
+                hasManualPlan = hasManualPlan,
+                hasAiPlan = hasAiPlan,
+                hasSkippedPlan = hasSkippedPlan,
+                isToday = date == LocalDate.now(),
                 workoutCount = dayWorkouts.size,
-                onClick = {
-                    when (dayWorkouts.size) {
-                        0 -> Unit
-                        1 -> onWorkoutClick(dayWorkouts.first().id)
-                        else -> onMultipleWorkoutsClick(date, dayWorkouts)
-                    }
-                }
+                plannedCount = activePlans.size,
+                onClick = { onDayClick(date, dayWorkouts, dayPlans) }
             )
         }
     }

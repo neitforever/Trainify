@@ -601,4 +601,14 @@
     <string name="choose_template">Выбрать шаблон</string>
     <string name="start_workout">Начать тренировку</string>
     <string name="skip">Пропустить</string>
+    <string name="superset_short">СУПЕРСЕТ</string>
+    <string name="create_superset_with_next">Создать суперсет со следующим</string>
+    <string name="create_superset_with_previous">Создать суперсет с предыдущим</string>
+    <string name="remove_from_superset">Удалить из суперсета</string>
+    <string name="normal_set">Обычный подход</string>
+    <string name="drop_set">Дропсет</string>
+    <string name="cluster_set">Кластерный сет</string>
+    <string name="advanced_set_summary_format">Подход %1$d: %2$s</string>
+    <string name="superset_number_format">Суперсет %1$d</string>
+    <string name="superset_same_sets_hint">Одинаковое количество подходов</string>
 </resources>

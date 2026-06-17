@@ -597,4 +597,14 @@
     <string name="choose_template">Choose template</string>
     <string name="start_workout">Start workout</string>
     <string name="skip">Skip</string>
+    <string name="superset_short">SUPERSET</string>
+    <string name="create_superset_with_next">Create superset with next</string>
+    <string name="create_superset_with_previous">Create superset with previous</string>
+    <string name="remove_from_superset">Remove from superset</string>
+    <string name="normal_set">Normal set</string>
+    <string name="drop_set">Drop set</string>
+    <string name="cluster_set">Cluster set</string>
+    <string name="advanced_set_summary_format">Set %1$d: %2$s</string>
+    <string name="superset_number_format">Superset %1$d</string>
+    <string name="superset_same_sets_hint">Same number of sets</string>
 </resources>

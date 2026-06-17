@@ -191,13 +191,13 @@ fun FloatMetricInputDialog(
         },
         onDecrease = {
             inputText = formatMetricFloat(
-                snapFloatValue(stepBaseValue - safeStep, safeMin, safeMax, safeStep, scale),
+                roundToScale((stepBaseValue - safeStep).coerceIn(safeMin, safeMax), scale),
                 currentDisplayDecimals
             )
         },
         onIncrease = {
             inputText = formatMetricFloat(
-                snapFloatValue(stepBaseValue + safeStep, safeMin, safeMax, safeStep, scale),
+                roundToScale((stepBaseValue + safeStep).coerceIn(safeMin, safeMax), scale),
                 currentDisplayDecimals
             )
         },

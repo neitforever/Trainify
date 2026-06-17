@@ -1,6 +1,7 @@
 package com.example.motivationcalendarapi.ui.template
 
 import LoadingView
+import androidx.compose.animation.core.animateDpAsState
 import Screen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,8 +13,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -26,12 +29,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -55,8 +64,8 @@ import com.example.motivationcalendarapi.ui.template.fragments.AddExerciseTempla
 import com.example.motivationcalendarapi.ui.template.fragments.ExerciseTemplateItem
 import com.example.motivationcalendarapi.viewmodel.ExerciseViewModel
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
+import kotlinx.coroutines.delay
 import com.motivationcalendar.ui.RepsDialog
-import java.util.Collections
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +80,107 @@ fun TemplateDetailScreen(
     val template by workoutViewModel
         .getTemplateById(templateId ?: "")
         .collectAsState(initial = null)
+    val exerciseCardBounds = remember { mutableStateMapOf<Int, Rect>() }
+    val templateListState = rememberLazyListState()
+    var draggedExerciseIndex by remember { mutableStateOf<Int?>(null) }
+    var draggedExerciseY by remember { mutableStateOf<Float?>(null) }
+    var draggedExerciseStartY by remember { mutableStateOf<Float?>(null) }
+    var draggedExerciseFingerY by remember { mutableStateOf<Float?>(null) }
+    var draggedExerciseAnchorDeltaY by remember { mutableStateOf(0f) }
+    var draggedExerciseOffsetY by remember { mutableStateOf(0f) }
+    var draggedExerciseInsertIndex by remember { mutableStateOf<Int?>(null) }
+    var draggedExerciseMergeTargetIndex by remember { mutableStateOf<Int?>(null) }
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val autoScrollThresholdPx = with(density) { 96.dp.toPx() }
+    val autoScrollStepPx = with(density) { 36.dp.toPx() }
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+
+    fun resolveExerciseDrop(y: Float, exerciseCount: Int): Pair<Int?, Int> {
+        val exercises = template?.exercises.orEmpty()
+        val sourceIndex = draggedExerciseIndex
+        val draggedGroupId = sourceIndex?.let { exercises.getOrNull(it)?.supersetGroupId }
+        val draggedIndices = exercises.mapIndexedNotNull { index, item ->
+            when {
+                sourceIndex == null -> null
+                draggedGroupId != null && item.supersetGroupId == draggedGroupId -> index
+                index == sourceIndex -> index
+                else -> null
+            }
+        }.toSet()
+        val bounds = exerciseCardBounds.toList().sortedBy { it.second.top }
+        val targetIndex = bounds.firstOrNull { (index, rect) ->
+            index !in draggedIndices && y in (rect.top + rect.height * 0.28f)..(rect.bottom - rect.height * 0.28f)
+        }?.first
+        if (targetIndex != null) return targetIndex to targetIndex
+        val insertIndex = bounds.count { (_, rect) -> y > rect.center.y }.coerceIn(0, exerciseCount)
+        return null to insertIndex
+    }
+
+    fun updateExerciseDragPreview(y: Float, exerciseCount: Int) {
+        val (targetIndex, insertIndex) = resolveExerciseDrop(y, exerciseCount)
+        draggedExerciseMergeTargetIndex = targetIndex
+        draggedExerciseInsertIndex = if (targetIndex == null) insertIndex else null
+    }
+
+    fun draggedExerciseBlockBounds(sourceIndex: Int?, exercises: List<ExtendedExercise>): Rect? {
+        if (sourceIndex == null) return null
+        val sourceExercise = exercises.getOrNull(sourceIndex) ?: return exerciseCardBounds[sourceIndex]
+        val groupId = sourceExercise.supersetGroupId
+        val indices = if (groupId == null) {
+            listOf(sourceIndex)
+        } else {
+            exercises.mapIndexedNotNull { index, item -> if (item.supersetGroupId == groupId) index else null }
+        }
+        val bounds = indices.mapNotNull { exerciseCardBounds[it] }
+        if (bounds.isEmpty()) return exerciseCardBounds[sourceIndex]
+        return Rect(
+            left = bounds.minOf { it.left },
+            top = bounds.minOf { it.top },
+            right = bounds.maxOf { it.right },
+            bottom = bounds.maxOf { it.bottom }
+        )
+    }
+
+    fun visibleExerciseDragOffset(rawOffset: Float, sourceIndex: Int?, exercises: List<ExtendedExercise>): Float {
+        val bounds = draggedExerciseBlockBounds(sourceIndex, exercises) ?: return rawOffset
+        val topLimit = with(density) { 8.dp.toPx() }
+        val bottomLimit = screenHeightPx - with(density) { 8.dp.toPx() }
+        val minOffset = topLimit - bounds.top
+        val maxOffset = bottomLimit - bounds.bottom
+        val lower = minOf(minOffset, maxOffset)
+        val upper = maxOf(minOffset, maxOffset)
+        return rawOffset.coerceIn(lower, upper)
+    }
+
+    fun draggedExerciseDropY(sourceIndex: Int?, visibleOffset: Float, exercises: List<ExtendedExercise>): Float {
+        val bounds = draggedExerciseBlockBounds(sourceIndex, exercises)
+        return if (bounds != null) bounds.center.y + visibleOffset else draggedExerciseFingerY ?: 0f
+    }
+
+    LaunchedEffect(draggedExerciseIndex, draggedExerciseFingerY, template?.exercises?.size) {
+        val exerciseCount = template?.exercises?.size ?: 0
+        while (draggedExerciseIndex != null) {
+            val fingerY = draggedExerciseFingerY
+            val autoScrollDelta = when {
+                fingerY == null -> 0f
+                fingerY < autoScrollThresholdPx -> -autoScrollStepPx
+                fingerY > screenHeightPx - autoScrollThresholdPx -> autoScrollStepPx
+                else -> 0f
+            }
+            if (autoScrollDelta != 0f) {
+                templateListState.scrollBy(autoScrollDelta)
+                draggedExerciseFingerY?.let { currentFingerY ->
+                    val projectedCardCenterY = currentFingerY - draggedExerciseAnchorDeltaY
+                    draggedExerciseY = projectedCardCenterY
+                    updateExerciseDragPreview(projectedCardCenterY, exerciseCount)
+                }
+                delay(16L)
+            } else {
+                delay(32L)
+            }
+        }
+    }
 
     var templateNameDraft by remember(templateId, lang) { mutableStateOf("") }
     var templateNameFieldFocused by remember { mutableStateOf(false) }
@@ -159,6 +269,7 @@ fun TemplateDetailScreen(
             LoadingView()
         } else {
             LazyColumn(
+                state = templateListState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
@@ -188,6 +299,39 @@ fun TemplateDetailScreen(
 
                 template?.exercises?.let { exercises ->
                     itemsIndexed(exercises) { index, exercise ->
+                        val currentGroupId = exercise.supersetGroupId
+                        val isSupersetFirst = currentGroupId == null || index == 0 || exercises[index - 1].supersetGroupId != currentGroupId
+                        val isSupersetLast = currentGroupId == null || index == exercises.lastIndex || exercises[index + 1].supersetGroupId != currentGroupId
+                        val blockStart = if (currentGroupId == null) index else exercises.indexOfFirst { it.supersetGroupId == currentGroupId }
+                        val blockEnd = if (currentGroupId == null) index else exercises.indexOfLast { it.supersetGroupId == currentGroupId }
+                        val supersetNumber = currentGroupId?.let { groupId -> exercises.take(index + 1).mapNotNull { it.supersetGroupId }.distinct().indexOf(groupId) + 1 }
+
+                        val draggedIndex = draggedExerciseIndex
+                        val draggedGroupId = draggedIndex?.let { exercises.getOrNull(it)?.supersetGroupId }
+                        val isDraggedExercise = draggedIndex == index || (draggedGroupId != null && currentGroupId == draggedGroupId)
+                        val mergeTargetGroupId = draggedExerciseMergeTargetIndex?.let { exercises.getOrNull(it)?.supersetGroupId }
+                        val isExerciseMergeTarget = !isDraggedExercise && (draggedExerciseMergeTargetIndex == index || (mergeTargetGroupId != null && currentGroupId == mergeTargetGroupId))
+                        val exerciseDragVisualOffsetY = if (isDraggedExercise) {
+                            val projectedCenterY = draggedExerciseY
+                            val currentBlockBounds = draggedExerciseBlockBounds(draggedIndex, exercises)
+                            if (projectedCenterY != null && currentBlockBounds != null) {
+                                projectedCenterY - currentBlockBounds.center.y
+                            } else {
+                                0f
+                            }
+                        } else {
+                            0f
+                        }
+                        val canMoveExerciseUp = if (currentGroupId != null && index > blockStart) true else blockStart > 0
+                        val canMoveExerciseDown = if (currentGroupId != null && index < blockEnd) true else blockEnd < exercises.lastIndex
+
+                        val showInsertionGapBefore = draggedExerciseIndex != null && draggedExerciseInsertIndex == index
+                        val insertionGapBefore by animateDpAsState(
+                            targetValue = if (showInsertionGapBefore) 22.dp else 0.dp,
+                            label = "templateExerciseInsertGapBefore"
+                        )
+                        Spacer(modifier = Modifier.height(insertionGapBefore))
+
                         ExerciseTemplateItem(
                             index = index,
                             exercise = exercise,
@@ -204,28 +348,10 @@ fun TemplateDetailScreen(
                                 }
                             },
                             onMoveUp = {
-                                if (index > 0) {
-                                    val updated = exercises.toMutableList().apply {
-                                        Collections.swap(this, index, index - 1)
-                                    }
-
-                                    workoutViewModel.updateTemplateExercises(
-                                        template!!.id,
-                                        updated
-                                    )
-                                }
+                                template?.id?.let { workoutViewModel.moveTemplateExerciseUp(it, index) }
                             },
                             onMoveDown = {
-                                if (index < exercises.size - 1) {
-                                    val updated = exercises.toMutableList().apply {
-                                        Collections.swap(this, index, index + 1)
-                                    }
-
-                                    workoutViewModel.updateTemplateExercises(
-                                        template!!.id,
-                                        updated
-                                    )
-                                }
+                                template?.id?.let { workoutViewModel.moveTemplateExerciseDown(it, index) }
                             },
                             onAddSetClick = { exIndex ->
                                 template?.id?.let { id ->
@@ -278,13 +404,83 @@ fun TemplateDetailScreen(
                                     }
                                 }
                             },
-                            canMoveUp = index > 0,
-                            canMoveDown = index < exercises.size - 1,
+                            canMoveUp = canMoveExerciseUp,
+                            canMoveDown = canMoveExerciseDown,
+                            canCreateSupersetWithPrevious = blockStart > 0,
+                            canCreateSupersetWithNext = blockEnd < exercises.lastIndex,
                             navController = navController,
                             exerciseSets = exercise.sets,
                             workoutViewModel = workoutViewModel,
-                            lang = lang
+                            lang = lang,
+                            supersetLabel = supersetNumber?.let { stringResource(R.string.superset_number_format, it) },
+                            isSupersetFirst = isSupersetFirst,
+                            isSupersetLast = isSupersetLast,
+                            supersetBlockStartIndex = blockStart,
+                            supersetBlockEndIndex = blockEnd,
+                            isExerciseDragging = isDraggedExercise,
+                            isExerciseMergeTarget = isExerciseMergeTarget,
+                            exerciseDragOffsetY = exerciseDragVisualOffsetY,
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                val position = coordinates.positionInRoot()
+                                exerciseCardBounds[index] = Rect(
+                                    left = position.x,
+                                    top = position.y,
+                                    right = position.x + coordinates.size.width,
+                                    bottom = position.y + coordinates.size.height
+                                )
+                            },
+                            onExerciseDragStart = { dragIndex, offset ->
+                                draggedExerciseIndex = dragIndex
+                                draggedExerciseStartY = null
+                                draggedExerciseFingerY = null
+                                draggedExerciseAnchorDeltaY = 0f
+                                draggedExerciseOffsetY = 0f
+                                exerciseCardBounds[dragIndex]?.let { rect ->
+                                    val fingerY = rect.top + offset.y
+                                    val blockCenterY = draggedExerciseBlockBounds(dragIndex, exercises)?.center?.y ?: rect.center.y
+                                    draggedExerciseAnchorDeltaY = fingerY - blockCenterY
+                                    draggedExerciseStartY = fingerY
+                                    draggedExerciseFingerY = fingerY
+                                    draggedExerciseY = blockCenterY
+                                    updateExerciseDragPreview(blockCenterY, exercises.size)
+                                }
+                            },
+                            onExerciseDrag = { dragAmount ->
+                                val fingerY = (draggedExerciseFingerY ?: draggedExerciseStartY ?: 0f) + dragAmount.y
+                                draggedExerciseFingerY = fingerY
+
+                                val projectedCardCenterY = fingerY - draggedExerciseAnchorDeltaY
+                                updateExerciseDragPreview(projectedCardCenterY, exercises.size)
+
+                                draggedExerciseOffsetY = 0f
+                                draggedExerciseY = projectedCardCenterY
+                            },
+                            onExerciseDragEnd = {
+                                val sourceIndex = draggedExerciseIndex
+                                val dropY = draggedExerciseY
+                                val currentTemplateId = template?.id
+                                if (sourceIndex != null && dropY != null && currentTemplateId != null) {
+                                    val (targetIndex, insertIndex) = resolveExerciseDrop(dropY, exercises.size)
+                                    workoutViewModel.handleTemplateExerciseDragDrop(currentTemplateId, sourceIndex, targetIndex, insertIndex)
+                                }
+                                draggedExerciseIndex = null
+                                draggedExerciseY = null
+                                draggedExerciseStartY = null
+                                draggedExerciseFingerY = null
+                                draggedExerciseAnchorDeltaY = 0f
+                                draggedExerciseOffsetY = 0f
+                                draggedExerciseInsertIndex = null
+                                draggedExerciseMergeTargetIndex = null
+                            }
                         )
+                    }
+                    item {
+                        val showInsertionGapAfterLast = draggedExerciseIndex != null && draggedExerciseInsertIndex == exercises.size
+                        val insertionGapAfterLast by animateDpAsState(
+                            targetValue = if (showInsertionGapAfterLast) 22.dp else 0.dp,
+                            label = "templateExerciseInsertGapAfterLast"
+                        )
+                        Spacer(modifier = Modifier.height(insertionGapAfterLast))
                     }
                 }
 

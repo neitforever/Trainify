@@ -58,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -232,6 +233,13 @@ fun PlannedWorkoutEditorScreen(
             }
 
             selectedExercises.forEachIndexed { index, exercise ->
+                val currentGroupId = exercise.supersetGroupId
+                val isSupersetFirst = currentGroupId == null || index == 0 || selectedExercises[index - 1].supersetGroupId != currentGroupId
+                val isSupersetLast = currentGroupId == null || index == selectedExercises.lastIndex || selectedExercises[index + 1].supersetGroupId != currentGroupId
+                val blockStart = if (currentGroupId == null) index else selectedExercises.indexOfFirst { it.supersetGroupId == currentGroupId }
+                val blockEnd = if (currentGroupId == null) index else selectedExercises.indexOfLast { it.supersetGroupId == currentGroupId }
+                val supersetNumber = currentGroupId?.let { groupId -> selectedExercises.take(index + 1).mapNotNull { it.supersetGroupId }.distinct().indexOf(groupId) + 1 }
+
                 ExerciseCard(
                     index = index,
                     exercise = exercise,
@@ -244,11 +252,16 @@ fun PlannedWorkoutEditorScreen(
                     onTimeClick = { _, _ -> },
                     onResistanceClick = { _, _ -> },
                     onInclineClick = { _, _ -> },
-                    canMoveUp = index > 0,
-                    canMoveDown = index < selectedExercises.lastIndex,
+                    canMoveUp = blockStart > 0,
+                    canMoveDown = blockEnd < selectedExercises.lastIndex,
                     workoutViewModel = workoutViewModel,
                     navController = navController,
                     lang = lang,
+                    supersetLabel = supersetNumber?.let { stringResource(R.string.superset_number_format, it) },
+                    isSupersetFirst = isSupersetFirst,
+                    isSupersetLast = isSupersetLast,
+                    supersetBlockStartIndex = blockStart,
+                    supersetBlockEndIndex = blockEnd,
                     onDeleteExercise = { workoutViewModel.removeExercise(index) },
                     onDeleteSetClick = { exerciseIndex, setIndex -> workoutViewModel.removeExerciseSet(exerciseIndex, setIndex) },
                     showMaxSetMenu = false

@@ -13,6 +13,10 @@ import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.Template
 import com.example.motivationcalendarapi.model.Workout
+import com.example.motivationcalendarapi.model.newSupersetGroupId
+import com.example.motivationcalendarapi.model.toDefaultClusterSet
+import com.example.motivationcalendarapi.model.toDefaultDropSet
+import com.example.motivationcalendarapi.model.toNormalSet
 import com.example.motivationcalendarapi.model.planning.PlannedWorkout
 import com.example.motivationcalendarapi.model.planning.PlannedWorkoutSourceType
 import com.example.motivationcalendarapi.model.reward.RewardUiModel
@@ -42,7 +46,6 @@ import java.time.Month
 import java.time.ZoneId
 import java.time.LocalTime
 import java.util.Calendar
-import java.util.Collections
 
 class WorkoutViewModel(
     val workoutRepository: WorkoutRepository,
@@ -182,26 +185,53 @@ class WorkoutViewModel(
 
 
     fun removeExerciseSet(exerciseIndex: Int, setIndex: Int) {
+        val exercises = _selectedExercises.value
+        val targetExercise = exercises.getOrNull(exerciseIndex) ?: return
+        val targetGroupId = targetExercise.supersetGroupId
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
-        updatedMap[exerciseIndex]?.let { sets ->
-            if (setIndex in sets.indices) {
-                val newSets = sets.toMutableList().apply {
-                    removeAt(setIndex)
-                }
-                if (newSets.isEmpty()) {
-                    updatedMap.remove(exerciseIndex)
-                } else {
-                    updatedMap[exerciseIndex] = newSets
-                }
+        val targetIndices = if (targetGroupId != null) {
+            exercises.indices.filter { exercises[it].supersetGroupId == targetGroupId }
+        } else {
+            listOf(exerciseIndex)
+        }
+
+        targetIndices.forEach { index ->
+            val sets = updatedMap[index]?.toMutableList() ?: return@forEach
+            if (setIndex in sets.indices && sets.size > 1) {
+                sets.removeAt(setIndex)
+                updatedMap[index] = sets
             }
         }
+
         _exerciseSetsMap.value = updatedMap
-        persistActiveWorkout()
+        if (targetGroupId != null) normalizeActiveSupersetSetCounts(targetGroupId) else persistActiveWorkout()
     }
 
     fun removeTemplateSet(templateId: String, exerciseIndex: Int, setIndex: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            workoutRepository.removeTemplateSet(templateId, exerciseIndex, setIndex)
+            val template = workoutRepository.getTemplateById(templateId).first() ?: return@launch
+            val exercises = template.exercises.toMutableList()
+            val groupId = exercises.getOrNull(exerciseIndex)?.supersetGroupId
+            val targetIndices = if (groupId != null) {
+                exercises.indices.filter { exercises[it].supersetGroupId == groupId }
+            } else {
+                listOf(exerciseIndex)
+            }
+
+            targetIndices.forEach { index ->
+                val exercise = exercises.getOrNull(index) ?: return@forEach
+                if (setIndex in exercise.sets.indices && exercise.sets.size > 1) {
+                    exercises[index] = exercise.copy(sets = exercise.sets.toMutableList().apply { removeAt(setIndex) })
+                }
+            }
+
+            val normalized = if (groupId != null) normalizeTemplateSupersetSetCounts(exercises, groupId) else exercises
+            workoutRepository.updateTemplate(
+                template.copy(
+                    exercises = normalizeSupersetMetadata(normalized),
+                    timestamp = System.currentTimeMillis()
+                )
+            )
         }
     }
 
@@ -241,7 +271,10 @@ class WorkoutViewModel(
         viewModelScope.launch {
             val template = workoutRepository.getTemplateById(templateId).first()
             template?.let {
-                val updated = it.copy(exercises = newExercises)
+                val updated = it.copy(
+                    exercises = normalizeSupersetMetadata(normalizeTemplateAllSupersetSetCounts(newExercises)),
+                    timestamp = System.currentTimeMillis()
+                )
                 workoutRepository.updateTemplate(updated)
             }
         }
@@ -760,7 +793,7 @@ class WorkoutViewModel(
         workouts.filter { isInCurrentWeek(it.timestamp) }
             .sumOf { workout ->
                 workout.exercises.sumOf { exercise ->
-                    exercise.sets.filter { it.status != SetStatus.FAILED }.sumOf { it.weight * it.rep.toDouble() }
+                    exercise.sets.filter { it.status != SetStatus.FAILED }.sumOf { it.strengthVolume() }
                 }
             }.toFloat()
     }.stateIn(
@@ -801,7 +834,7 @@ class WorkoutViewModel(
             .filter { (cardType, set) ->
                 cardType == ExerciseCardType.STRENGTH && set.rep > 0 && set.weight > 0f
             }
-            .sumOf { (_, set) -> (set.weight * set.rep).toDouble() }
+            .sumOf { (_, set) -> set.strengthVolume() }
             .toFloat()
 
         val strengthWorkingSets = validSets.count { (cardType, set) ->
@@ -883,7 +916,7 @@ class WorkoutViewModel(
             exercise.sets
                 .filter { set -> set.status != SetStatus.FAILED }
                 .sumOf { set ->
-                    (set.weight * set.rep).toDouble()
+                    set.strengthVolume()
                 }
         }.toFloat()
     }
@@ -1275,7 +1308,14 @@ class WorkoutViewModel(
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         val sets = updatedMap[exerciseIndex]?.toMutableList() ?: return
         if (setIndex < sets.size) {
-            sets[setIndex] = sets[setIndex].copy(rep = newRep)
+            val current = sets[setIndex]
+            val syncedDropParts = if (current.dropSetParts.isNotEmpty()) {
+                current.dropSetParts.toMutableList().also { parts ->
+                    parts[0] = parts[0].copy(rep = newRep)
+                }
+            } else current.dropSetParts
+            val syncedCluster = current.clusterSetData?.copy(repsPerCluster = newRep.coerceAtLeast(1), clusterCount = 1)
+            sets[setIndex] = current.copy(rep = newRep, dropSetParts = syncedDropParts, clusterSetData = syncedCluster)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
             persistActiveWorkout()
@@ -1286,7 +1326,14 @@ class WorkoutViewModel(
         val updatedMap = _exerciseSetsMap.value.toMutableMap()
         val sets = updatedMap[exerciseIndex]?.toMutableList() ?: return
         if (setIndex < sets.size) {
-            sets[setIndex] = sets[setIndex].copy(weight = newWeight)
+            val current = sets[setIndex]
+            val syncedDropParts = if (current.dropSetParts.isNotEmpty()) {
+                current.dropSetParts.toMutableList().also { parts ->
+                    parts[0] = parts[0].copy(weight = newWeight)
+                }
+            } else current.dropSetParts
+            val syncedCluster = current.clusterSetData?.copy(weight = newWeight)
+            sets[setIndex] = current.copy(weight = newWeight, dropSetParts = syncedDropParts, clusterSetData = syncedCluster)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
             persistActiveWorkout()
@@ -1296,7 +1343,7 @@ class WorkoutViewModel(
     val totalKg: StateFlow<Float> =
         combine(selectedExercises, exerciseSetsMap) { exercises, setsMap ->
             exercises.indices.sumOf { index ->
-                setsMap[index]?.filter { it.status != SetStatus.FAILED }?.sumOf { it.weight.toDouble() * it.rep.toDouble() } ?: 0.0
+                setsMap[index]?.filter { it.status != SetStatus.FAILED }?.sumOf { it.strengthVolume() } ?: 0.0
             }.toFloat()
         }.stateIn(
             scope = viewModelScope,
@@ -1315,7 +1362,7 @@ class WorkoutViewModel(
             }
 
 
-        _selectedExercises.value = updatedExercises
+        _selectedExercises.value = normalizeSupersetMetadata(updatedExercises)
         _exerciseSetsMap.value = updatedMap
         persistActiveWorkout()
     }
@@ -1374,50 +1421,187 @@ class WorkoutViewModel(
         }
     }
 
+    private fun ExerciseSet.strengthVolume(): Double = when (type) {
+        com.example.motivationcalendarapi.model.ExerciseSetType.DROP_SET -> dropSetParts.sumOf { it.weight.toDouble() * it.rep.toDouble() }
+        com.example.motivationcalendarapi.model.ExerciseSetType.CLUSTER_SET -> {
+            val cluster = clusterSetData
+            if (cluster != null) cluster.weight.toDouble() * cluster.clusterCount.toDouble() * cluster.repsPerCluster.toDouble()
+            else weight.toDouble() * rep.toDouble()
+        }
+        com.example.motivationcalendarapi.model.ExerciseSetType.NORMAL -> weight.toDouble() * rep.toDouble()
+    }
+
+    fun updateActiveWorkoutSet(exerciseIndex: Int, setIndex: Int, newSet: ExerciseSet) {
+        val updatedMap = _exerciseSetsMap.value.toMutableMap()
+        val sets = updatedMap[exerciseIndex]?.toMutableList() ?: return
+        if (setIndex >= sets.size) return
+        sets[setIndex] = newSet
+        updatedMap[exerciseIndex] = sets
+        _exerciseSetsMap.value = updatedMap
+        persistActiveWorkout()
+    }
+
+    fun convertActiveWorkoutSetToNormal(exerciseIndex: Int, setIndex: Int) {
+        _exerciseSetsMap.value[exerciseIndex]?.getOrNull(setIndex)?.let {
+            updateActiveWorkoutSet(exerciseIndex, setIndex, it.toNormalSet())
+        }
+    }
+
+    fun convertActiveWorkoutSetToDropSet(exerciseIndex: Int, setIndex: Int) {
+        _exerciseSetsMap.value[exerciseIndex]?.getOrNull(setIndex)?.let {
+            updateActiveWorkoutSet(exerciseIndex, setIndex, it.toDefaultDropSet())
+        }
+    }
+
+    fun convertActiveWorkoutSetToClusterSet(exerciseIndex: Int, setIndex: Int) {
+        _exerciseSetsMap.value[exerciseIndex]?.getOrNull(setIndex)?.let {
+            updateActiveWorkoutSet(exerciseIndex, setIndex, it.toDefaultClusterSet())
+        }
+    }
+
+    private data class ExerciseWithSets(
+        val exercise: ExtendedExercise,
+        val sets: List<ExerciseSet>
+    )
+
+    private fun defaultSetForExercise(exercise: ExtendedExercise, lastSet: ExerciseSet? = null): ExerciseSet {
+        return when (exercise.exercise.getCardType()) {
+            ExerciseCardType.STRENGTH -> ExerciseSet(
+                rep = lastSet?.rep ?: minRep.value,
+                weight = lastSet?.weight ?: minWeight.value,
+                status = SetStatus.NONE
+            )
+            ExerciseCardType.BIKE -> ExerciseSet(
+                time = lastSet?.time ?: minCardioTime.value,
+                resistance = lastSet?.resistance ?: minResistance.value,
+                status = SetStatus.NONE
+            )
+            ExerciseCardType.TREADMILL -> ExerciseSet(
+                time = lastSet?.time ?: minCardioTime.value,
+                resistance = lastSet?.resistance ?: minResistance.value,
+                incline = lastSet?.incline ?: minIncline.value,
+                status = SetStatus.NONE
+            )
+        }
+    }
+
+    private fun normalizeSupersetMetadata(exercises: List<ExtendedExercise>): List<ExtendedExercise> {
+        val counts = exercises.mapNotNull { it.supersetGroupId }.groupingBy { it }.eachCount()
+        val orderByGroup = mutableMapOf<String, Int>()
+        return exercises.map { exercise ->
+            val groupId = exercise.supersetGroupId
+            if (groupId == null || (counts[groupId] ?: 0) < 2) {
+                exercise.copy(supersetGroupId = null, supersetOrder = null)
+            } else {
+                val order = orderByGroup.getOrDefault(groupId, 0)
+                orderByGroup[groupId] = order + 1
+                exercise.copy(supersetGroupId = groupId, supersetOrder = order)
+            }
+        }
+    }
+
+    private fun activePairs(): List<ExerciseWithSets> {
+        val map = _exerciseSetsMap.value
+        return _selectedExercises.value.mapIndexed { index, exercise ->
+            ExerciseWithSets(exercise, map[index] ?: exercise.sets)
+        }
+    }
+
+    private fun applyActivePairs(pairs: List<ExerciseWithSets>, persist: Boolean = true) {
+        _selectedExercises.value = normalizeSupersetMetadata(pairs.map { it.exercise })
+        _exerciseSetsMap.value = pairs.mapIndexed { index, pair -> index to pair.sets }.toMap()
+        if (persist) persistActiveWorkout()
+    }
+
+    private fun normalizeActiveSupersetSetCounts(groupId: String) {
+        val pairs = activePairs()
+        val targetCount = pairs
+            .filter { it.exercise.supersetGroupId == groupId }
+            .maxOfOrNull { it.sets.size }
+            ?.coerceAtLeast(1)
+            ?: return
+        val normalized = pairs.map { pair ->
+            if (pair.exercise.supersetGroupId != groupId) return@map pair
+            val result = pair.sets.toMutableList()
+            while (result.size < targetCount) {
+                result.add(defaultSetForExercise(pair.exercise, result.lastOrNull()))
+            }
+            ExerciseWithSets(pair.exercise, result)
+        }
+        applyActivePairs(normalized)
+    }
+
+    private fun mergeActiveExercisesIntoSuperset(firstIndex: Int, secondIndex: Int) {
+        val pairs = activePairs().toMutableList()
+        if (firstIndex !in pairs.indices || secondIndex !in pairs.indices) return
+        val firstGroup = pairs[firstIndex].exercise.supersetGroupId
+        val secondGroup = pairs[secondIndex].exercise.supersetGroupId
+        val groupId = firstGroup ?: secondGroup ?: newSupersetGroupId()
+        val firstExerciseId = pairs[firstIndex].exercise.exercise.id
+        val secondExerciseId = pairs[secondIndex].exercise.exercise.id
+        val merged = pairs.map { pair ->
+            val currentGroup = pair.exercise.supersetGroupId
+            if ((firstGroup != null && currentGroup == firstGroup) || (secondGroup != null && currentGroup == secondGroup) || pair.exercise.exercise.id == firstExerciseId || pair.exercise.exercise.id == secondExerciseId) {
+                pair.copy(exercise = pair.exercise.copy(supersetGroupId = groupId))
+            } else pair
+        }
+        applyActivePairs(merged)
+        normalizeActiveSupersetSetCounts(groupId)
+    }
+
+    fun createSupersetWithNext(exerciseIndex: Int) {
+        mergeActiveExercisesIntoSuperset(exerciseIndex, exerciseIndex + 1)
+    }
+
+    fun createSupersetWithPrevious(exerciseIndex: Int) {
+        mergeActiveExercisesIntoSuperset(exerciseIndex - 1, exerciseIndex)
+    }
+
+    fun removeExerciseFromSuperset(exerciseIndex: Int) {
+        val pairs = activePairs().toMutableList()
+        if (exerciseIndex !in pairs.indices) return
+        val groupId = pairs[exerciseIndex].exercise.supersetGroupId ?: return
+        val groupIndices = pairs.indices.filter { pairs[it].exercise.supersetGroupId == groupId }
+        if (groupIndices.size <= 2) {
+            groupIndices.forEach { index ->
+                pairs[index] = pairs[index].copy(
+                    exercise = pairs[index].exercise.copy(supersetGroupId = null, supersetOrder = null)
+                )
+            }
+            applyActivePairs(pairs)
+            return
+        }
+
+        val detached = pairs.removeAt(exerciseIndex).let { pair ->
+            pair.copy(exercise = pair.exercise.copy(supersetGroupId = null, supersetOrder = null))
+        }
+        val remainingGroupIndices = pairs.indices.filter { pairs[it].exercise.supersetGroupId == groupId }
+        val insertAfterGroup = (remainingGroupIndices.maxOrNull()?.plus(1) ?: pairs.size).coerceIn(0, pairs.size)
+        pairs.add(insertAfterGroup, detached)
+        applyActivePairs(pairs)
+    }
+
     fun addExerciseSet(exerciseIndex: Int) {
         viewModelScope.launch {
+            val exercises = _selectedExercises.value
+            val targetExercise = exercises.getOrNull(exerciseIndex) ?: return@launch
+            val targetGroupId = targetExercise.supersetGroupId
             val updatedMap = _exerciseSetsMap.value.toMutableMap()
-            val sets = updatedMap[exerciseIndex]?.toMutableList() ?: mutableListOf()
-
-            val exercise = _selectedExercises.value
-                .getOrNull(exerciseIndex)
-                ?.exercise
-
-            val cardType = exercise?.getCardType() ?: ExerciseCardType.STRENGTH
-
-            val lastSet = sets.lastOrNull()
-
-            val newSet = when (cardType) {
-                ExerciseCardType.STRENGTH -> {
-                    ExerciseSet(
-                        rep = lastSet?.rep ?: minRep.value,
-                        weight = lastSet?.weight ?: minWeight.value,
-                        status = SetStatus.NONE
-                    )
-                }
-
-                ExerciseCardType.BIKE -> {
-                    ExerciseSet(
-                        time = lastSet?.time ?: minCardioTime.value,
-                        resistance = lastSet?.resistance ?: minResistance.value,
-                        status = SetStatus.NONE
-                    )
-                }
-
-                ExerciseCardType.TREADMILL -> {
-                    ExerciseSet(
-                        time = lastSet?.time ?: minCardioTime.value,
-                        resistance = lastSet?.resistance ?: minResistance.value,
-                        incline = lastSet?.incline ?: minIncline.value,
-                        status = SetStatus.NONE
-                    )
-                }
+            val targetIndices = if (targetGroupId != null) {
+                exercises.indices.filter { exercises[it].supersetGroupId == targetGroupId }
+            } else {
+                listOf(exerciseIndex)
             }
 
-            sets.add(newSet)
-            updatedMap[exerciseIndex] = sets
+            targetIndices.forEach { index ->
+                val exercise = exercises[index]
+                val sets = updatedMap[index]?.toMutableList() ?: mutableListOf()
+                sets.add(defaultSetForExercise(exercise, sets.lastOrNull()))
+                updatedMap[index] = sets
+            }
+
             _exerciseSetsMap.value = updatedMap
-            persistActiveWorkout()
+            if (targetGroupId != null) normalizeActiveSupersetSetCounts(targetGroupId) else persistActiveWorkout()
         }
     }
 
@@ -1445,84 +1629,335 @@ class WorkoutViewModel(
         }
     }
 
-    fun addSetToTemplate(templateId: String, exerciseIndex: Int) {
-        viewModelScope.launch {
-            val template = workoutRepository
-                .getTemplateById(templateId)
-                .first()
-
-            val extendedExercise = template
-                ?.exercises
-                ?.getOrNull(exerciseIndex)
-                ?: return@launch
-
-            val cardType = extendedExercise.exercise.getCardType()
-            val lastSet = extendedExercise.sets.lastOrNull()
-
-            val newSet = when (cardType) {
-                ExerciseCardType.STRENGTH -> {
-                    ExerciseSet(
-                        rep = lastSet?.rep ?: minRep.value,
-                        weight = lastSet?.weight ?: minWeight.value,
-                        status = SetStatus.NONE
-                    )
-                }
-
-                ExerciseCardType.BIKE -> {
-                    ExerciseSet(
-                        time = lastSet?.time ?: minCardioTime.value,
-                        resistance = lastSet?.resistance ?: minResistance.value,
-                        status = SetStatus.NONE
-                    )
-                }
-
-                ExerciseCardType.TREADMILL -> {
-                    ExerciseSet(
-                        time = lastSet?.time ?: minCardioTime.value,
-                        resistance = lastSet?.resistance ?: minResistance.value,
-                        incline = lastSet?.incline ?: minIncline.value,
-                        status = SetStatus.NONE
-                    )
-                }
+    private fun normalizeTemplateSupersetSetCounts(exercises: List<ExtendedExercise>, groupId: String): List<ExtendedExercise> {
+        val targetCount = exercises
+            .filter { it.supersetGroupId == groupId }
+            .maxOfOrNull { it.sets.size }
+            ?.coerceAtLeast(1)
+            ?: return exercises
+        return exercises.map { exercise ->
+            if (exercise.supersetGroupId != groupId) return@map exercise
+            val result = exercise.sets.toMutableList()
+            while (result.size < targetCount) {
+                result.add(defaultSetForExercise(exercise, result.lastOrNull()))
             }
+            exercise.copy(sets = result)
+        }
+    }
 
-            workoutRepository.addSetToTemplate(
-                templateId = templateId,
-                exerciseIndex = exerciseIndex,
-                newSet = newSet
+    private fun normalizeTemplateAllSupersetSetCounts(exercises: List<ExtendedExercise>): List<ExtendedExercise> {
+        return exercises.mapNotNull { it.supersetGroupId }.distinct().fold(exercises) { current, groupId ->
+            normalizeTemplateSupersetSetCounts(current, groupId)
+        }
+    }
+
+    private suspend fun mergeTemplateExercisesIntoSuperset(templateId: String, firstIndex: Int, secondIndex: Int) {
+        val template = workoutRepository.getTemplateById(templateId).first() ?: return
+        val exercises = template.exercises.toMutableList()
+        if (firstIndex !in exercises.indices || secondIndex !in exercises.indices) return
+        val firstGroup = exercises[firstIndex].supersetGroupId
+        val secondGroup = exercises[secondIndex].supersetGroupId
+        val groupId = firstGroup ?: secondGroup ?: newSupersetGroupId()
+        val firstExerciseId = exercises[firstIndex].exercise.id
+        val secondExerciseId = exercises[secondIndex].exercise.id
+        val merged = exercises.map { exercise ->
+            val currentGroup = exercise.supersetGroupId
+            if ((firstGroup != null && currentGroup == firstGroup) || (secondGroup != null && currentGroup == secondGroup) || exercise.exercise.id == firstExerciseId || exercise.exercise.id == secondExerciseId) {
+                exercise.copy(supersetGroupId = groupId)
+            } else exercise
+        }
+        val normalized = normalizeTemplateSupersetSetCounts(merged, groupId)
+        workoutRepository.updateTemplate(
+            template.copy(
+                exercises = normalizeSupersetMetadata(normalized),
+                timestamp = System.currentTimeMillis()
+            )
+        )
+    }
+
+    fun createTemplateSupersetWithNext(templateId: String, exerciseIndex: Int) {
+        viewModelScope.launch {
+            mergeTemplateExercisesIntoSuperset(templateId, exerciseIndex, exerciseIndex + 1)
+        }
+    }
+
+    fun createTemplateSupersetWithPrevious(templateId: String, exerciseIndex: Int) {
+        viewModelScope.launch {
+            mergeTemplateExercisesIntoSuperset(templateId, exerciseIndex - 1, exerciseIndex)
+        }
+    }
+
+    fun removeTemplateExerciseFromSuperset(templateId: String, exerciseIndex: Int) {
+        viewModelScope.launch {
+            val template = workoutRepository.getTemplateById(templateId).first() ?: return@launch
+            val exercises = template.exercises.toMutableList()
+            if (exerciseIndex !in exercises.indices) return@launch
+            val groupId = exercises[exerciseIndex].supersetGroupId ?: return@launch
+            val groupIndices = exercises.indices.filter { exercises[it].supersetGroupId == groupId }
+            if (groupIndices.size <= 2) {
+                groupIndices.forEach { index ->
+                    exercises[index] = exercises[index].copy(supersetGroupId = null, supersetOrder = null)
+                }
+            } else {
+                val detached = exercises.removeAt(exerciseIndex)
+                    .copy(supersetGroupId = null, supersetOrder = null)
+                val remainingGroupIndices = exercises.indices.filter { exercises[it].supersetGroupId == groupId }
+                val insertAfterGroup = (remainingGroupIndices.maxOrNull()?.plus(1) ?: exercises.size).coerceIn(0, exercises.size)
+                exercises.add(insertAfterGroup, detached)
+            }
+            workoutRepository.updateTemplate(
+                template.copy(
+                    exercises = normalizeSupersetMetadata(normalizeTemplateAllSupersetSetCounts(exercises)),
+                    timestamp = System.currentTimeMillis()
+                )
             )
         }
     }
-    fun moveExerciseUp(index: Int) {
-        if (index <= 0) return
-        val exercises = _selectedExercises.value.toMutableList().apply {
-            Collections.swap(this, index, index - 1)
-        }
-        _selectedExercises.value = exercises
 
-        val updatedMap = _exerciseSetsMap.value.toMutableMap().apply {
-            val current = get(index)
-            val prev = get(index - 1)
-            put(index - 1, current ?: emptyList())
-            put(index, prev ?: emptyList())
+    fun addSetToTemplate(templateId: String, exerciseIndex: Int) {
+        viewModelScope.launch {
+            val template = workoutRepository.getTemplateById(templateId).first() ?: return@launch
+            val exercises = template.exercises.toMutableList()
+            val targetExercise = exercises.getOrNull(exerciseIndex) ?: return@launch
+            val groupId = targetExercise.supersetGroupId
+            val targetIndices = if (groupId != null) {
+                exercises.indices.filter { exercises[it].supersetGroupId == groupId }
+            } else {
+                listOf(exerciseIndex)
+            }
+
+            targetIndices.forEach { index ->
+                val exercise = exercises[index]
+                exercises[index] = exercise.copy(
+                    sets = exercise.sets + defaultSetForExercise(exercise, exercise.sets.lastOrNull())
+                )
+            }
+
+            val normalized = if (groupId != null) normalizeTemplateSupersetSetCounts(exercises, groupId) else exercises
+            workoutRepository.updateTemplate(
+                template.copy(
+                    exercises = normalizeSupersetMetadata(normalized),
+                    timestamp = System.currentTimeMillis()
+                )
+            )
         }
-        _exerciseSetsMap.value = updatedMap
+    }
+    private fun groupBoundsFor(exercises: List<ExtendedExercise>, index: Int): IntRange {
+        if (index !in exercises.indices) return 1..0
+        val groupId = exercises[index].supersetGroupId ?: return index..index
+        var start = index
+        var end = index
+        while (start > 0 && exercises[start - 1].supersetGroupId == groupId) start--
+        while (end < exercises.lastIndex && exercises[end + 1].supersetGroupId == groupId) end++
+        return start..end
+    }
+
+    private fun moveActiveBlock(index: Int, direction: Int) {
+        val pairs = activePairs()
+        if (index !in pairs.indices) return
+        val exercises = pairs.map { it.exercise }
+        val bounds = groupBoundsFor(exercises, index)
+        if (bounds.isEmpty()) return
+
+        val groupId = exercises[index].supersetGroupId
+        if (groupId != null) {
+            val canMoveInsideUp = direction < 0 && index > bounds.first
+            val canMoveInsideDown = direction > 0 && index < bounds.last
+            if (canMoveInsideUp || canMoveInsideDown) {
+                val reordered = pairs.toMutableList()
+                val swapIndex = index + if (direction < 0) -1 else 1
+                val current = reordered[index]
+                reordered[index] = reordered[swapIndex]
+                reordered[swapIndex] = current
+                applyActivePairs(reordered)
+                return
+            }
+        }
+
+        val insertIndex = if (direction < 0) {
+            if (bounds.first == 0) return
+            val targetBounds = groupBoundsFor(exercises, bounds.first - 1)
+            targetBounds.first
+        } else {
+            if (bounds.last == pairs.lastIndex) return
+            val targetBounds = groupBoundsFor(exercises, bounds.last + 1)
+            targetBounds.last + 1
+        }
+
+        val block = pairs.subList(bounds.first, bounds.last + 1)
+        val remaining = pairs.filterIndexed { pairIndex, _ -> pairIndex !in bounds }
+        val adjustedInsertIndex = if (direction < 0) insertIndex else insertIndex - block.size
+        val reordered = remaining.toMutableList().apply {
+            addAll(adjustedInsertIndex, block)
+        }
+        applyActivePairs(reordered)
+    }
+
+    fun moveExerciseUp(index: Int) {
+        moveActiveBlock(index, direction = -1)
     }
 
     fun moveExerciseDown(index: Int) {
-        if (index >= _selectedExercises.value.size - 1) return
-        val exercises = _selectedExercises.value.toMutableList().apply {
-            Collections.swap(this, index, index + 1)
-        }
-        _selectedExercises.value = exercises
+        moveActiveBlock(index, direction = 1)
+    }
 
-        val updatedMap = _exerciseSetsMap.value.toMutableMap().apply {
-            val current = get(index)
-            val next = get(index + 1)
-            put(index + 1, current ?: emptyList())
-            put(index, next ?: emptyList())
+    fun moveTemplateExerciseUp(templateId: String, index: Int) {
+        viewModelScope.launch {
+            moveTemplateExerciseBlock(templateId, index, direction = -1)
         }
-        _exerciseSetsMap.value = updatedMap
+    }
+
+    fun moveTemplateExerciseDown(templateId: String, index: Int) {
+        viewModelScope.launch {
+            moveTemplateExerciseBlock(templateId, index, direction = 1)
+        }
+    }
+
+    private suspend fun moveTemplateExerciseBlock(templateId: String, index: Int, direction: Int) {
+        val template = workoutRepository.getTemplateById(templateId).first() ?: return
+        val exercises = template.exercises
+        if (index !in exercises.indices) return
+        val bounds = groupBoundsFor(exercises, index)
+        if (bounds.isEmpty()) return
+
+        val groupId = exercises[index].supersetGroupId
+        if (groupId != null) {
+            val canMoveInsideUp = direction < 0 && index > bounds.first
+            val canMoveInsideDown = direction > 0 && index < bounds.last
+            if (canMoveInsideUp || canMoveInsideDown) {
+                val reordered = exercises.toMutableList()
+                val swapIndex = index + if (direction < 0) -1 else 1
+                val current = reordered[index]
+                reordered[index] = reordered[swapIndex]
+                reordered[swapIndex] = current
+                workoutRepository.updateTemplate(
+                    template.copy(
+                        exercises = normalizeSupersetMetadata(normalizeTemplateAllSupersetSetCounts(reordered)),
+                        timestamp = System.currentTimeMillis()
+                    )
+                )
+                return
+            }
+        }
+
+        val insertIndex = if (direction < 0) {
+            if (bounds.first == 0) return
+            val targetBounds = groupBoundsFor(exercises, bounds.first - 1)
+            targetBounds.first
+        } else {
+            if (bounds.last == exercises.lastIndex) return
+            val targetBounds = groupBoundsFor(exercises, bounds.last + 1)
+            targetBounds.last + 1
+        }
+        val block = exercises.subList(bounds.first, bounds.last + 1)
+        val remaining = exercises.filterIndexed { exerciseIndex, _ -> exerciseIndex !in bounds }
+        val adjustedInsertIndex = if (direction < 0) insertIndex else insertIndex - block.size
+        val reordered = remaining.toMutableList().apply { addAll(adjustedInsertIndex, block) }
+        workoutRepository.updateTemplate(
+            template.copy(
+                exercises = normalizeSupersetMetadata(normalizeTemplateAllSupersetSetCounts(reordered)),
+                timestamp = System.currentTimeMillis()
+            )
+        )
+    }
+
+
+    private fun normalizeInsertionIndex(insertIndex: Int, size: Int): Int = insertIndex.coerceIn(0, size)
+
+    private fun moveBlockToIndex(pairs: List<ExerciseWithSets>, sourceBounds: IntRange, insertIndex: Int): List<ExerciseWithSets> {
+        if (sourceBounds.isEmpty()) return pairs
+        val block = pairs.subList(sourceBounds.first, sourceBounds.last + 1)
+        val remaining = pairs.filterIndexed { index, _ -> index !in sourceBounds }
+        val adjustedInsertIndex = if (insertIndex > sourceBounds.last) insertIndex - block.size else insertIndex
+        return remaining.toMutableList().apply {
+            addAll(normalizeInsertionIndex(adjustedInsertIndex, remaining.size), block)
+        }
+    }
+
+    private fun mergeActiveBlocksIntoSuperset(sourceIndex: Int, targetIndex: Int) {
+        val pairs = activePairs()
+        if (sourceIndex !in pairs.indices || targetIndex !in pairs.indices) return
+        val sourceBounds = groupBoundsFor(pairs.map { it.exercise }, sourceIndex)
+        val targetBounds = groupBoundsFor(pairs.map { it.exercise }, targetIndex)
+        if (sourceBounds.isEmpty() || targetBounds.isEmpty() || sourceBounds == targetBounds) return
+
+        val sourceGroupId = pairs[sourceIndex].exercise.supersetGroupId
+        val targetGroupId = pairs[targetIndex].exercise.supersetGroupId
+        val groupId = targetGroupId ?: sourceGroupId ?: newSupersetGroupId()
+        val sourceBlock = pairs.subList(sourceBounds.first, sourceBounds.last + 1)
+        val targetBlock = pairs.subList(targetBounds.first, targetBounds.last + 1)
+        val combined = if (sourceBounds.first < targetBounds.first) sourceBlock + targetBlock else targetBlock + sourceBlock
+        val mergedBlock = combined.map { pair ->
+            pair.copy(exercise = pair.exercise.copy(supersetGroupId = groupId))
+        }
+        val remaining = pairs.filterIndexed { index, _ -> index !in sourceBounds && index !in targetBounds }.toMutableList()
+        val insertAt = minOf(sourceBounds.first, targetBounds.first).coerceIn(0, remaining.size)
+        val reordered = remaining.apply { addAll(insertAt, mergedBlock) }
+        applyActivePairs(reordered, persist = false)
+        normalizeActiveSupersetSetCounts(groupId)
+    }
+
+    fun handleActiveExerciseDragDrop(sourceIndex: Int, targetIndex: Int?, insertIndex: Int) {
+        val pairs = activePairs()
+        if (sourceIndex !in pairs.indices) return
+        if (targetIndex != null && targetIndex in pairs.indices) {
+            mergeActiveBlocksIntoSuperset(sourceIndex, targetIndex)
+            return
+        }
+        val sourceBounds = groupBoundsFor(pairs.map { it.exercise }, sourceIndex)
+        if (insertIndex in sourceBounds || insertIndex == sourceBounds.last + 1) return
+        applyActivePairs(moveBlockToIndex(pairs, sourceBounds, insertIndex))
+    }
+
+    private fun moveTemplateBlockToIndex(exercises: List<ExtendedExercise>, sourceBounds: IntRange, insertIndex: Int): List<ExtendedExercise> {
+        if (sourceBounds.isEmpty()) return exercises
+        val block = exercises.subList(sourceBounds.first, sourceBounds.last + 1)
+        val remaining = exercises.filterIndexed { index, _ -> index !in sourceBounds }
+        val adjustedInsertIndex = if (insertIndex > sourceBounds.last) insertIndex - block.size else insertIndex
+        return remaining.toMutableList().apply {
+            addAll(normalizeInsertionIndex(adjustedInsertIndex, remaining.size), block)
+        }
+    }
+
+    private fun mergeTemplateBlocksIntoSuperset(template: Template, sourceIndex: Int, targetIndex: Int): List<ExtendedExercise> {
+        val exercises = template.exercises
+        if (sourceIndex !in exercises.indices || targetIndex !in exercises.indices) return exercises
+        val sourceBounds = groupBoundsFor(exercises, sourceIndex)
+        val targetBounds = groupBoundsFor(exercises, targetIndex)
+        if (sourceBounds.isEmpty() || targetBounds.isEmpty() || sourceBounds == targetBounds) return exercises
+
+        val sourceGroupId = exercises[sourceIndex].supersetGroupId
+        val targetGroupId = exercises[targetIndex].supersetGroupId
+        val groupId = targetGroupId ?: sourceGroupId ?: newSupersetGroupId()
+        val sourceBlock = exercises.subList(sourceBounds.first, sourceBounds.last + 1)
+        val targetBlock = exercises.subList(targetBounds.first, targetBounds.last + 1)
+        val combined = if (sourceBounds.first < targetBounds.first) sourceBlock + targetBlock else targetBlock + sourceBlock
+        val mergedBlock = combined.map { exercise -> exercise.copy(supersetGroupId = groupId) }
+        val remaining = exercises.filterIndexed { index, _ -> index !in sourceBounds && index !in targetBounds }.toMutableList()
+        val insertAt = minOf(sourceBounds.first, targetBounds.first).coerceIn(0, remaining.size)
+        val reordered = remaining.apply { addAll(insertAt, mergedBlock) }
+        return normalizeTemplateSupersetSetCounts(reordered, groupId)
+    }
+
+    fun handleTemplateExerciseDragDrop(templateId: String, sourceIndex: Int, targetIndex: Int?, insertIndex: Int) {
+        viewModelScope.launch {
+            val template = workoutRepository.getTemplateById(templateId).first() ?: return@launch
+            val exercises = template.exercises
+            if (sourceIndex !in exercises.indices) return@launch
+            val updated = if (targetIndex != null && targetIndex in exercises.indices) {
+                mergeTemplateBlocksIntoSuperset(template, sourceIndex, targetIndex)
+            } else {
+                val sourceBounds = groupBoundsFor(exercises, sourceIndex)
+                if (insertIndex in sourceBounds || insertIndex == sourceBounds.last + 1) return@launch
+                moveTemplateBlockToIndex(exercises, sourceBounds, insertIndex)
+            }
+            workoutRepository.updateTemplate(
+                template.copy(
+                    exercises = normalizeSupersetMetadata(normalizeTemplateAllSupersetSetCounts(updated)),
+                    timestamp = System.currentTimeMillis()
+                )
+            )
+        }
     }
 
 }

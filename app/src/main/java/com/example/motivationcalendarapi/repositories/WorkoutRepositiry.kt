@@ -196,10 +196,11 @@ class WorkoutRepository(
                 }
             }
 
-            appDatabase.templateDao().insert(it.copy(exercises = updatedExercises))
+            val updatedTemplate = it.copy(exercises = updatedExercises, timestamp = System.currentTimeMillis())
+            appDatabase.templateDao().insert(updatedTemplate)
 
             if (currentUser != null) {
-                templateFirestoreRepo.update(it.copy(exercises = updatedExercises))
+                templateFirestoreRepo.update(updatedTemplate)
             }
         }
     }
@@ -218,10 +219,11 @@ class WorkoutRepository(
                 }
             }
 
-            appDatabase.templateDao().insert(it.copy(exercises = updatedExercises))
+            val updatedTemplate = it.copy(exercises = updatedExercises, timestamp = System.currentTimeMillis())
+            appDatabase.templateDao().insert(updatedTemplate)
 
             if (currentUser != null) {
-                templateFirestoreRepo.update(it.copy(exercises = updatedExercises))
+                templateFirestoreRepo.update(updatedTemplate)
             }
         }
     }

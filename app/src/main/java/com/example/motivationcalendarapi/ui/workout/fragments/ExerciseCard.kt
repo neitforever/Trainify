@@ -1,8 +1,11 @@
 package com.motivationcalendar.ui
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +17,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,20 +36,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.ExerciseCardType
 import com.example.motivationcalendarapi.model.ExerciseSet
+import com.example.motivationcalendarapi.model.ExerciseSetType
 import com.example.motivationcalendarapi.model.ExtendedExercise
 import com.example.motivationcalendarapi.model.SetStatus
 import com.example.motivationcalendarapi.model.getCardType
+import com.example.motivationcalendarapi.model.toDefaultClusterSet
+import com.example.motivationcalendarapi.model.toDefaultDropSet
+import com.example.motivationcalendarapi.model.toNormalSet
 import com.example.motivationcalendarapi.ui.fragments.StatusIcon
 import com.example.motivationcalendarapi.ui.workout.fragments.NoteBottomSheet
 import com.example.motivationcalendarapi.utils.formatCompactDecimal
@@ -66,13 +80,31 @@ fun ExerciseCard(
     onInclineClick: (Int, Int) -> Unit,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
+    canCreateSupersetWithPrevious: Boolean = canMoveUp,
+    canCreateSupersetWithNext: Boolean = canMoveDown,
     workoutViewModel: WorkoutViewModel,
     navController: NavController,
     lang: String,
     onDeleteExercise: (() -> Unit)? = null,
     onSetStatusClick: ((Int, Int, SetStatus) -> Unit)? = null,
     onDeleteSetClick: ((Int, Int) -> Unit)? = null,
-    showMaxSetMenu: Boolean = true
+    showMaxSetMenu: Boolean = true,
+    onSetTechniqueClick: ((Int, Int, ExerciseSet) -> Unit)? = null,
+    onCreateSupersetWithNext: ((Int) -> Unit)? = null,
+    onCreateSupersetWithPrevious: ((Int) -> Unit)? = null,
+    onRemoveFromSuperset: ((Int) -> Unit)? = null,
+    supersetLabel: String? = null,
+    isSupersetFirst: Boolean = true,
+    isSupersetLast: Boolean = true,
+    supersetBlockStartIndex: Int = index,
+    supersetBlockEndIndex: Int = index,
+    modifier: Modifier = Modifier,
+    isExerciseDragging: Boolean = false,
+    isExerciseMergeTarget: Boolean = false,
+    exerciseDragOffsetY: Float = 0f,
+    onExerciseDragStart: ((Int, Offset) -> Unit)? = null,
+    onExerciseDrag: ((Offset) -> Unit)? = null,
+    onExerciseDragEnd: (() -> Unit)? = null
 ) {
     val isExpanded = remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
@@ -97,8 +129,58 @@ fun ExerciseCard(
         exercise.copy(exercise = exercise.exercise.copy(note = localNote))
     }
 
+    val isSupersetCard = exercise.supersetGroupId != null
+    val cardShape = if (isSupersetCard) {
+        RoundedCornerShape(
+            topStart = if (isSupersetFirst) 28.dp else 6.dp,
+            topEnd = if (isSupersetFirst) 28.dp else 6.dp,
+            bottomStart = if (isSupersetLast) 28.dp else 6.dp,
+            bottomEnd = if (isSupersetLast) 28.dp else 6.dp
+        )
+    } else {
+        MaterialTheme.shapes.medium
+    }
+
+    val dragContainerColor by animateColorAsState(
+        targetValue = when {
+            isExerciseDragging -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f)
+            isExerciseMergeTarget -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.72f)
+            else -> MaterialTheme.colorScheme.surface
+        },
+        label = "exerciseDragContainerColor"
+    )
+    val cardColors = if (isExerciseDragging || isExerciseMergeTarget) {
+        CardDefaults.cardColors(containerColor = dragContainerColor)
+    } else {
+        CardDefaults.cardColors()
+    }
+
     Card(
-        modifier = Modifier.padding(vertical = 8.dp)
+        modifier = modifier
+            .zIndex(if (isExerciseDragging) 1f else 0f)
+            .graphicsLayer {
+                translationY = exerciseDragOffsetY
+                alpha = if (isExerciseDragging) 0.96f else 1f
+                shadowElevation = if (isExerciseDragging) 18f else 0f
+            }
+            .pointerInput(index) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { offset -> onExerciseDragStart?.invoke(index, offset) },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        onExerciseDrag?.invoke(dragAmount)
+                    },
+                    onDragEnd = { onExerciseDragEnd?.invoke() },
+                    onDragCancel = { onExerciseDragEnd?.invoke() }
+                )
+            }
+            .padding(
+                top = if (isSupersetCard && !isSupersetFirst) 1.dp else 8.dp,
+                bottom = if (isSupersetCard && !isSupersetLast) 1.dp else 8.dp
+            ),
+        shape = cardShape,
+        border = null,
+        colors = cardColors
     ) {
         Column(
             modifier = Modifier
@@ -106,6 +188,16 @@ fun ExerciseCard(
                 .padding(top = 8.dp, bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (isSupersetCard && isSupersetFirst && supersetLabel != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TechniqueBadge(text = supersetLabel)
+                }
+            }
             // Верхняя
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -213,6 +305,36 @@ fun ExerciseCard(
                             showMenu = false
                         })
 
+                        if (canCreateSupersetWithPrevious) {
+                            DropdownMenuItem(
+                                text = { StatusMenuRow(iconRes = R.drawable.ic_add_circle, text = stringResource(R.string.create_superset_with_previous)) },
+                                onClick = {
+                                    onCreateSupersetWithPrevious?.invoke(supersetBlockStartIndex) ?: workoutViewModel.createSupersetWithPrevious(supersetBlockStartIndex)
+                                    showMenu = false
+                                }
+                            )
+                        }
+
+                        if (canCreateSupersetWithNext) {
+                            DropdownMenuItem(
+                                text = { StatusMenuRow(iconRes = R.drawable.ic_add_circle, text = stringResource(R.string.create_superset_with_next)) },
+                                onClick = {
+                                    onCreateSupersetWithNext?.invoke(supersetBlockEndIndex) ?: workoutViewModel.createSupersetWithNext(supersetBlockEndIndex)
+                                    showMenu = false
+                                }
+                            )
+                        }
+
+                        if (exercise.supersetGroupId != null) {
+                            DropdownMenuItem(
+                                text = { StatusMenuRow(iconRes = R.drawable.ic_close, text = stringResource(R.string.remove_from_superset)) },
+                                onClick = {
+                                    onRemoveFromSuperset?.invoke(index) ?: workoutViewModel.removeExerciseFromSuperset(index)
+                                    showMenu = false
+                                }
+                            )
+                        }
+
                         if (maxSet != null) {
                             DropdownMenuItem(
                                 text = {
@@ -255,7 +377,8 @@ fun ExerciseCard(
                     onWeightClick = onWeightClick,
                     workoutViewModel = workoutViewModel,
                     onSetStatusClick = onSetStatusClick,
-                    onDeleteSetClick = onDeleteSetClick
+                    onDeleteSetClick = onDeleteSetClick,
+                    onSetTechniqueClick = onSetTechniqueClick
                 )
             }
 
@@ -267,7 +390,8 @@ fun ExerciseCard(
                     onResistanceClick = onResistanceClick,
                     workoutViewModel = workoutViewModel,
                     onSetStatusClick = onSetStatusClick,
-                    onDeleteSetClick = onDeleteSetClick
+                    onDeleteSetClick = onDeleteSetClick,
+                    onSetTechniqueClick = onSetTechniqueClick
                 )
             }
 
@@ -280,7 +404,8 @@ fun ExerciseCard(
                     onInclineClick = onInclineClick,
                     workoutViewModel = workoutViewModel,
                     onSetStatusClick = onSetStatusClick,
-                    onDeleteSetClick = onDeleteSetClick
+                    onDeleteSetClick = onDeleteSetClick,
+                    onSetTechniqueClick = onSetTechniqueClick
                 )
             }
         }
@@ -359,7 +484,8 @@ private fun StrengthSetsTable(
     onWeightClick: (Int, Int) -> Unit,
     workoutViewModel: WorkoutViewModel,
     onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
-    onDeleteSetClick: ((Int, Int) -> Unit)?
+    onDeleteSetClick: ((Int, Int) -> Unit)?,
+    onSetTechniqueClick: ((Int, Int, ExerciseSet) -> Unit)?
 ) {
     SetsTable(
         index = index,
@@ -378,7 +504,9 @@ private fun StrengthSetsTable(
         ),
         workoutViewModel = workoutViewModel,
         onSetStatusClick = onSetStatusClick,
-        onDeleteSetClick = onDeleteSetClick
+        onDeleteSetClick = onDeleteSetClick,
+        onSetTechniqueClick = onSetTechniqueClick,
+        allowAdvancedSetTechnique = true
     )
 }
 
@@ -390,7 +518,8 @@ private fun BikeSetsTable(
     onResistanceClick: (Int, Int) -> Unit,
     workoutViewModel: WorkoutViewModel,
     onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
-    onDeleteSetClick: ((Int, Int) -> Unit)?
+    onDeleteSetClick: ((Int, Int) -> Unit)?,
+    onSetTechniqueClick: ((Int, Int, ExerciseSet) -> Unit)?
 ) {
     SetsTable(
         index = index,
@@ -409,7 +538,9 @@ private fun BikeSetsTable(
         ),
         workoutViewModel = workoutViewModel,
         onSetStatusClick = onSetStatusClick,
-        onDeleteSetClick = onDeleteSetClick
+        onDeleteSetClick = onDeleteSetClick,
+        onSetTechniqueClick = onSetTechniqueClick,
+        allowAdvancedSetTechnique = false
     )
 }
 
@@ -422,7 +553,8 @@ private fun TreadmillSetsTable(
     onInclineClick: (Int, Int) -> Unit,
     workoutViewModel: WorkoutViewModel,
     onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
-    onDeleteSetClick: ((Int, Int) -> Unit)?
+    onDeleteSetClick: ((Int, Int) -> Unit)?,
+    onSetTechniqueClick: ((Int, Int, ExerciseSet) -> Unit)?
 ) {
     SetsTable(
         index = index,
@@ -446,7 +578,9 @@ private fun TreadmillSetsTable(
         ),
         workoutViewModel = workoutViewModel,
         onSetStatusClick = onSetStatusClick,
-        onDeleteSetClick = onDeleteSetClick
+        onDeleteSetClick = onDeleteSetClick,
+        onSetTechniqueClick = onSetTechniqueClick,
+        allowAdvancedSetTechnique = false
     )
 }
 
@@ -463,7 +597,9 @@ private fun SetsTable(
     columns: List<TableColumn>,
     workoutViewModel: WorkoutViewModel,
     onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
-    onDeleteSetClick: ((Int, Int) -> Unit)?
+    onDeleteSetClick: ((Int, Int) -> Unit)?,
+    onSetTechniqueClick: ((Int, Int, ExerciseSet) -> Unit)?,
+    allowAdvancedSetTechnique: Boolean
 ) {
     if (exerciseSets.isEmpty()) return
 
@@ -547,9 +683,13 @@ private fun SetsTable(
             exerciseSets = exerciseSets,
             workoutViewModel = workoutViewModel,
             onSetStatusClick = onSetStatusClick,
-            onDeleteSetClick = onDeleteSetClick
+            onDeleteSetClick = onDeleteSetClick,
+            onSetTechniqueClick = onSetTechniqueClick,
+            allowAdvancedSetTechnique = allowAdvancedSetTechnique
         )
     }
+
+    AdvancedSetSummary(exerciseSets = exerciseSets)
 }
 
 @Composable
@@ -558,7 +698,9 @@ private fun StatusColumn(
     exerciseSets: List<ExerciseSet>,
     workoutViewModel: WorkoutViewModel,
     onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
-    onDeleteSetClick: ((Int, Int) -> Unit)?
+    onDeleteSetClick: ((Int, Int) -> Unit)?,
+    onSetTechniqueClick: ((Int, Int, ExerciseSet) -> Unit)?,
+    allowAdvancedSetTechnique: Boolean
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
@@ -653,6 +795,35 @@ private fun StatusColumn(
                         }
                     )
 
+                    if (allowAdvancedSetTechnique) {
+                    DropdownMenuItem(
+                            text = { StatusMenuRow(iconRes = R.drawable.ic_restart, text = stringResource(R.string.normal_set)) },
+                            onClick = {
+                                val newSet = set.toNormalSet()
+                                onSetTechniqueClick?.invoke(exerciseIndex, setIndex, newSet) ?: workoutViewModel.updateActiveWorkoutSet(exerciseIndex, setIndex, newSet)
+                                showStatusMenu = false
+                            }
+                        )
+    
+                        DropdownMenuItem(
+                            text = { StatusMenuRow(iconRes = R.drawable.ic_down, text = stringResource(R.string.drop_set)) },
+                            onClick = {
+                                val newSet = set.toDefaultDropSet()
+                                onSetTechniqueClick?.invoke(exerciseIndex, setIndex, newSet) ?: workoutViewModel.updateActiveWorkoutSet(exerciseIndex, setIndex, newSet)
+                                showStatusMenu = false
+                            }
+                        )
+    
+                        DropdownMenuItem(
+                            text = { StatusMenuRow(iconRes = R.drawable.ic_time, text = stringResource(R.string.cluster_set)) },
+                            onClick = {
+                                val newSet = set.toDefaultClusterSet()
+                                onSetTechniqueClick?.invoke(exerciseIndex, setIndex, newSet) ?: workoutViewModel.updateActiveWorkoutSet(exerciseIndex, setIndex, newSet)
+                                showStatusMenu = false
+                            }
+                        )
+                        }
+
                     if (exerciseSets.size > 1) {
                         DropdownMenuItem(
                             text = {
@@ -677,6 +848,57 @@ private fun StatusColumn(
             }
         }
     }
+}
+
+@Composable
+private fun AdvancedSetSummary(exerciseSets: List<ExerciseSet>) {
+    val advancedSets = exerciseSets.mapIndexedNotNull { index, set ->
+        val summary = when (set.type) {
+            ExerciseSetType.DROP_SET -> set.dropSetParts.joinToString(" → ") { part -> "${formatCompactDecimal(part.weight)}×${part.rep}" }
+            ExerciseSetType.CLUSTER_SET -> set.clusterSetData?.let { cluster ->
+                "${formatCompactDecimal(cluster.weight)} · ${cluster.clusterCount}×${cluster.repsPerCluster} · ${cluster.restBetweenClustersSec}s"
+            }
+            ExerciseSetType.NORMAL -> null
+        }
+        summary?.let { (index + 1) to (set.type to it) }
+    }
+    if (advancedSets.isEmpty()) return
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        advancedSets.forEach { (setNumber, pair) ->
+            val (type, summary) = pair
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TechniqueBadge(text = if (type == ExerciseSetType.DROP_SET) stringResource(R.string.drop_set) else stringResource(R.string.cluster_set))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.advanced_set_summary_format, setNumber, summary),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TechniqueBadge(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+            .padding(horizontal = 8.dp, vertical = 3.dp),
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.primary,
+        maxLines = 1
+    )
 }
 
 @Composable

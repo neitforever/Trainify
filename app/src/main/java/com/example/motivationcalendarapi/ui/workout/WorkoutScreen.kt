@@ -11,6 +11,7 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -22,6 +23,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,13 +69,19 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -167,7 +175,105 @@ fun WorkoutScreen(
 
     val selectedExercises by workoutViewModel.selectedExercises.collectAsState()
     val exerciseSetsMap by workoutViewModel.exerciseSetsMap.collectAsState()
+    val exerciseCardBounds = remember { mutableStateMapOf<Int, Rect>() }
+    val workoutContentScrollState = rememberScrollState()
+    var draggedExerciseIndex by remember { mutableStateOf<Int?>(null) }
+    var draggedExerciseY by remember { mutableStateOf<Float?>(null) }
+    var draggedExerciseStartY by remember { mutableStateOf<Float?>(null) }
+    var draggedExerciseFingerY by remember { mutableStateOf<Float?>(null) }
+    var draggedExerciseAnchorDeltaY by remember { mutableStateOf(0f) }
+    var draggedExerciseOffsetY by remember { mutableStateOf(0f) }
+    var draggedExerciseInsertIndex by remember { mutableStateOf<Int?>(null) }
+    var draggedExerciseMergeTargetIndex by remember { mutableStateOf<Int?>(null) }
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val autoScrollThresholdPx = with(density) { 96.dp.toPx() }
+    val autoScrollStepPx = with(density) { 36.dp.toPx() }
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
 
+    fun resolveExerciseDrop(y: Float): Pair<Int?, Int> {
+        val sourceIndex = draggedExerciseIndex
+        val draggedGroupId = sourceIndex?.let { selectedExercises.getOrNull(it)?.supersetGroupId }
+        val draggedIndices = selectedExercises.mapIndexedNotNull { index, item ->
+            when {
+                sourceIndex == null -> null
+                draggedGroupId != null && item.supersetGroupId == draggedGroupId -> index
+                index == sourceIndex -> index
+                else -> null
+            }
+        }.toSet()
+        val bounds = exerciseCardBounds.toList().sortedBy { it.second.top }
+        val targetIndex = bounds.firstOrNull { (index, rect) ->
+            index !in draggedIndices && y in (rect.top + rect.height * 0.28f)..(rect.bottom - rect.height * 0.28f)
+        }?.first
+        if (targetIndex != null) return targetIndex to targetIndex
+        val insertIndex = bounds.count { (_, rect) -> y > rect.center.y }.coerceIn(0, selectedExercises.size)
+        return null to insertIndex
+    }
+
+    fun updateExerciseDragPreview(y: Float) {
+        val (targetIndex, insertIndex) = resolveExerciseDrop(y)
+        draggedExerciseMergeTargetIndex = targetIndex
+        draggedExerciseInsertIndex = if (targetIndex == null) insertIndex else null
+    }
+
+    fun draggedExerciseBlockBounds(sourceIndex: Int?): Rect? {
+        if (sourceIndex == null) return null
+        val sourceExercise = selectedExercises.getOrNull(sourceIndex) ?: return exerciseCardBounds[sourceIndex]
+        val groupId = sourceExercise.supersetGroupId
+        val indices = if (groupId == null) {
+            listOf(sourceIndex)
+        } else {
+            selectedExercises.mapIndexedNotNull { index, item -> if (item.supersetGroupId == groupId) index else null }
+        }
+        val bounds = indices.mapNotNull { exerciseCardBounds[it] }
+        if (bounds.isEmpty()) return exerciseCardBounds[sourceIndex]
+        return Rect(
+            left = bounds.minOf { it.left },
+            top = bounds.minOf { it.top },
+            right = bounds.maxOf { it.right },
+            bottom = bounds.maxOf { it.bottom }
+        )
+    }
+
+    fun visibleExerciseDragOffset(rawOffset: Float, sourceIndex: Int?): Float {
+        val bounds = draggedExerciseBlockBounds(sourceIndex) ?: return rawOffset
+        val topLimit = with(density) { 8.dp.toPx() }
+        val bottomLimit = screenHeightPx - with(density) { 8.dp.toPx() }
+        val minOffset = topLimit - bounds.top
+        val maxOffset = bottomLimit - bounds.bottom
+        val lower = minOf(minOffset, maxOffset)
+        val upper = maxOf(minOffset, maxOffset)
+        return rawOffset.coerceIn(lower, upper)
+    }
+
+    fun draggedExerciseDropY(sourceIndex: Int?, visibleOffset: Float): Float {
+        val bounds = draggedExerciseBlockBounds(sourceIndex)
+        return if (bounds != null) bounds.center.y + visibleOffset else draggedExerciseFingerY ?: 0f
+    }
+
+    LaunchedEffect(draggedExerciseIndex, draggedExerciseFingerY) {
+        while (draggedExerciseIndex != null) {
+            val fingerY = draggedExerciseFingerY
+            val autoScrollDelta = when {
+                fingerY == null -> 0f
+                fingerY < autoScrollThresholdPx -> -autoScrollStepPx
+                fingerY > screenHeightPx - autoScrollThresholdPx -> autoScrollStepPx
+                else -> 0f
+            }
+            if (autoScrollDelta != 0f) {
+                workoutContentScrollState.scrollBy(autoScrollDelta)
+                draggedExerciseFingerY?.let { currentFingerY ->
+                    val projectedCardCenterY = currentFingerY - draggedExerciseAnchorDeltaY
+                    draggedExerciseY = projectedCardCenterY
+                    updateExerciseDragPreview(projectedCardCenterY)
+                }
+                delay(16L)
+            } else {
+                delay(32L)
+            }
+        }
+    }
 
     val minCardioTime by workoutViewModel.minCardioTime.collectAsState()
     val maxCardioTime by workoutViewModel.maxCardioTime.collectAsState()
@@ -465,7 +571,7 @@ fun WorkoutScreen(
                                 start = 8.dp,
                                 end = 8.dp
                             )
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(workoutContentScrollState)
                     ) {
                         Spacer(modifier = Modifier.height(8.dp))
                         WorkoutNameTextField(
@@ -514,6 +620,38 @@ fun WorkoutScreen(
                             onEditTimeClick = { showTimerDialog = true })
 
                         selectedExercises.forEachIndexed { index, exercise ->
+                            val currentGroupId = exercise.supersetGroupId
+                            val isSupersetFirst = currentGroupId == null || index == 0 || selectedExercises[index - 1].supersetGroupId != currentGroupId
+                            val isSupersetLast = currentGroupId == null || index == selectedExercises.lastIndex || selectedExercises[index + 1].supersetGroupId != currentGroupId
+                            val blockStart = if (currentGroupId == null) index else selectedExercises.indexOfFirst { it.supersetGroupId == currentGroupId }
+                            val blockEnd = if (currentGroupId == null) index else selectedExercises.indexOfLast { it.supersetGroupId == currentGroupId }
+                            val supersetNumber = currentGroupId?.let { groupId -> selectedExercises.take(index + 1).mapNotNull { it.supersetGroupId }.distinct().indexOf(groupId) + 1 }
+
+                            val draggedIndex = draggedExerciseIndex
+                            val draggedGroupId = draggedIndex?.let { selectedExercises.getOrNull(it)?.supersetGroupId }
+                            val isDraggedExercise = draggedIndex == index || (draggedGroupId != null && currentGroupId == draggedGroupId)
+                            val mergeTargetGroupId = draggedExerciseMergeTargetIndex?.let { selectedExercises.getOrNull(it)?.supersetGroupId }
+                            val isExerciseMergeTarget = !isDraggedExercise && (draggedExerciseMergeTargetIndex == index || (mergeTargetGroupId != null && currentGroupId == mergeTargetGroupId))
+                            val exerciseDragVisualOffsetY = if (isDraggedExercise) {
+                                val projectedCenterY = draggedExerciseY
+                                val currentBlockBounds = draggedExerciseBlockBounds(draggedIndex)
+                                if (projectedCenterY != null && currentBlockBounds != null) {
+                                    projectedCenterY - currentBlockBounds.center.y
+                                } else {
+                                    0f
+                                }
+                            } else {
+                                0f
+                            }
+                            val canMoveExerciseUp = if (currentGroupId != null && index > blockStart) true else blockStart > 0
+                            val canMoveExerciseDown = if (currentGroupId != null && index < blockEnd) true else blockEnd < selectedExercises.lastIndex
+
+                            val showInsertionGapBefore = draggedExerciseIndex != null && draggedExerciseInsertIndex == index
+                            val insertionGapBefore by animateDpAsState(
+                                targetValue = if (showInsertionGapBefore) 22.dp else 0.dp,
+                                label = "exerciseInsertGapBefore"
+                            )
+                            Spacer(modifier = Modifier.height(insertionGapBefore))
 
                             ExerciseCard(
                                 index = index,
@@ -549,13 +687,81 @@ fun WorkoutScreen(
                                 },
                                 onMoveUp = { workoutViewModel.moveExerciseUp(index) },
                                 onMoveDown = { workoutViewModel.moveExerciseDown(index) },
-                                canMoveUp = index > 0,
-                                canMoveDown = index < selectedExercises.size - 1,
+                                canMoveUp = canMoveExerciseUp,
+                                canMoveDown = canMoveExerciseDown,
+                                canCreateSupersetWithPrevious = blockStart > 0,
+                                canCreateSupersetWithNext = blockEnd < selectedExercises.lastIndex,
                                 workoutViewModel = workoutViewModel,
                                 navController = navController,
-                                lang = lang
+                                lang = lang,
+                                supersetLabel = supersetNumber?.let { stringResource(R.string.superset_number_format, it) },
+                                isSupersetFirst = isSupersetFirst,
+                                isSupersetLast = isSupersetLast,
+                                supersetBlockStartIndex = blockStart,
+                                supersetBlockEndIndex = blockEnd,
+                                isExerciseDragging = isDraggedExercise,
+                                isExerciseMergeTarget = isExerciseMergeTarget,
+                                exerciseDragOffsetY = exerciseDragVisualOffsetY,
+                                modifier = Modifier.onGloballyPositioned { coordinates ->
+                                    val position = coordinates.positionInRoot()
+                                    exerciseCardBounds[index] = Rect(
+                                        left = position.x,
+                                        top = position.y,
+                                        right = position.x + coordinates.size.width,
+                                        bottom = position.y + coordinates.size.height
+                                    )
+                                },
+                                onExerciseDragStart = { dragIndex, offset ->
+                                    draggedExerciseIndex = dragIndex
+                                    draggedExerciseStartY = null
+                                    draggedExerciseFingerY = null
+                                    draggedExerciseAnchorDeltaY = 0f
+                                    draggedExerciseOffsetY = 0f
+                                    exerciseCardBounds[dragIndex]?.let { rect ->
+                                        val fingerY = rect.top + offset.y
+                                        val blockCenterY = draggedExerciseBlockBounds(dragIndex)?.center?.y ?: rect.center.y
+                                        draggedExerciseAnchorDeltaY = fingerY - blockCenterY
+                                        draggedExerciseStartY = fingerY
+                                        draggedExerciseFingerY = fingerY
+                                        draggedExerciseY = blockCenterY
+                                        updateExerciseDragPreview(blockCenterY)
+                                    }
+                                },
+                                onExerciseDrag = { dragAmount ->
+                                    val fingerY = (draggedExerciseFingerY ?: draggedExerciseStartY ?: 0f) + dragAmount.y
+                                    draggedExerciseFingerY = fingerY
+
+                                    val projectedCardCenterY = fingerY - draggedExerciseAnchorDeltaY
+                                    updateExerciseDragPreview(projectedCardCenterY)
+
+                                    draggedExerciseOffsetY = 0f
+                                    draggedExerciseY = projectedCardCenterY
+                                },
+                                onExerciseDragEnd = {
+                                    val sourceIndex = draggedExerciseIndex
+                                    val dropY = draggedExerciseY
+                                    if (sourceIndex != null && dropY != null) {
+                                        val (targetIndex, insertIndex) = resolveExerciseDrop(dropY)
+                                        workoutViewModel.handleActiveExerciseDragDrop(sourceIndex, targetIndex, insertIndex)
+                                    }
+                                    draggedExerciseIndex = null
+                                    draggedExerciseY = null
+                                    draggedExerciseStartY = null
+                                    draggedExerciseFingerY = null
+                                    draggedExerciseAnchorDeltaY = 0f
+                                    draggedExerciseOffsetY = 0f
+                                    draggedExerciseInsertIndex = null
+                                    draggedExerciseMergeTargetIndex = null
+                                }
                             )
                         }
+                        val showInsertionGapAfterLast = draggedExerciseIndex != null && draggedExerciseInsertIndex == selectedExercises.size
+                        val insertionGapAfterLast by animateDpAsState(
+                            targetValue = if (showInsertionGapAfterLast) 22.dp else 0.dp,
+                            label = "exerciseInsertGapAfterLast"
+                        )
+                        Spacer(modifier = Modifier.height(insertionGapAfterLast))
+
                         AddWorkoutContentCard(
                             hasExercises = selectedExercises.isNotEmpty(),
                             lang = lang,

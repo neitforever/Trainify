@@ -610,4 +610,17 @@
     <string name="advanced_set_summary_format">Set %1$d: %2$s</string>
     <string name="superset_number_format">Superset %1$d</string>
     <string name="superset_same_sets_hint">Same number of sets</string>
+    <string name="advanced_set_number_format">%2$s · set %1$d</string>
+    <string name="drop_set_part_format">Part %1$d</string>
+    <string name="add_drop_set_part">Add Drop</string>
+    <string name="clusters">Clusters</string>
+    <string name="reps_per_cluster">Reps/cluster</string>
+    <string name="cluster_rest">Rest</string>
+    <string name="edit_cluster_rest">Edit cluster rest</string>
+    <string name="seconds_short_value">%1$ds</string>
+    <string name="total_reps">Total reps</string>
+    <string name="part">Part</string>
+    <string name="cluster">Cluster</string>
+    <string name="add_cluster">Add Cluster</string>
+    <string name="delete_part">Delete part</string>
 </resources>

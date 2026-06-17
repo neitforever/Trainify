@@ -397,6 +397,9 @@ internal fun TemplatePreviewEditor(
                         onChange(draft.copy(exercises = updated))
                     }
                 },
+                onSetTechniqueChange = { exerciseIndex, setIndex, newSet ->
+                    updateDraftSet(exerciseIndex, setIndex) { newSet }
+                },
                 exerciseSets = extended.sets,
                 workoutViewModel = workoutViewModel,
                 lang = lang

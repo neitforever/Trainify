@@ -66,6 +66,8 @@ import com.example.motivationcalendarapi.utils.formatExerciseMinutes
 import com.example.motivationcalendarapi.ui.dialogs.FloatMetricDialog
 import com.example.motivationcalendarapi.ui.dialogs.TimeMetricDialog
 import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
+import com.example.motivationcalendarapi.ui.fragments.StatusIcon
+import com.example.motivationcalendarapi.ui.workout.fragments.AdvancedSetReadonlyCard
 import com.motivationcalendar.ui.RepsDialog
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -1044,26 +1046,167 @@ private fun SetBlockTitle(text: String, accent: Boolean) {
 private data class PreviewColumn(val title: String, val field: SetEditField, val value: (ExerciseSet) -> String)
 
 @Composable
-private fun PreviewSetsTable(cardType: ExerciseCardType, exerciseSets: List<ExerciseSet>, options: TemplateUpdateOptions, editable: Boolean, onEditSet: (Int, SetEditField, String, String) -> Unit) {
+private fun PreviewSetsTable(
+    cardType: ExerciseCardType,
+    exerciseSets: List<ExerciseSet>,
+    options: TemplateUpdateOptions,
+    editable: Boolean,
+    onEditSet: (Int, SetEditField, String, String) -> Unit
+) {
     if (exerciseSets.isEmpty()) return
     val columns = when (cardType) {
-        ExerciseCardType.STRENGTH -> listOf(PreviewColumn(stringResource(R.string.rep), SetEditField.Reps) { it.rep.toString() }, PreviewColumn(stringResource(R.string.Weight), SetEditField.Weight) { formatCompactDecimal(it.weight) })
-        ExerciseCardType.BIKE -> listOf(PreviewColumn(stringResource(R.string.time_minutes), SetEditField.Time) { formatExerciseMinutes(it.time) }, PreviewColumn(stringResource(R.string.resistance_level), SetEditField.Resistance) { formatCompactDecimal(it.resistance) })
-        ExerciseCardType.TREADMILL -> listOf(PreviewColumn(stringResource(R.string.time_minutes), SetEditField.Time) { formatExerciseMinutes(it.time) }, PreviewColumn(stringResource(R.string.resistance_level), SetEditField.Resistance) { formatCompactDecimal(it.resistance) }, PreviewColumn(stringResource(R.string.incline_percent), SetEditField.Incline) { formatCompactDecimal(it.incline) })
+        ExerciseCardType.STRENGTH -> listOf(
+            PreviewColumn(stringResource(R.string.rep), SetEditField.Reps) { it.rep.toString() },
+            PreviewColumn(stringResource(R.string.Weight), SetEditField.Weight) { formatCompactDecimal(it.weight) }
+        )
+        ExerciseCardType.BIKE -> listOf(
+            PreviewColumn(stringResource(R.string.time_minutes), SetEditField.Time) { formatExerciseMinutes(it.time) },
+            PreviewColumn(stringResource(R.string.resistance_level), SetEditField.Resistance) { formatCompactDecimal(it.resistance) }
+        )
+        ExerciseCardType.TREADMILL -> listOf(
+            PreviewColumn(stringResource(R.string.time_minutes), SetEditField.Time) { formatExerciseMinutes(it.time) },
+            PreviewColumn(stringResource(R.string.resistance_level), SetEditField.Resistance) { formatCompactDecimal(it.resistance) },
+            PreviewColumn(stringResource(R.string.incline_percent), SetEditField.Incline) { formatCompactDecimal(it.incline) }
+        )
     }
-    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        PreviewTableColumn(stringResource(R.string.set), exerciseSets.mapIndexed { index, _ -> (index + 1).toString() }, false, false) { _, _ -> }
-        columns.forEach { column ->
-            val dimmed = when (column.title) {
-                stringResource(R.string.rep) -> !options.updateReps
-                stringResource(R.string.Weight) -> !options.updateWeight
-                stringResource(R.string.time_minutes) -> !options.updateTime
-                stringResource(R.string.resistance_level) -> !options.updateResistance
-                stringResource(R.string.incline_percent) -> !options.updateIncline
-                else -> false
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PreviewHeaderCell(text = stringResource(R.string.set), modifier = Modifier.width(60.dp))
+            columns.forEach { column ->
+                val dimmed = column.isDimmed(options)
+                PreviewHeaderCell(
+                    text = column.title,
+                    dimmed = dimmed,
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .width(60.dp)
+                )
             }
-            PreviewTableColumn(column.title, exerciseSets.map { column.value(it) }, dimmed, editable) { setIndex, value -> onEditSet(setIndex, column.field, value, column.title) }
+            PreviewHeaderCell(text = stringResource(R.string.status), modifier = Modifier.width(60.dp))
         }
+
+        exerciseSets.forEachIndexed { setIndex, set ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .size(60.dp, 40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "${setIndex + 1}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                columns.forEach { column ->
+                    val dimmed = column.isDimmed(options)
+                    PreviewSetValueCell(
+                        value = column.value(set),
+                        dimmed = dimmed,
+                        editable = editable,
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .padding(bottom = 8.dp)
+                            .width(60.dp)
+                    ) { value ->
+                        onEditSet(setIndex, column.field, value, column.title)
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .width(60.dp)
+                        .height(40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    StatusIcon(status = set.status)
+                }
+            }
+
+            AdvancedSetReadonlyCard(
+                set = set,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            )
+        }
+    }
+}
+
+private fun PreviewColumn.isDimmed(options: TemplateUpdateOptions): Boolean = when (field) {
+    SetEditField.Reps -> !options.updateReps
+    SetEditField.Weight -> !options.updateWeight
+    SetEditField.Time -> !options.updateTime
+    SetEditField.Resistance -> !options.updateResistance
+    SetEditField.Incline -> !options.updateIncline
+}
+
+@Composable
+private fun PreviewHeaderCell(
+    text: String,
+    modifier: Modifier = Modifier,
+    dimmed: Boolean = false
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = if (dimmed) 0.38f else 1f),
+        modifier = modifier.padding(bottom = 8.dp),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+private fun PreviewSetValueCell(
+    value: String,
+    dimmed: Boolean,
+    editable: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: (String) -> Unit
+) {
+    Box(
+        modifier = modifier
+            .height(40.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (dimmed) 0.18f else 0.5f),
+                shape = MaterialTheme.shapes.small
+            )
+            .clickable(enabled = editable && !dimmed) { onClick(value) }
+            .padding(horizontal = 3.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (dimmed) 0.38f else 1f),
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

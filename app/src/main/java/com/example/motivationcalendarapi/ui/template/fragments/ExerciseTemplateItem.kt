@@ -45,7 +45,8 @@ fun ExerciseTemplateItem(
     exerciseDragOffsetY: Float = 0f,
     onExerciseDragStart: ((Int, Offset) -> Unit)? = null,
     onExerciseDrag: ((Offset) -> Unit)? = null,
-    onExerciseDragEnd: (() -> Unit)? = null
+    onExerciseDragEnd: (() -> Unit)? = null,
+    onSetTechniqueChange: ((Int, Int, ExerciseSet) -> Unit)? = null
 ) {
     ExerciseCard(
         index = index,
@@ -81,7 +82,8 @@ fun ExerciseTemplateItem(
         },
         showMaxSetMenu = false,
         onSetTechniqueClick = { exerciseIndex, setIndex, newSet ->
-            workoutViewModel.updateTemplateSet(templateId, exerciseIndex, setIndex, newSet)
+            onSetTechniqueChange?.invoke(exerciseIndex, setIndex, newSet)
+                ?: workoutViewModel.updateTemplateSet(templateId, exerciseIndex, setIndex, newSet)
         },
         onCreateSupersetWithNext = { exerciseIndex ->
             workoutViewModel.createTemplateSupersetWithNext(templateId, exerciseIndex)

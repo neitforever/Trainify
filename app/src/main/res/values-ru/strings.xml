@@ -611,4 +611,17 @@
     <string name="advanced_set_summary_format">Подход %1$d: %2$s</string>
     <string name="superset_number_format">Суперсет %1$d</string>
     <string name="superset_same_sets_hint">Одинаковое количество подходов</string>
+    <string name="advanced_set_number_format">%2$s · подход %1$d</string>
+    <string name="drop_set_part_format">Часть %1$d</string>
+    <string name="add_drop_set_part">Добавить сброс</string>
+    <string name="clusters">Кластеры</string>
+    <string name="reps_per_cluster">Повт./кластер</string>
+    <string name="cluster_rest">Отдых</string>
+    <string name="edit_cluster_rest">Изменить отдых кластера</string>
+    <string name="seconds_short_value">%1$dс</string>
+    <string name="total_reps">Всего повт.</string>
+    <string name="part">Часть</string>
+    <string name="cluster">Кластер</string>
+    <string name="add_cluster">Добавить кластер</string>
+    <string name="delete_part">Удалить часть</string>
 </resources>

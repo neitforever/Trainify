@@ -44,6 +44,7 @@ import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.ui.fragments.StatusIcon
 import com.example.motivationcalendarapi.utils.formatCompactDecimal
 import com.example.motivationcalendarapi.utils.formatExerciseMinutes
+import com.example.motivationcalendarapi.ui.workout.fragments.AdvancedSetReadonlyCard
 import com.example.motivationcalendarapi.ui.workout.fragments.NoteBottomSheet
 import com.example.motivationcalendarapi.viewmodel.WorkoutViewModel
 
@@ -292,79 +293,127 @@ private fun HistorySetsTable(
 ) {
     if (exerciseSets.isEmpty()) return
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = stringResource(R.string.set),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            HistoryHeaderCell(text = stringResource(R.string.set), modifier = Modifier.width(60.dp))
+            columns.forEach { column ->
+                HistoryHeaderCell(
+                    text = column.title,
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .width(60.dp)
+                )
+            }
+            HistoryHeaderCell(text = stringResource(R.string.status), modifier = Modifier.width(60.dp))
+        }
 
-            exerciseSets.forEachIndexed { setIndex, _ ->
+        exerciseSets.forEachIndexed { setIndex, set ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Box(
                     modifier = Modifier
                         .padding(bottom = 8.dp)
-                        .size(60.dp, 40.dp)
+                        .size(60.dp, 40.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "${setIndex + 1}",
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center
                     )
                 }
-            }
-        }
 
-        columns.forEach { column ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = column.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                exerciseSets.forEach { set ->
-                    val cellValue = column.value(set)
-                    Box(
+                columns.forEach { column ->
+                    HistoryValueCell(
+                        value = column.value(set),
                         modifier = Modifier
                             .padding(horizontal = 4.dp)
                             .padding(bottom = 8.dp)
                             .width(60.dp)
-                            .height(40.dp)
-                            .border(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                shape = MaterialTheme.shapes.small
-                            )
-                    ) {
-                        Text(
-                            text = cellValue,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .padding(horizontal = 3.dp),
-                            style = if (cellValue.isLongTimerCell()) {
-                                MaterialTheme.typography.labelSmall.copy(fontSize = 15.sp, lineHeight = 15.sp, letterSpacing = 0.sp)
-                            } else {
-                                MaterialTheme.typography.bodyLarge
-                            },
-                            maxLines = 1,
-                            softWrap = false,
-                            overflow = TextOverflow.Ellipsis,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .width(60.dp)
+                        .height(40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    StatusIcon(status = set.status)
                 }
             }
-        }
 
-        HistoryStatusColumn(exerciseSets = exerciseSets)
+            AdvancedSetReadonlyCard(
+                set = set,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun HistoryHeaderCell(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onBackground,
+        modifier = modifier.padding(bottom = 12.dp),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+private fun HistoryValueCell(
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(40.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                shape = MaterialTheme.shapes.small
+            )
+            .padding(horizontal = 3.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = value,
+            style = if (value.isLongTimerCell()) {
+                MaterialTheme.typography.labelSmall.copy(fontSize = 15.sp, lineHeight = 15.sp, letterSpacing = 0.sp)
+            } else {
+                MaterialTheme.typography.bodyLarge
+            },
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

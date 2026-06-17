@@ -9,6 +9,7 @@ import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -50,6 +51,9 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.motivationcalendarapi.R
 import com.example.motivationcalendarapi.model.ExerciseCardType
+import com.example.motivationcalendarapi.model.ClusterSetData
+import com.example.motivationcalendarapi.model.ClusterSetPart
+import com.example.motivationcalendarapi.model.DropSetPart
 import com.example.motivationcalendarapi.model.ExerciseSet
 import com.example.motivationcalendarapi.model.ExerciseSetType
 import com.example.motivationcalendarapi.model.ExtendedExercise
@@ -58,6 +62,8 @@ import com.example.motivationcalendarapi.model.getCardType
 import com.example.motivationcalendarapi.model.toDefaultClusterSet
 import com.example.motivationcalendarapi.model.toDefaultDropSet
 import com.example.motivationcalendarapi.model.toNormalSet
+import com.example.motivationcalendarapi.ui.dialogs.TimeMetricDialog
+import com.example.motivationcalendarapi.ui.dialogs.WeightDialog
 import com.example.motivationcalendarapi.ui.fragments.StatusIcon
 import com.example.motivationcalendarapi.ui.workout.fragments.NoteBottomSheet
 import com.example.motivationcalendarapi.utils.formatCompactDecimal
@@ -603,94 +609,251 @@ private fun SetsTable(
 ) {
     if (exerciseSets.isEmpty()) return
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = stringResource(R.string.set),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ExerciseSetHeaderCell(text = stringResource(R.string.set), modifier = Modifier.width(60.dp))
+            columns.forEach { column ->
+                ExerciseSetHeaderCell(
+                    text = column.title,
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .width(60.dp)
+                )
+            }
+            ExerciseSetHeaderCell(text = stringResource(R.string.status), modifier = Modifier.width(60.dp))
+        }
 
-            exerciseSets.forEachIndexed { setIndex, _ ->
+        exerciseSets.forEachIndexed { setIndex, set ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Box(
                     modifier = Modifier
                         .padding(bottom = 8.dp)
-                        .size(60.dp, 40.dp)
+                        .size(60.dp, 40.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "${setIndex + 1}",
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center
                     )
                 }
-            }
-        }
 
-        columns.forEach { column ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = column.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                exerciseSets.forEachIndexed { setIndex, set ->
+                columns.forEach { column ->
                     val cellValue = column.value(set)
-                    Box(
+                    ExerciseSetValueCell(
+                        value = cellValue,
                         modifier = Modifier
                             .padding(horizontal = 4.dp)
                             .padding(bottom = 8.dp)
-                            .width(60.dp)
-                            .height(40.dp)
-                            .border(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                shape = MaterialTheme.shapes.small
-                            )
-                            .clickable {
-                                column.onClick(index, setIndex)
-                            }
-                    ) {
-                        Text(
-                            text = cellValue,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .padding(horizontal = 3.dp),
-                            style = if (cellValue.isLongTimerCell()) {
-                                MaterialTheme.typography.labelSmall.copy(fontSize = 15.sp, lineHeight = 15.sp, letterSpacing = 0.sp)
-                            } else {
-                                MaterialTheme.typography.bodyLarge
-                            },
-                            maxLines = 1,
-                            softWrap = false,
-                            overflow = TextOverflow.Ellipsis,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                            .width(60.dp),
+                        onClick = { column.onClick(index, setIndex) }
+                    )
                 }
+
+                SetStatusActionCell(
+                    exerciseIndex = index,
+                    setIndex = setIndex,
+                    set = set,
+                    exerciseSets = exerciseSets,
+                    workoutViewModel = workoutViewModel,
+                    onSetStatusClick = onSetStatusClick,
+                    onDeleteSetClick = onDeleteSetClick,
+                    onSetTechniqueClick = onSetTechniqueClick,
+                    allowAdvancedSetTechnique = allowAdvancedSetTechnique,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .width(60.dp)
+                        .height(40.dp)
+                )
+            }
+
+            if (allowAdvancedSetTechnique &&
+                (set.type == ExerciseSetType.DROP_SET || set.type == ExerciseSetType.CLUSTER_SET)
+            ) {
+                AdvancedSetsInlineEditor(
+                    exerciseIndex = index,
+                    exerciseSets = exerciseSets,
+                    workoutViewModel = workoutViewModel,
+                    onSetTechniqueClick = onSetTechniqueClick,
+                    targetSetIndex = setIndex
+                )
             }
         }
+    }
+}
 
-        StatusColumn(
-            exerciseIndex = index,
-            exerciseSets = exerciseSets,
-            workoutViewModel = workoutViewModel,
-            onSetStatusClick = onSetStatusClick,
-            onDeleteSetClick = onDeleteSetClick,
-            onSetTechniqueClick = onSetTechniqueClick,
-            allowAdvancedSetTechnique = allowAdvancedSetTechnique
+@Composable
+private fun ExerciseSetHeaderCell(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onBackground,
+        modifier = modifier.padding(bottom = 12.dp),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+private fun ExerciseSetValueCell(
+    value: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .height(40.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                shape = MaterialTheme.shapes.small
+            )
+            .clickable { onClick() }
+            .padding(horizontal = 3.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = value,
+            style = if (value.isLongTimerCell()) {
+                MaterialTheme.typography.labelSmall.copy(fontSize = 15.sp, lineHeight = 15.sp, letterSpacing = 0.sp)
+            } else {
+                MaterialTheme.typography.bodyLarge
+            },
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
         )
     }
-
-    AdvancedSetSummary(exerciseSets = exerciseSets)
 }
+
+@Composable
+private fun SetStatusActionCell(
+    exerciseIndex: Int,
+    setIndex: Int,
+    set: ExerciseSet,
+    exerciseSets: List<ExerciseSet>,
+    workoutViewModel: WorkoutViewModel,
+    onSetStatusClick: ((Int, Int, SetStatus) -> Unit)?,
+    onDeleteSetClick: ((Int, Int) -> Unit)?,
+    onSetTechniqueClick: ((Int, Int, ExerciseSet) -> Unit)?,
+    allowAdvancedSetTechnique: Boolean,
+    modifier: Modifier = Modifier
+) {
+    var showStatusMenu by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .clickable { showStatusMenu = true },
+            contentAlignment = Alignment.Center
+        ) {
+            StatusIcon(status = set.status)
+        }
+
+        DropdownMenu(
+            expanded = showStatusMenu,
+            onDismissRequest = { showStatusMenu = false },
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            DropdownMenuItem(
+                text = { StatusMenuRow(iconRes = R.drawable.ic_warm_up, text = stringResource(R.string.warm_up)) },
+                onClick = {
+                    onSetStatusClick?.invoke(exerciseIndex, setIndex, SetStatus.WARMUP)
+                        ?: workoutViewModel.updateSetStatus(exerciseIndex, setIndex, SetStatus.WARMUP)
+                    showStatusMenu = false
+                }
+            )
+
+            DropdownMenuItem(
+                text = { StatusMenuRow(iconRes = R.drawable.ic_close, text = stringResource(R.string.failed)) },
+                onClick = {
+                    onSetStatusClick?.invoke(exerciseIndex, setIndex, SetStatus.FAILED)
+                        ?: workoutViewModel.updateSetStatus(exerciseIndex, setIndex, SetStatus.FAILED)
+                    showStatusMenu = false
+                }
+            )
+
+            DropdownMenuItem(
+                text = { StatusMenuRow(iconRes = R.drawable.ic_complete, text = stringResource(R.string.completed)) },
+                onClick = {
+                    onSetStatusClick?.invoke(exerciseIndex, setIndex, SetStatus.COMPLETED)
+                        ?: workoutViewModel.updateSetStatus(exerciseIndex, setIndex, SetStatus.COMPLETED)
+                    showStatusMenu = false
+                }
+            )
+
+            if (allowAdvancedSetTechnique) {
+                DropdownMenuItem(
+                    text = { StatusMenuRow(iconRes = R.drawable.ic_restart, text = stringResource(R.string.normal_set)) },
+                    onClick = {
+                        val newSet = set.toNormalSet()
+                        onSetTechniqueClick?.invoke(exerciseIndex, setIndex, newSet)
+                            ?: workoutViewModel.updateActiveWorkoutSet(exerciseIndex, setIndex, newSet)
+                        showStatusMenu = false
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = { StatusMenuRow(iconRes = R.drawable.ic_drop_set, text = stringResource(R.string.drop_set)) },
+                    onClick = {
+                        val newSet = set.toDefaultDropSet()
+                        onSetTechniqueClick?.invoke(exerciseIndex, setIndex, newSet)
+                            ?: workoutViewModel.updateActiveWorkoutSet(exerciseIndex, setIndex, newSet)
+                        showStatusMenu = false
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = { StatusMenuRow(iconRes = R.drawable.ic_cluster_set, text = stringResource(R.string.cluster_set)) },
+                    onClick = {
+                        val newSet = set.toDefaultClusterSet()
+                        onSetTechniqueClick?.invoke(exerciseIndex, setIndex, newSet)
+                            ?: workoutViewModel.updateActiveWorkoutSet(exerciseIndex, setIndex, newSet)
+                        showStatusMenu = false
+                    }
+                )
+            }
+
+            if (exerciseSets.size > 1) {
+                DropdownMenuItem(
+                    text = { StatusMenuRow(iconRes = R.drawable.ic_delete, text = stringResource(R.string.delete_set)) },
+                    onClick = {
+                        onDeleteSetClick?.invoke(exerciseIndex, setIndex)
+                            ?: workoutViewModel.removeExerciseSet(exerciseIndex, setIndex)
+                        showStatusMenu = false
+                    }
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 private fun StatusColumn(
@@ -850,55 +1013,663 @@ private fun StatusColumn(
     }
 }
 
+private sealed class AdvancedSetEditTarget {
+    data class DropWeight(val setIndex: Int, val partIndex: Int, val value: Float) : AdvancedSetEditTarget()
+    data class DropReps(val setIndex: Int, val partIndex: Int, val value: Int) : AdvancedSetEditTarget()
+    data class ClusterWeight(val setIndex: Int, val clusterIndex: Int, val value: Float) : AdvancedSetEditTarget()
+    data class ClusterReps(val setIndex: Int, val clusterIndex: Int, val value: Int) : AdvancedSetEditTarget()
+    data class ClusterRest(val setIndex: Int, val valueSeconds: Int) : AdvancedSetEditTarget()
+}
+
 @Composable
-private fun AdvancedSetSummary(exerciseSets: List<ExerciseSet>) {
+private fun AdvancedSetsInlineEditor(
+    exerciseIndex: Int,
+    exerciseSets: List<ExerciseSet>,
+    workoutViewModel: WorkoutViewModel,
+    onSetTechniqueClick: ((Int, Int, ExerciseSet) -> Unit)?,
+    targetSetIndex: Int? = null
+) {
     val advancedSets = exerciseSets.mapIndexedNotNull { index, set ->
-        val summary = when (set.type) {
-            ExerciseSetType.DROP_SET -> set.dropSetParts.joinToString(" → ") { part -> "${formatCompactDecimal(part.weight)}×${part.rep}" }
-            ExerciseSetType.CLUSTER_SET -> set.clusterSetData?.let { cluster ->
-                "${formatCompactDecimal(cluster.weight)} · ${cluster.clusterCount}×${cluster.repsPerCluster} · ${cluster.restBetweenClustersSec}s"
-            }
-            ExerciseSetType.NORMAL -> null
-        }
-        summary?.let { (index + 1) to (set.type to it) }
+        val isAdvanced = set.type == ExerciseSetType.DROP_SET || set.type == ExerciseSetType.CLUSTER_SET
+        val isTarget = targetSetIndex == null || targetSetIndex == index
+        if (isAdvanced && isTarget) index to set else null
     }
     if (advancedSets.isEmpty()) return
+
+    val minRep by workoutViewModel.minRep.collectAsState()
+    val maxRep by workoutViewModel.maxRep.collectAsState()
+    val stepRep by workoutViewModel.stepRep.collectAsState()
+    val minWeight by workoutViewModel.minWeight.collectAsState()
+    val maxWeight by workoutViewModel.maxWeight.collectAsState()
+    val stepWeight by workoutViewModel.stepWeight.collectAsState()
+
+    var editTarget by remember { mutableStateOf<AdvancedSetEditTarget?>(null) }
+
+    fun updateSet(setIndex: Int, newSet: ExerciseSet) {
+        onSetTechniqueClick?.invoke(exerciseIndex, setIndex, newSet)
+            ?: workoutViewModel.updateActiveWorkoutSet(exerciseIndex, setIndex, newSet)
+    }
+
+    fun normalizeDropSet(set: ExerciseSet, parts: List<DropSetPart>): ExerciseSet {
+        val first = parts.firstOrNull()
+        return set.copy(
+            rep = parts.sumOf { it.rep },
+            weight = first?.weight ?: set.weight,
+            dropSetParts = parts
+        )
+    }
+
+    fun clusterPartsFromSet(set: ExerciseSet): List<ClusterSetPart> {
+        if (set.clusterSetParts.isNotEmpty()) return set.clusterSetParts
+        val cluster = set.clusterSetData ?: ClusterSetData(
+            weight = set.weight,
+            clusterCount = 1,
+            repsPerCluster = set.rep.coerceAtLeast(1),
+            restBetweenClustersSec = 20
+        )
+        return List(cluster.clusterCount.coerceAtLeast(1)) {
+            ClusterSetPart(
+                weight = cluster.weight,
+                rep = cluster.repsPerCluster.coerceAtLeast(1),
+                status = SetStatus.NONE
+            )
+        }
+    }
+
+    fun normalizeClusterSet(set: ExerciseSet, parts: List<ClusterSetPart>): ExerciseSet {
+        val safeParts = parts.ifEmpty {
+            listOf(ClusterSetPart(weight = set.weight, rep = set.rep.coerceAtLeast(1), status = SetStatus.NONE))
+        }
+        val currentRest = set.clusterSetData?.restBetweenClustersSec ?: 20
+        val first = safeParts.first()
+        return set.copy(
+            rep = safeParts.sumOf { it.rep },
+            weight = first.weight,
+            clusterSetParts = safeParts,
+            clusterSetData = ClusterSetData(
+                weight = first.weight,
+                clusterCount = safeParts.size,
+                repsPerCluster = first.rep.coerceAtLeast(1),
+                restBetweenClustersSec = currentRest
+            )
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        advancedSets.forEach { (setNumber, pair) ->
-            val (type, summary) = pair
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TechniqueBadge(text = if (type == ExerciseSetType.DROP_SET) stringResource(R.string.drop_set) else stringResource(R.string.cluster_set))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.advanced_set_summary_format, setNumber, summary),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+        advancedSets.forEach { (setIndex, set) ->
+            when (set.type) {
+                ExerciseSetType.DROP_SET -> DropSetInlineEditor(
+                    set = set,
+                    onEditWeight = { partIndex, value ->
+                        editTarget = AdvancedSetEditTarget.DropWeight(setIndex, partIndex, value)
+                    },
+                    onEditReps = { partIndex, value ->
+                        editTarget = AdvancedSetEditTarget.DropReps(setIndex, partIndex, value)
+                    },
+                    onStatusChange = { partIndex, status ->
+                        val parts = set.dropSetParts.toMutableList()
+                        if (partIndex in parts.indices) {
+                            parts[partIndex] = parts[partIndex].copy(status = status)
+                            updateSet(setIndex, normalizeDropSet(set, parts))
+                        }
+                    },
+                    onAddPart = {
+                        val last = set.dropSetParts.lastOrNull() ?: DropSetPart(weight = set.weight, rep = set.rep.coerceAtLeast(1), status = SetStatus.NONE)
+                        val next = DropSetPart(
+                            weight = (last.weight * 0.8f).coerceAtLeast(minWeight),
+                            rep = last.rep.coerceAtLeast(minRep.coerceAtLeast(1)),
+                            status = SetStatus.NONE
+                        )
+                        updateSet(setIndex, normalizeDropSet(set, set.dropSetParts + next))
+                    },
+                    onRemovePart = { partIndex ->
+                        if (set.dropSetParts.size > 1) {
+                            val updated = set.dropSetParts.toMutableList().apply { removeAt(partIndex) }
+                            updateSet(setIndex, normalizeDropSet(set, updated))
+                        }
+                    }
                 )
+
+                ExerciseSetType.CLUSTER_SET -> {
+                    val clusterParts = clusterPartsFromSet(set)
+                    ClusterSetInlineEditor(
+                        set = set,
+                        clusterParts = clusterParts,
+                        onEditWeight = { clusterIndex, value -> editTarget = AdvancedSetEditTarget.ClusterWeight(setIndex, clusterIndex, value) },
+                        onEditReps = { clusterIndex, value -> editTarget = AdvancedSetEditTarget.ClusterReps(setIndex, clusterIndex, value) },
+                        onEditRest = { seconds -> editTarget = AdvancedSetEditTarget.ClusterRest(setIndex, seconds) },
+                        onStatusChange = { clusterIndex, status ->
+                            val parts = clusterParts.toMutableList()
+                            if (clusterIndex in parts.indices) {
+                                parts[clusterIndex] = parts[clusterIndex].copy(status = status)
+                                updateSet(setIndex, normalizeClusterSet(set, parts))
+                            }
+                        },
+                        onAddCluster = {
+                            val last = clusterParts.lastOrNull() ?: ClusterSetPart(weight = set.weight, rep = set.rep.coerceAtLeast(1), status = SetStatus.NONE)
+                            val next = last.copy(status = SetStatus.NONE)
+                            updateSet(setIndex, normalizeClusterSet(set, clusterParts + next))
+                        },
+                        onRemoveCluster = { clusterIndex ->
+                            if (clusterParts.size > 1) {
+                                val updated = clusterParts.toMutableList().apply { removeAt(clusterIndex) }
+                                updateSet(setIndex, normalizeClusterSet(set, updated))
+                            }
+                        }
+                    )
+                }
+
+                ExerciseSetType.NORMAL -> Unit
             }
+        }
+    }
+
+    when (val target = editTarget) {
+        is AdvancedSetEditTarget.DropWeight -> WeightDialog(
+            showDialog = true,
+            initialWeight = target.value,
+            minWeight = minWeight,
+            maxWeight = maxWeight,
+            stepWeight = stepWeight,
+            onDismiss = { editTarget = null },
+            onSave = { newWeight ->
+                val set = exerciseSets.getOrNull(target.setIndex)
+                if (set != null) {
+                    val parts = set.dropSetParts.toMutableList()
+                    if (target.partIndex in parts.indices) {
+                        parts[target.partIndex] = parts[target.partIndex].copy(weight = newWeight)
+                        updateSet(target.setIndex, normalizeDropSet(set, parts))
+                    }
+                }
+                editTarget = null
+            }
+        )
+
+        is AdvancedSetEditTarget.DropReps -> RepsDialog(
+            showDialog = true,
+            initialRep = target.value,
+            minRep = minRep,
+            maxRep = maxRep,
+            stepRep = stepRep,
+            onDismiss = { editTarget = null },
+            onSave = { newRep ->
+                val set = exerciseSets.getOrNull(target.setIndex)
+                if (set != null) {
+                    val parts = set.dropSetParts.toMutableList()
+                    if (target.partIndex in parts.indices) {
+                        parts[target.partIndex] = parts[target.partIndex].copy(rep = newRep)
+                        updateSet(target.setIndex, normalizeDropSet(set, parts))
+                    }
+                }
+                editTarget = null
+            }
+        )
+
+
+        is AdvancedSetEditTarget.ClusterWeight -> WeightDialog(
+            showDialog = true,
+            initialWeight = target.value,
+            minWeight = minWeight,
+            maxWeight = maxWeight,
+            stepWeight = stepWeight,
+            onDismiss = { editTarget = null },
+            onSave = { newWeight ->
+                val set = exerciseSets.getOrNull(target.setIndex)
+                if (set != null) {
+                    val parts = clusterPartsFromSet(set).toMutableList()
+                    if (target.clusterIndex in parts.indices) {
+                        parts[target.clusterIndex] = parts[target.clusterIndex].copy(weight = newWeight)
+                        updateSet(target.setIndex, normalizeClusterSet(set, parts))
+                    }
+                }
+                editTarget = null
+            }
+        )
+
+        is AdvancedSetEditTarget.ClusterReps -> RepsDialog(
+            showDialog = true,
+            initialRep = target.value,
+            minRep = minRep,
+            maxRep = maxRep,
+            stepRep = stepRep,
+            onDismiss = { editTarget = null },
+            onSave = { newReps ->
+                val set = exerciseSets.getOrNull(target.setIndex)
+                if (set != null) {
+                    val parts = clusterPartsFromSet(set).toMutableList()
+                    if (target.clusterIndex in parts.indices) {
+                        parts[target.clusterIndex] = parts[target.clusterIndex].copy(rep = newReps)
+                        updateSet(target.setIndex, normalizeClusterSet(set, parts))
+                    }
+                }
+                editTarget = null
+            }
+        )
+
+
+        is AdvancedSetEditTarget.ClusterRest -> TimeMetricDialog(
+            showDialog = true,
+            title = stringResource(R.string.edit_cluster_rest),
+            initialValueMinutes = target.valueSeconds / 60f,
+            minValueMinutes = 0f,
+            maxValueMinutes = 5f,
+            stepValueMinutes = 1f / 60f,
+            onDismiss = { editTarget = null },
+            onSave = { newMinutes ->
+                val set = exerciseSets.getOrNull(target.setIndex)
+                if (set != null) {
+                    val cluster = set.clusterSetData ?: ClusterSetData()
+                    val seconds = (newMinutes * 60f).toInt().coerceAtLeast(0)
+                    updateSet(target.setIndex, set.copy(clusterSetData = cluster.copy(restBetweenClustersSec = seconds)))
+                }
+                editTarget = null
+            }
+        )
+
+        null -> Unit
+    }
+}
+
+@Composable
+private fun DropSetInlineEditor(
+    set: ExerciseSet,
+    onEditWeight: (Int, Float) -> Unit,
+    onEditReps: (Int, Int) -> Unit,
+    onStatusChange: (Int, SetStatus) -> Unit,
+    onAddPart: () -> Unit,
+    onRemovePart: (Int) -> Unit
+) {
+    AdvancedSetContainer(
+        title = stringResource(R.string.drop_set),
+        iconRes = R.drawable.ic_drop_set
+    ) {
+        AdvancedSetHeader(
+            first = stringResource(R.string.part),
+            second = stringResource(R.string.rep),
+            third = stringResource(R.string.Weight),
+            fourth = stringResource(R.string.status)
+        )
+
+        set.dropSetParts.forEachIndexed { partIndex, part ->
+            AdvancedSetRow(
+                firstValue = (partIndex + 1).toString(),
+                repValue = part.rep.toString(),
+                weightValue = "%.1f".format(part.weight),
+                status = part.status,
+                onRepClick = { onEditReps(partIndex, part.rep) },
+                onWeightClick = { onEditWeight(partIndex, part.weight) },
+                onStatusChange = { onStatusChange(partIndex, it) },
+                onDelete = { onRemovePart(partIndex) },
+                deleteEnabled = set.dropSetParts.size > 1
+            )
+        }
+
+        AdvancedAddButton(
+            text = stringResource(R.string.add_drop_set_part),
+            onClick = onAddPart
+        )
+    }
+}
+
+@Composable
+private fun ClusterSetInlineEditor(
+    set: ExerciseSet,
+    clusterParts: List<ClusterSetPart>,
+    onEditWeight: (Int, Float) -> Unit,
+    onEditReps: (Int, Int) -> Unit,
+    onEditRest: (Int) -> Unit,
+    onStatusChange: (Int, SetStatus) -> Unit,
+    onAddCluster: () -> Unit,
+    onRemoveCluster: (Int) -> Unit
+) {
+    val rest = set.clusterSetData?.restBetweenClustersSec ?: 20
+    AdvancedSetContainer(
+        title = stringResource(R.string.cluster_set),
+        iconRes = R.drawable.ic_cluster_set
+    ) {
+        AdvancedSetCell(
+            title = stringResource(R.string.cluster_rest),
+            value = stringResource(R.string.seconds_short_value, rest),
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { onEditRest(rest) }
+        )
+
+        AdvancedSetHeader(
+            first = stringResource(R.string.part),
+            second = stringResource(R.string.rep),
+            third = stringResource(R.string.Weight),
+            fourth = stringResource(R.string.status)
+        )
+
+        clusterParts.forEachIndexed { clusterIndex, cluster ->
+            AdvancedSetRow(
+                firstValue = (clusterIndex + 1).toString(),
+                repValue = cluster.rep.toString(),
+                weightValue = "%.1f".format(cluster.weight),
+                status = cluster.status,
+                onRepClick = { onEditReps(clusterIndex, cluster.rep) },
+                onWeightClick = { onEditWeight(clusterIndex, cluster.weight) },
+                onStatusChange = { onStatusChange(clusterIndex, it) },
+                onDelete = { onRemoveCluster(clusterIndex) },
+                deleteEnabled = clusterParts.size > 1
+            )
+        }
+
+        AdvancedAddButton(
+            text = stringResource(R.string.add_cluster),
+            onClick = onAddCluster
+        )
+    }
+}
+
+@Composable
+private fun AdvancedSetHeader(
+    first: String,
+    second: String,
+    third: String,
+    fourth: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        AdvancedHeaderText(text = first, modifier = Modifier.width(54.dp))
+        AdvancedHeaderText(text = second, modifier = Modifier.weight(1f))
+        AdvancedHeaderText(text = third, modifier = Modifier.weight(1f))
+        AdvancedHeaderText(text = fourth, modifier = Modifier.width(64.dp))
+    }
+}
+
+@Composable
+private fun AdvancedHeaderText(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onBackground,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+private fun AdvancedSetRow(
+    firstValue: String,
+    repValue: String,
+    weightValue: String,
+    status: SetStatus,
+    onRepClick: () -> Unit,
+    onWeightClick: () -> Unit,
+    onStatusChange: (SetStatus) -> Unit,
+    onDelete: () -> Unit,
+    deleteEnabled: Boolean
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        AdvancedSetPlainCell(
+            value = firstValue,
+            modifier = Modifier.width(54.dp)
+        )
+        AdvancedSetValueCell(
+            value = repValue,
+            modifier = Modifier.weight(1f),
+            onClick = onRepClick
+        )
+        AdvancedSetValueCell(
+            value = weightValue,
+            modifier = Modifier.weight(1f),
+            onClick = onWeightClick
+        )
+        AdvancedSetStatusCell(
+            status = status,
+            onStatusChange = onStatusChange,
+            onDelete = onDelete,
+            deleteEnabled = deleteEnabled,
+            modifier = Modifier.width(64.dp)
+        )
+    }
+}
+
+@Composable
+private fun AdvancedSetPlainCell(
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(40.dp)
+            .padding(horizontal = 3.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun AdvancedSetValueCell(
+    value: String,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)?
+) {
+    val clickableModifier = if (onClick != null) Modifier.clickable { onClick() } else Modifier
+    Box(
+        modifier = modifier
+            .height(40.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                shape = MaterialTheme.shapes.small
+            )
+            .then(clickableModifier)
+            .padding(horizontal = 0.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = value,
+            style = if (value.isLongTimerCell()) {
+                MaterialTheme.typography.labelSmall.copy(fontSize = 15.sp, lineHeight = 15.sp, letterSpacing = 0.sp)
+            } else {
+                MaterialTheme.typography.bodyLarge
+            },
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun AdvancedSetStatusCell(
+    status: SetStatus,
+    onStatusChange: (SetStatus) -> Unit,
+    onDelete: () -> Unit,
+    deleteEnabled: Boolean,
+    modifier: Modifier = Modifier
+) {
+    var showStatusMenu by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .height(40.dp)
+                .fillMaxWidth()
+                .clickable { showStatusMenu = true },
+            contentAlignment = Alignment.Center
+        ) {
+            StatusIcon(status = status)
+        }
+
+        DropdownMenu(
+            expanded = showStatusMenu,
+            onDismissRequest = { showStatusMenu = false },
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            DropdownMenuItem(
+                text = { StatusMenuRow(iconRes = R.drawable.ic_warm_up, text = stringResource(R.string.warm_up)) },
+                onClick = {
+                    onStatusChange(SetStatus.WARMUP)
+                    showStatusMenu = false
+                }
+            )
+            DropdownMenuItem(
+                text = { StatusMenuRow(iconRes = R.drawable.ic_close, text = stringResource(R.string.failed)) },
+                onClick = {
+                    onStatusChange(SetStatus.FAILED)
+                    showStatusMenu = false
+                }
+            )
+            DropdownMenuItem(
+                text = { StatusMenuRow(iconRes = R.drawable.ic_complete, text = stringResource(R.string.completed)) },
+                onClick = {
+                    onStatusChange(SetStatus.COMPLETED)
+                    showStatusMenu = false
+                }
+            )
+            DropdownMenuItem(
+                enabled = deleteEnabled,
+                text = { StatusMenuRow(iconRes = R.drawable.ic_delete, text = stringResource(R.string.delete_part)) },
+                onClick = {
+                    if (deleteEnabled) onDelete()
+                    showStatusMenu = false
+                }
+            )
         }
     }
 }
 
 @Composable
-private fun TechniqueBadge(text: String) {
-    Text(
-        text = text,
+private fun AdvancedAddButton(
+    text: String,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 2.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.clickable { onClick() }
+        )
+    }
+}
+
+@Composable
+private fun AdvancedSetContainer(
+    title: String,
+    iconRes: Int,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.44f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            TechniqueBadge(text = title, iconRes = iconRes)
+            content()
+        }
+    }
+}
+
+@Composable
+private fun AdvancedSetCell(
+    title: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .height(54.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                shape = MaterialTheme.shapes.small
+            )
+            .clickable { onClick() }
+            .padding(horizontal = 6.dp, vertical = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun TechniqueBadge(
+    text: String,
+    iconRes: Int? = null
+) {
+    Row(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
             .padding(horizontal = 8.dp, vertical = 3.dp),
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.primary,
-        maxLines = 1
-    )
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        if (iconRes != null) {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = text,
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }
 
 @Composable

@@ -28,7 +28,14 @@ enum class ExerciseSetType {
 
 data class DropSetPart(
     val weight: Float = 0f,
-    val rep: Int = 0
+    val rep: Int = 0,
+    val status: SetStatus = SetStatus.NONE
+)
+
+data class ClusterSetPart(
+    val weight: Float = 0f,
+    val rep: Int = 0,
+    val status: SetStatus = SetStatus.NONE
 )
 
 data class ClusterSetData(
@@ -49,13 +56,15 @@ data class ExerciseSet(
     val status: SetStatus = SetStatus.NONE,
     val type: ExerciseSetType = ExerciseSetType.NORMAL,
     val dropSetParts: List<DropSetPart> = emptyList(),
-    val clusterSetData: ClusterSetData? = null
+    val clusterSetData: ClusterSetData? = null,
+    val clusterSetParts: List<ClusterSetPart> = emptyList()
 )
 
 fun ExerciseSet.toNormalSet(): ExerciseSet = copy(
     type = ExerciseSetType.NORMAL,
     dropSetParts = emptyList(),
-    clusterSetData = null
+    clusterSetData = null,
+    clusterSetParts = emptyList()
 )
 
 fun ExerciseSet.toDefaultDropSet(): ExerciseSet {
@@ -71,7 +80,8 @@ fun ExerciseSet.toDefaultDropSet(): ExerciseSet {
             DropSetPart(weight = firstWeight, rep = secondRep),
             DropSetPart(weight = secondWeight, rep = secondRep)
         ),
-        clusterSetData = null
+        clusterSetData = null,
+        clusterSetParts = emptyList()
     )
 }
 
@@ -89,7 +99,14 @@ fun ExerciseSet.toDefaultClusterSet(): ExerciseSet {
             clusterCount = clusterCount,
             repsPerCluster = repsPerCluster,
             restBetweenClustersSec = 20
-        )
+        ),
+        clusterSetParts = List(clusterCount) {
+            ClusterSetPart(
+                weight = weight.coerceAtLeast(0f),
+                rep = repsPerCluster,
+                status = SetStatus.NONE
+            )
+        }
     )
 }
 

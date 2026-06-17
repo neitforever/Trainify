@@ -1315,7 +1315,12 @@ class WorkoutViewModel(
                 }
             } else current.dropSetParts
             val syncedCluster = current.clusterSetData?.copy(repsPerCluster = newRep.coerceAtLeast(1), clusterCount = 1)
-            sets[setIndex] = current.copy(rep = newRep, dropSetParts = syncedDropParts, clusterSetData = syncedCluster)
+            val syncedClusterParts = if (current.clusterSetParts.isNotEmpty()) {
+                current.clusterSetParts.toMutableList().also { parts ->
+                    parts[0] = parts[0].copy(rep = newRep.coerceAtLeast(1))
+                }
+            } else current.clusterSetParts
+            sets[setIndex] = current.copy(rep = newRep, dropSetParts = syncedDropParts, clusterSetData = syncedCluster, clusterSetParts = syncedClusterParts)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
             persistActiveWorkout()
@@ -1333,7 +1338,12 @@ class WorkoutViewModel(
                 }
             } else current.dropSetParts
             val syncedCluster = current.clusterSetData?.copy(weight = newWeight)
-            sets[setIndex] = current.copy(weight = newWeight, dropSetParts = syncedDropParts, clusterSetData = syncedCluster)
+            val syncedClusterParts = if (current.clusterSetParts.isNotEmpty()) {
+                current.clusterSetParts.toMutableList().also { parts ->
+                    parts[0] = parts[0].copy(weight = newWeight)
+                }
+            } else current.clusterSetParts
+            sets[setIndex] = current.copy(weight = newWeight, dropSetParts = syncedDropParts, clusterSetData = syncedCluster, clusterSetParts = syncedClusterParts)
             updatedMap[exerciseIndex] = sets
             _exerciseSetsMap.value = updatedMap
             persistActiveWorkout()
@@ -1424,9 +1434,12 @@ class WorkoutViewModel(
     private fun ExerciseSet.strengthVolume(): Double = when (type) {
         com.example.motivationcalendarapi.model.ExerciseSetType.DROP_SET -> dropSetParts.sumOf { it.weight.toDouble() * it.rep.toDouble() }
         com.example.motivationcalendarapi.model.ExerciseSetType.CLUSTER_SET -> {
-            val cluster = clusterSetData
-            if (cluster != null) cluster.weight.toDouble() * cluster.clusterCount.toDouble() * cluster.repsPerCluster.toDouble()
-            else weight.toDouble() * rep.toDouble()
+            if (clusterSetParts.isNotEmpty()) clusterSetParts.sumOf { it.weight.toDouble() * it.rep.toDouble() }
+            else {
+                val cluster = clusterSetData
+                if (cluster != null) cluster.weight.toDouble() * cluster.clusterCount.toDouble() * cluster.repsPerCluster.toDouble()
+                else weight.toDouble() * rep.toDouble()
+            }
         }
         com.example.motivationcalendarapi.model.ExerciseSetType.NORMAL -> weight.toDouble() * rep.toDouble()
     }

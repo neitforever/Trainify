@@ -614,4 +614,17 @@
     <string name="advanced_set_summary_format">Падыход %1$d: %2$s</string>
     <string name="superset_number_format">Суперсет %1$d</string>
     <string name="superset_same_sets_hint">Аднолькавая колькасць падыходаў</string>
+    <string name="advanced_set_number_format">%2$s · падыход %1$d</string>
+    <string name="drop_set_part_format">Частка %1$d</string>
+    <string name="add_drop_set_part">Дадаць скід</string>
+    <string name="clusters">Кластары</string>
+    <string name="reps_per_cluster">Паўт./кластар</string>
+    <string name="cluster_rest">Адпачынак</string>
+    <string name="edit_cluster_rest">Змяніць адпачынак кластара</string>
+    <string name="seconds_short_value">%1$d с</string>
+    <string name="total_reps">Усяго паўт.</string>
+    <string name="part">Частка</string>
+    <string name="cluster">Кластар</string>
+    <string name="add_cluster">Дадаць кластар</string>
+    <string name="delete_part">Выдаліць частку</string>
 </resources>
